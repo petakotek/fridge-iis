@@ -1,64 +1,88 @@
 Nette Web Project
 =================
 
-Welcome to the Nette Web Project! This is a basic skeleton application built using
-[Nette](https://nette.org), ideal for kick-starting your new web projects.
+## Databázové migrace
 
-Nette is a renowned PHP web development framework, celebrated for its user-friendliness,
-robust security, and outstanding performance. It's among the safest choices
-for PHP frameworks out there.
+Změny databázového schématu spravujeme pomocí Doctrine Migrations. Migrační soubory
+jsou uložené v `src/migrations` a verzujeme je v Gitu.
 
-If Nette helps you, consider supporting it by [making a donation](https://nette.org/donate).
-Thank you for your generosity!
+Všechny příkazy níže spouštěj **z kořene repozitáře**, kde se nachází složka
+`.development`, nikoliv ze složky `src`, ve které je tento README.
 
+### Po stažení změn z Gitu
 
-Requirements
-------------
+Při prvním spuštění projektu připrav `src/.env` podle `src/.env.example`
+a nastav připojení k databázi. Existující `.env` nepřepisuj; případné nové
+proměnné doplň podle ukázkového souboru.
 
-This Web Project is compatible with Nette 3.2 and requires PHP 8.2.
+Spusť PHP kontejner a databázi:
 
+```bash
+docker compose -f .development/compose.yaml up -d php
+```
 
-Installation
-------------
+Nainstaluj závislosti podle aktuálního `composer.lock`:
 
-To install the Web Project, Composer is the recommended tool. If you're new to Composer,
-follow [these instructions](https://doc.nette.org/composer). Then, run:
+```bash
+docker compose -f .development/compose.yaml exec php composer install
+```
 
-	composer create-project nette/web-project path/to/install
-	cd path/to/install
+Aplikuj dosud neprovedené migrace:
 
-Ensure the `temp/` and `log/` directories are writable.
+```bash
+docker compose -f .development/compose.yaml exec php php vendor/bin/doctrine-migrations migrate
+```
 
+Doctrine eviduje provedené migrace v databázi a již aplikované migrace znovu
+nespouští. **Po `git pull` negeneruj novou migraci pro změny, které už mají
+migrační soubor.**
 
-Asset Building with Vite
-------------------------
+Aktuální stav zobrazíš příkazem:
 
-This project supports Vite for asset building, which is recommended but optional. To activate Vite:
+```bash
+docker compose -f .development/compose.yaml exec php php vendor/bin/doctrine-migrations status
+```
 
-1. Uncomment the `type: vite` line in the `common.neon` configuration file under the assets mapping section.
-2. Then set up and build the assets:
+### Vytvoření nové migrace po změně entity
 
-		npm install
-		npm run build
+Nejprve aplikuj existující migrace podle předchozího postupu, aby lokální databáze
+odpovídala aktuálnímu stavu projektu. Potom uprav mapování entit a ověř jeho
+správnost:
 
+```bash
+docker compose -f .development/compose.yaml exec php php bin/check_doctrine.php
+```
 
-Web Server Setup
-----------------
+Vygeneruj novou migraci:
 
-To quickly dive in, use PHP's built-in server:
+```bash
+docker compose -f .development/compose.yaml exec php php vendor/bin/doctrine-migrations diff
+```
 
-	php -S localhost:8000 -t www
+Příkaz porovná mapování entit s aktuální databází a vytvoří soubor v
+`src/migrations`. Samotné změny databázového schématu ještě neprovede. Díky
+sdílené složce Dockeru se soubor vytvořený v kontejneru objeví i lokálně v projektu.
+Změna běžné PHP metody bez změny mapování migraci nevyžaduje.
 
-Then, open `http://localhost:8000` in your browser to view the welcome page.
+**Vygenerovaný soubor vždy zkontroluj**, zejména mazání tabulek nebo sloupců,
+přejmenování a pravidla cizích klíčů. Automaticky vytvořená migrace může potřebovat
+ruční úpravu nebo doplnění převodu existujících dat.
 
-For Apache or Nginx users, configure a virtual host pointing to your project's `www/` directory.
+SQL před provedením zobrazíš pomocí:
 
-**Important Note:** Ensure `app/`, `config/`, `log/`, and `temp/` directories are not web-accessible.
-Refer to [security warning](https://nette.org/security-warning) for more details.
+```bash
+docker compose -f .development/compose.yaml exec php php vendor/bin/doctrine-migrations migrate --dry-run
+```
 
+Potom migraci aplikuj:
 
-Minimal Skeleton
-----------------
+```bash
+docker compose -f .development/compose.yaml exec php php vendor/bin/doctrine-migrations migrate
+```
 
-For demonstrating issues or similar tasks, rather than starting a new project, use
-[minimal skeleton](https://github.com/nette/web-project/tree/minimal).
+Do stejného commitu zahrň změny entit i nový migrační soubor. Pokud se změnily
+závislosti, přidej také `src/composer.json` a `src/composer.lock`. Již sdílené nebo
+aplikované migrace nepřepisuj; další změny řeš novou migrací.
+
+Před migrací databáze s důležitými daty vytvoř zálohu. Náhled `--dry-run`
+nenahrazuje ověření migrace na testovací databázi.
