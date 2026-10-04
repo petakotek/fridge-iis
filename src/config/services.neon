@@ -1,11 +1,26 @@
 services:
-	- App\Core\RouterFactory::createRouter
+    - App\Core\RouterFactory::createRouter
+    entityManager:
+        create: App\Model\Doctrine\EntityManagerFactory::create
+        arguments:
+            connectionParameters:
+                driver: pdo_mysql
+                host: %env.DB_HOST%
+                port: %env.DB_PORT%
+                dbname: %env.DB_NAME%
+                user: %env.DB_USER%
+                password: %env.DB_PASSWORD%
+                charset: utf8mb4
+            entityDirectory: %appDir%/Model/Entity
+            cacheDirectory: %tempDir%/doctrine
+            debugMode: %debugMode%
 
 
 search:
-	-	in: %appDir%
-		classes:
-			- *Facade
-			- *Factory
-			- *Repository
-			- *Service
+    -
+        in: %appDir%
+        classes:
+            - *Facade
+            - *Factory
+            - *Repository
+            - *Service
