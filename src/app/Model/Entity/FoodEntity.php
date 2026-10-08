@@ -23,7 +23,7 @@ class FoodEntity extends BaseEntity
     private string $barcode;
 
     #[ORM\Column (type: 'decimal', precision: 10, scale: 2)]
-    private string $price;
+    private float $price;
 
     #[ORM\Column (type: 'integer')]
     private int $calories;
@@ -63,9 +63,25 @@ class FoodEntity extends BaseEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
     private ShelfEntity $shelf;
 
-    public function __construct(){
+    public function __construct(string $name,
+                                string $barcode,
+                                float $price,
+                                int $calories,
+                                int $protein,
+                                int $fat,
+                                int $carb,
+                                int $fibre) {
+        $this->name = $name;
+        $this->barcode = $barcode;
+        $this->price = $price;
+        $this->calories = $calories;
+        $this->protein = $protein;
+        $this->fibre = $fibre;
+        $this->carb = $carb;
+        $this->fatt = $fat;
         $this->categories = new ArrayCollection();
     }
+
     public function setExpiry(?DateTime $time): void
     {
         $this->expiry = $time;
@@ -74,6 +90,9 @@ class FoodEntity extends BaseEntity
     public function setConsumed(UserEntity $user): void {
         $this->consumedAt = new DateTime();
         $this->consumer = $user;
+
+        $this->trashed = null;
+        $this->discardedAt = null;
     }
 
     public function setShelf(ShelfEntity $shelf): void {
@@ -110,5 +129,13 @@ class FoodEntity extends BaseEntity
 
     public function getWeight(): ?int {
         return $this->weight;
+    }
+
+    public function setTrashed(): void {
+        $this->consumer = null;
+        $this->consumedAt = null;
+
+        $this->trashed = true;
+        $this->discardedAt = new DateTime();
     }
 }
