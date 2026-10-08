@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Gedmo\Tree\TreeListener;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class EntityManagerFactory
@@ -14,11 +15,14 @@ class EntityManagerFactory
                                   string $entityDirectory,
                                   string $cacheDirectory,
                                   bool $debugMode) : EntityManager {
-        $cache = new FilesystemAdapter(
-            namespace: 'doctrine_metadata',
-            defaultLifetime: 0,
-            directory: $cacheDirectory,
-        );
+        // Development and CLI commands (especially migrations) need current mapping.
+        $cache = $debugMode || PHP_SAPI === 'cli'
+            ? new ArrayAdapter()
+            : new FilesystemAdapter(
+                namespace: 'doctrine_metadata',
+                defaultLifetime: 0,
+                directory: $cacheDirectory,
+            );
 
         $configuration = ORMSetup::createAttributeMetadataConfiguration(
             paths: [$entityDirectory],
