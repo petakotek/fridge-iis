@@ -26,7 +26,8 @@ class HouseholdEntity extends BaseEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
     private ?UserEntity $moderator = null;
 
-    public function __construct(){
+    public function __construct(string $name) {
+        $this->name = $name;
         $this->users = new ArrayCollection();
         $this->appliances = new ArrayCollection();
         $this->categories = new ArrayCollection();
@@ -69,5 +70,17 @@ class HouseholdEntity extends BaseEntity
     /** @return Collection<int, CategoryEntity> */
     public function getCategories(): Collection {
         return $this->categories;
+    }
+
+    public function generateToken(): void {
+        $length = 10;
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        $this->token = $randomString;
     }
 }
