@@ -23,4 +23,22 @@ class ShelfEntity extends BaseEntity
         $this->foods = new ArrayCollection();
         $this->shelfCapacity = $capacity;
     }
+
+    public function setAppliance(ApplianceEntity $appliance): void {
+        $this->appliance = $appliance;
+    }
+
+    public function getAppliance(): ApplianceEntity {
+        return $this->appliance;
+    }
+
+    public function addFood(FoodEntity $food): void {
+        if ($this->shelfCapacity - $food->getWeight() < 0){
+            throw new \DomainException('Food weight is too big for this shelf.');
+        }
+        $food->setShelf($this);
+        if (!$this->foods->contains($food)) {
+            $this->foods->add($food);
+        }
+    }
 }
