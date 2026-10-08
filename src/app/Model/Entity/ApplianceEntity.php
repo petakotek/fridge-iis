@@ -19,13 +19,9 @@ class ApplianceEntity extends BaseEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
     private HouseholdEntity $household;
 
-    public function __construct(){
+    public function __construct(string $name) {
+        $this->name = $name;
         $this->shelves = new ArrayCollection();
-    }
-
-    public function setName(string $name): void {
-        if ($name != "")
-            $this->name = $name;
     }
 
     public function getName(): string {
