@@ -14,11 +14,13 @@ class UserEntity extends BaseEntity
     #[ORM\Column(type: 'string', length: 255)]
     private string $surname;
 
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    private string $email;
     #[ORM\Column(type: 'string', length: 255)]
     private string $password;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
-    private bool $isAdmin;
+    private bool $isAdmin = false;
 
     #[ORM\ManyToOne(targetEntity: HouseholdEntity::class , inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: true)]
@@ -26,10 +28,12 @@ class UserEntity extends BaseEntity
 
     #[ORM\OneToMany(targetEntity: FoodEntity::class, mappedBy: 'consumer')]
     private Collection $foodsConsumed;
-    #[ORM\Column(type: 'integer')]
-    private int $householdRequest;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $householdRequest = null;
 
-    public function __construct(){
+    public function __construct(string $name, string $surname) {
+        $this->name = $name;
+        $this->surname = $surname;
         $this->foodsConsumed = new ArrayCollection();
     }
 
@@ -43,5 +47,22 @@ class UserEntity extends BaseEntity
 
     public function getHousehold(): ?HouseholdEntity {
         return $this->household;
+    }
+
+    public function setPassword(string $password): void {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $this->password = $hashed;
+    }
+
+    public function verifyPassword(string $password): bool {
+        return password_verify($password, $this->password);
+    }
+
+    public function setAdminLevel(bool $boolean = true): void {
+        $this->isAdmin = $boolean;
+    }
+
+    public function isAdmin(): bool {
+        return $this->isAdmin;
     }
 }
