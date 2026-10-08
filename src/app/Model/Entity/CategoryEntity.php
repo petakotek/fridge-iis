@@ -2,11 +2,10 @@
 
 namespace App\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity]
 #[Gedmo\Tree(type: 'nested')]
@@ -14,7 +13,7 @@ class CategoryEntity extends BaseEntity
 {
     #[ORM\Column(length: 50)]
     private string $name;
-    #[ManyToMany(targetEntity: FoodEntity::class, inversedBy: "categories")]
+    #[ORM\ManyToMany(targetEntity: FoodEntity::class, mappedBy: 'categories')]
     private Collection $foods;
 
     #[Gedmo\TreeLeft]
@@ -39,7 +38,58 @@ class CategoryEntity extends BaseEntity
     #[ORM\JoinColumn(name: 'parent_id', onDelete: 'CASCADE')]
     private ?self $parent = null;
 
-    public function __construct(){
+    #[ORM\ManyToOne(targetEntity: HouseholdEntity::class, inversedBy: "categories")]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private HouseholdEntity $household;
+
+    public function __construct(HouseholdEntity $household){
         $this->foods = new ArrayCollection();
+        $household->addCategory($this);
+    }
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function setHousehold(HouseholdEntity $household): void {
+        if (isset($this->household)) {
+            if ($this->household !== $household) {
+                throw new \DomainException('A category cannot be moved to another household.');
+            }
+            return;
+        }
+        $this->household = $household;
+        if (!$household->getCategories()->contains($this)) {
+            $household->addCategory($this);
+        }
+    }
+
+    public function getHousehold(): HouseholdEntity {
+        return $this->household;
+    }
+
+    public function addFood(FoodEntity $food): void {
+        if (!$food->getCategories()->contains($this)) {
+            $food->addCategory($this);
+        }
+        if (!$this->foods->contains($food)) {
+            $this->foods->add($food);
+        }
+    }
+
+    public function removeFood(FoodEntity $food): void {
+        $this->foods->removeElement($food);
+        if ($food->getCategories()->contains($this)) {
+            $food->removeCategory($this);
+        }
+    }
+
+    /** @return Collection<int, FoodEntity> */
+    public function getFoods(): Collection {
+        return $this->foods;
     }
 }
