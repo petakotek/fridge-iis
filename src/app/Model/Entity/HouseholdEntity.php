@@ -11,19 +11,23 @@ class HouseholdEntity extends BaseEntity
 {
     #[ORM\Column (type: 'string', length: 255)]
     private string $name;
+
     #[ORM\Column (type: 'string', length: 255)]
     private ?string $token;
-    #[ORM\OneToMany(targetEntity: UserEntity::class, mappedBy: "household", cascade: ["persist"])]
+    #[ORM\OneToMany(targetEntity: UserEntity::class, mappedBy: "household")]
+    #[ORM\JoinColumn (nullable: false, onDelete: 'SET NULL')]
     private Collection $users;
 
-    #[ORM\OneToMany(targetEntity: ApplianceEntity::class, mappedBy: "household", cascade: ["remove"], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ApplianceEntity::class, mappedBy: "household")]
+    #[ORM\JoinColumn (nullable: true, onDelete: 'CASCADE')]
     private Collection $appliances;
 
     #[ORM\OneToMany(targetEntity: CategoryEntity::class, mappedBy: "household")]
+    #[ORM\JoinColumn (nullable: true, onDelete: 'CASCADE')]
     private Collection $categories;
 
     #[ORM\OneToOne(targetEntity: UserEntity::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?UserEntity $moderator = null;
 
     public function __construct(string $name) {
@@ -33,11 +37,11 @@ class HouseholdEntity extends BaseEntity
         $this->categories = new ArrayCollection();
     }
 
-    private function addAppliance(ApplianceEntity $appliance): void {
+    public function addAppliance(ApplianceEntity $appliance): void {
         $this->appliances->add($appliance);
         $appliance->setHousehold($this);
     }
-    private function removeAppliance(ApplianceEntity $appliance): void {
+    public function removeAppliance(ApplianceEntity $appliance): void {
         $this->appliances->removeElement($appliance);
     }
 
@@ -51,25 +55,11 @@ class HouseholdEntity extends BaseEntity
         }
     }
 
-    public function setModerator(UserEntity $moderator): void {
-        $this->addUser($moderator);
-        $this->moderator = $moderator;
-    }
-
-    public function getModerator(): ?UserEntity {
-        return $this->moderator;
-    }
-
     public function addCategory(CategoryEntity $category): void {
         $category->setHousehold($this);
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
         }
-    }
-
-    /** @return Collection<int, CategoryEntity> */
-    public function getCategories(): Collection {
-        return $this->categories;
     }
 
     public function generateToken(): void {
@@ -82,5 +72,40 @@ class HouseholdEntity extends BaseEntity
             $randomString .= $characters[random_int(0, $charactersLength - 1)];
         }
         $this->token = $randomString;
+    }
+
+    public function isInHousehold(UserEntity $user): bool {
+        return $this->users->contains($user);
+    }
+
+    public function removeUser(UserEntity $user): void {
+        $this->users->removeElement($user);
+    }
+
+//    Setters
+    public function setModerator(UserEntity $moderator): void {
+        $this->addUser($moderator);
+        $this->moderator = $moderator;
+    }
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+//    Getters
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function getCategories(): Collection {
+        return $this->categories;
+    }
+
+    public function getModerator(): ?UserEntity {
+        return $this->moderator;
+    }
+
+    public function getToken(): ?string {
+        return $this->token;
     }
 }
