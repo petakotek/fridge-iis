@@ -21,7 +21,7 @@ class ApplianceEntity extends BaseEntity
     private ?HouseholdEntity $household = null;
 
     public function __construct(string $name) {
-        $this->name = $name;
+        $this->setName($name);
         $this->shelves = new ArrayCollection();
     }
 
@@ -33,10 +33,13 @@ class ApplianceEntity extends BaseEntity
 //    Setters
     public function setHousehold(HouseholdEntity $household) : void {
         $this->household = $household;
-        $household->addAppliance();
     }
 
     public function setName(string $name) : void {
+        $name = trim($name);
+        if (mb_strlen($name) > 255) {
+            throw new \InvalidArgumentException("Appliance name is too long");
+        }
         $this->name = $name;
     }
 
