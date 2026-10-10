@@ -13,32 +13,32 @@ class FoodEntity extends BaseEntity
     #[ORM\Column (type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column (type: 'datetime')]
-    private ?DateTime $expiry;
+    #[ORM\Column (type: 'datetime', nullable: true)]
+    private ?DateTime $expiry = null;
 
-    #[ORM\Column (type: 'integer')]
-    private int $weight;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $weight = null;
 
-    #[ORM\Column (type: 'string', length: 13)]
-    private string $barcode;
+    #[ORM\Column (type: 'string', length: 13, nullable: true)]
+    private ?string $barcode;
 
-    #[ORM\Column (type: 'decimal', precision: 10, scale: 2)]
-    private float $price;
+    #[ORM\Column (type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?float $price;
 
-    #[ORM\Column (type: 'integer')]
-    private int $calories;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $calories;
 
-    #[ORM\Column (type: 'integer')]
-    private int $protein;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $protein;
 
-    #[ORM\Column (type: 'integer')]
-    private int $fat;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $fat;
 
-    #[ORM\Column (type: 'integer')]
-    private int $carb;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $carb;
 
-    #[ORM\Column (type: 'integer')]
-    private int $fibre;
+    #[ORM\Column (type: 'integer', nullable: true)]
+    private ?int $fibre;
 
     #[ORM\Column (type: 'datetime', nullable: true)]
     private ?DateTime $consumedAt = null;
@@ -50,10 +50,10 @@ class FoodEntity extends BaseEntity
     private ?DateTime $discardedAt = null;
 
     #[ORM\ManyToOne(targetEntity: UserEntity::class, inversedBy: "foodsConsumed")]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?UserEntity $consumer = null;
 
-    #[ORM\ManyToMany(targetEntity: CategoryEntity::class, inversedBy: 'foods', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: CategoryEntity::class, inversedBy: 'foods')]
     #[ORM\JoinTable(name: 'categoryentity_foodentity')]
     #[ORM\JoinColumn(name: 'foodentity_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'categoryentity_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
@@ -78,7 +78,7 @@ class FoodEntity extends BaseEntity
         $this->protein = $protein;
         $this->fibre = $fibre;
         $this->carb = $carb;
-        $this->fatt = $fat;
+        $this->fat = $fat;
         $this->categories = new ArrayCollection();
     }
 
@@ -122,7 +122,68 @@ class FoodEntity extends BaseEntity
         $category->removeFood($this);
     }
 
-    /** @return Collection<int, CategoryEntity> */
+    public function setTrashed(): void {
+        $this->consumer = null;
+        $this->consumedAt = null;
+
+        $this->trashed = true;
+        $this->discardedAt = new DateTime();
+    }
+
+//    Getter functions
+
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function getExpiry(): ?DateTime {
+        return $this->expiry;
+    }
+
+    public function getBarcode(): ?string {
+        return $this->barcode;
+    }
+
+    public function getPrice(): ?float {
+        return $this->price;
+    }
+
+    public function getCalories(): ?float {
+        return $this->calories;
+    }
+
+    public function getProtein(): ?int {
+        return $this->protein;
+    }
+
+    public function getFat(): ?int {
+        return $this->fat;
+    }
+
+    public function getCarb(): ?int {
+        return $this->carb;
+    }
+
+    public function getFibre(): ?int {
+        return $this->fibre;
+    }
+
+    public function isConsumed(): bool {
+        return $this->consumer !== null;
+    }
+
+    public function getConsumedAt(): ?DateTime {
+        return $this->consumedAt;
+    }
+
+    public function isTrashed(): bool {
+        return $this->trashed;
+    }
+
+    public function getDiscardedAt(): ?DateTime {
+        return $this->discardedAt;
+    }
+
     public function getCategories(): Collection {
         return $this->categories;
     }
@@ -131,11 +192,4 @@ class FoodEntity extends BaseEntity
         return $this->weight;
     }
 
-    public function setTrashed(): void {
-        $this->consumer = null;
-        $this->consumedAt = null;
-
-        $this->trashed = true;
-        $this->discardedAt = new DateTime();
-    }
 }
