@@ -23,15 +23,16 @@ class UserEntity extends BaseEntity
     private bool $isAdmin = false;
 
     #[ORM\ManyToOne(targetEntity: HouseholdEntity::class , inversedBy: 'users')]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?HouseholdEntity $household = null;
 
     #[ORM\OneToMany(targetEntity: FoodEntity::class, mappedBy: 'consumer')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Collection $foodsConsumed;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $householdRequest = null;
+    #[ORM\ManyToOne(targetEntity: HouseholdEntity::class)]
+    #[ORM\JoinColumn(name: 'householdRequest', nullable: true, onDelete: 'SET NULL')]
+    private ?HouseholdEntity $householdRequest = null;
 
     public function __construct(string $name, string $surname, string $email) {
         $this->name = $name;
@@ -46,6 +47,17 @@ class UserEntity extends BaseEntity
 
     public function isAdmin(): bool {
         return $this->isAdmin;
+    }
+
+    public function removeHousehold(HouseholdEntity $household): void {
+        if ($this->household !== $household) {
+            throw new \DomainException('User is not in this household.');
+        }
+        $this->household = null;
+    }
+
+    public function unsetHouseholdRequest(): void {
+        $this->householdRequest = null;
     }
 
 //    Setters
@@ -67,6 +79,11 @@ class UserEntity extends BaseEntity
         $this->password = $hashed;
     }
 
+    public function setRequest(HouseholdEntity $household): void {
+        if ($this->household === null) {
+            $this->householdRequest = $household;
+        }
+    }
 //    Getters
 
     public function getName(): string {
@@ -89,4 +106,7 @@ class UserEntity extends BaseEntity
         return $this->household;
     }
 
+    public function getHouseholdRequest(): ?HouseholdEntity {
+        return $this->householdRequest;
+    }
 }
