@@ -30,7 +30,9 @@ class Bootstrap
 
 	public function initializeEnvironment(): void
 	{
-		//$this->configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP
+        // při následném nasazení aplikace nastavíme debugMode na false, je to z toho důvodu, že v produkci se používá
+        // přímý build aplikace, ne debugMode; v tomto režimu se aplikace stále refreshuje. POZOR NA TO KLUCI!!!
+        $this->configurator->setDebugMode(true);
 		$this->configurator->enableTracy($this->rootDir . '/log');
 
 		$this->configurator->createRobotLoader()
