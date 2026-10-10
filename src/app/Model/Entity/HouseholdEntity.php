@@ -41,8 +41,13 @@ class HouseholdEntity extends BaseEntity
         $this->appliances->add($appliance);
         $appliance->setHousehold($this);
     }
+
     public function removeAppliance(ApplianceEntity $appliance): void {
         $this->appliances->removeElement($appliance);
+    }
+
+    public function removeCategory(CategoryEntity $category): void {
+        $this->categories->removeElement($category);
     }
 
     public function addUser(UserEntity $user): void {
