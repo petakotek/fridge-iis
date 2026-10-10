@@ -9,27 +9,22 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class ShelfEntity extends BaseEntity
 {
+    #[ORM\Column(type: 'string', length: 255, nullable: true, options: ['default' => "My Shelf"])]
+    private string $name;
     #[ORM\Column (type: 'integer')]
     private int $shelfCapacity;
 
     #[ORM\OneToMany (targetEntity: FoodEntity::class, mappedBy: "shelf")]
-    private Collection $foods;
+    #[ORM\JoinColumn (nullable: true, onDelete: 'CASCADE')]
+    private ?Collection $foods;
 
     #[ORM\ManyToOne (targetEntity: ApplianceEntity::class, inversedBy: 'shelves')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
-    private ApplianceEntity $appliance;
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ApplianceEntity $appliance = null;
 
     public function __construct(int $capacity) {
         $this->foods = new ArrayCollection();
         $this->shelfCapacity = $capacity;
-    }
-
-    public function setAppliance(ApplianceEntity $appliance): void {
-        $this->appliance = $appliance;
-    }
-
-    public function getAppliance(): ApplianceEntity {
-        return $this->appliance;
     }
 
     public function addFood(FoodEntity $food): void {
@@ -41,4 +36,33 @@ class ShelfEntity extends BaseEntity
             $this->foods->add($food);
         }
     }
+
+//    Setters
+
+    public function setName(string $name): void {
+        $this->name = $name;
+    }
+
+    public function setAppliance(ApplianceEntity $appliance): void {
+        $this->appliance = $appliance;
+    }
+
+//    Getters
+
+    public function getAppliance(): ?ApplianceEntity {
+        return $this->appliance;
+    }
+
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function getShelfCapacity(): int {
+        return $this->shelfCapacity;
+    }
+
+    public function getFoods(): Collection {
+        return $this->foods;
+    }
+
 }
