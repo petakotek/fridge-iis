@@ -1,0 +1,61 @@
+// Stručný samostatný přehled: uživatelské cíle bez rozpadu na CRUD a kontroly.
+digraph LedniceSouhrn {
+    graph [charset="UTF-8", rankdir=LR, bgcolor="white", pad=0.3,
+        nodesep=0.3, ranksep=1.3, fontname="DejaVu Sans", fontsize=18,
+        labelloc=t, label="Lednice — souhrnný diagram případů užití"];
+    node [shape=ellipse, fontname="DejaVu Sans", fontsize=11,
+        style=filled, fillcolor="#eef5ff", color="#476582"];
+    edge [fontname="DejaVu Sans", fontsize=10, color="#526171", dir=none];
+
+    host [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Host>];
+    user [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Registrovaný uživatel>];
+    member [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Člen domácnosti>];
+    manager [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Správce domácnosti>];
+    admin [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Administrátor>];
+    { rank=same; host; user; member; manager; admin; }
+
+    // Šipka míří k roli, jejíž práva specializovaný aktér dědí.
+    member -> user [dir=forward, arrowhead=empty, constraint=false, label="dědí práva"];
+    manager -> member [dir=forward, arrowhead=empty, constraint=false, label="dědí práva"];
+    // Administrátor je samostatná role pro správu uživatelů.
+
+    subgraph cluster_system {
+        label="Informační systém pro správu potravin";
+        fontsize=14;
+        color="#9aabba";
+
+        register [label="Zaregistrovat se bez žádosti\n(s tokenem i bez tokenu)"];
+        register_request [label="Zaregistrovat se a požádat\no členství v dané domácnosti\n(pouze z jejího detailu přes platný token)"];
+        view [label="Prohlížet obsah spotřebičů\na upozornění na trvanlivost"];
+        session [label="Přihlásit se / odhlásit se"];
+        profile [label="Upravit vlastní profil"];
+        create [label="Vytvořit domácnost\na stát se jejím správcem"];
+        request [label="Požádat o členství\nv domácnosti přes token"];
+        add_food [label="Přidávat potraviny\n(s kontrolou nosnosti poličky)"];
+        use_food [label="Označovat potraviny\njako zkonzumované nebo vyhozené"];
+        consumption [label="Zobrazit vlastní profil spotřeby\nza zvolené období\n(potraviny, živiny, kalorie, cena)"];
+        membership [label="Spravovat členy a jejich role\na přijímat / zamítat žádosti"];
+        equipment [label="Spravovat spotřebiče a poličky"];
+        categories [label="Spravovat kategorie potravin"];
+        sharing [label="Sdílet odkaz na domácnost,\nkopírovat a přegenerovat token"];
+        accounts [label="Spravovat uživatele a jejich role"];
+    }
+
+    host -> register;
+    host -> register_request;
+    host -> view [label="přes platný token"];
+    user -> view [label="přes platný token\nbez členství", constraint=false];
+    user -> { session profile create request };
+    member -> view [label="ve své domácnosti", constraint=false];
+    member -> { add_food use_food consumption };
+    manager -> { membership equipment categories sharing };
+    admin -> accounts;
+    admin -> session [constraint=false];
+
+    // Správa a členství se vztahují ke konkrétní domácnosti.
+    // Token umožňuje čtení; členství vznikne až přijetím žádosti.
+    // Host může zahájit registraci se žádostí pouze z detailu dané domácnosti.
+    // I z tohoto detailu může zvolit pouze registraci bez žádosti o členství.
+    // Správa zahrnuje přidání, úpravu a odebrání / deaktivaci dle typu objektu.
+    // Datové údaje, validace a automatické odhlášení dále určuje zadání.
+}

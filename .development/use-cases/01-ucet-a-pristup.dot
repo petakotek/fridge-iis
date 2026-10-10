@@ -1,0 +1,43 @@
+digraph UcetAPristup {
+    graph [charset="UTF-8", rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.4, ranksep=1,
+        fontname="DejaVu Sans", fontsize=20, labelloc=t, label="Lednice — účet a přístup k domácnosti"];
+    node [shape=ellipse, fontname="DejaVu Sans", fontsize=11, style=filled, fillcolor="#eef5ff", color="#476582"];
+    edge [fontname="DejaVu Sans", fontsize=10, color="#526171"];
+
+    host [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Host>];
+    user [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Registrovaný uživatel<BR/>(také člen a správce domácnosti)>];
+    admin [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Administrátor>];
+
+    subgraph cluster_system {
+        label="Informační systém — účet a přístup";
+        fontsize=14;
+        color="#9aabba";
+        UC01 [label="UC01: Zaregistrovat se"];
+        UC02 [label="UC02: Zaregistrovat se\na požádat o členství\nv prohlížené domácnosti"];
+        UC03 [label="UC03: Přihlásit se"];
+        UC04 [label="UC04: Odhlásit se"];
+        UC05 [label="UC05: Upravit vlastní profil"];
+        UC06 [label="UC06: Vytvořit domácnost\na stát se jejím správcem"];
+        UC07 [label="UC07: Prohlédnout domácnost\npřes sdílený odkaz / token"];
+        UC08 [label="UC08: Ověřit token\na určit příslušnou domácnost"];
+        UC09 [label="UC09: Požádat o členství\nv domácnosti pomocí tokenu"];
+        UC27 [label="UC27: Prohlédnout obsah\nspotřebičů domácnosti"];
+    }
+
+    host -> { UC01 UC07 } [dir=none];
+    host -> UC02 [dir=none, label="pouze z detailu\ndané domácnosti"];
+    user -> { UC03 UC04 UC05 UC06 UC07 UC09 } [dir=none];
+    admin -> { UC03 UC04 } [dir=none];
+    UC02 -> UC01 [style=dashed, label="«include»"];
+    UC02 -> UC09 [style=dashed, label="«include»"];
+    UC07 -> UC08 [style=dashed, label="«include»"];
+    UC07 -> UC27 [style=dashed, label="«include»"];
+    UC09 -> UC08 [style=dashed, label="«include»"];
+
+    registration [shape=note, fillcolor="#f8f8f8", label="UC01: Registrace bez žádosti je možná s tokenem i bez něj,\na to i z detailu domácnosti. Token sám žádost nevytvoří.\nUC02: Dostupné pouze z detailu domácnosti,\nkterý host prohlíží přes platný token.\nPo registraci odešle žádost ke stejné domácnosti;\nčlenem se stane až jejím schválením (UC10)."];
+    registration -> UC02 [style=dotted, dir=none, constraint=false];
+    authentication [shape=note, fillcolor="#f8f8f8", label="Přihlášení: uživatelské jméno nebo e-mail a heslo.\nPo době nečinnosti systém automaticky ukončí relaci.\nUC04–06 a UC09 vyžadují přihlášení.\nPřihlášení není povinnou součástí každé operace."];
+    authentication -> UC03 [style=dotted, dir=none, constraint=false];
+    access [shape=note, fillcolor="#f8f8f8", label="Platný token zpřístupní jen danou domácnost ke čtení.\nNeplatný token neumožní zobrazení ani novou žádost.\nRegistrovaný uživatel může být bez domácnosti;\nvytvořením domácnosti získá její správu i členství."];
+    access -> UC06 [style=dotted, dir=none, constraint=false];
+}
