@@ -31,15 +31,15 @@ class HouseholdEntity extends BaseEntity
     private ?UserEntity $moderator = null;
 
     public function __construct(string $name) {
-        $this->name = $name;
+        $this->setName($name);
         $this->users = new ArrayCollection();
         $this->appliances = new ArrayCollection();
         $this->categories = new ArrayCollection();
     }
 
     public function addAppliance(ApplianceEntity $appliance): void {
-        $this->appliances->add($appliance);
         $appliance->setHousehold($this);
+        $this->appliances->add($appliance);
     }
 
     public function removeAppliance(ApplianceEntity $appliance): void {
@@ -94,6 +94,13 @@ class HouseholdEntity extends BaseEntity
     }
 
     public function setName(string $name): void {
+        $name = trim($name);
+        if (empty($name)) {
+            throw new \InvalidArgumentException('Name cannot be empty.');
+        }
+        if (mb_strlen($name) > 255){
+            throw new \InvalidArgumentException('Household name must contain 1 to 255 characters.');
+        }
         $this->name = $name;
     }
 
