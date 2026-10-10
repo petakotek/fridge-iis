@@ -23,18 +23,35 @@ class UserEntity extends BaseEntity
     private bool $isAdmin = false;
 
     #[ORM\ManyToOne(targetEntity: HouseholdEntity::class , inversedBy: 'users')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?HouseholdEntity $household = null;
 
     #[ORM\OneToMany(targetEntity: FoodEntity::class, mappedBy: 'consumer')]
-    private Collection $foodsConsumed;
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Collection $foodsConsumed;
+
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $householdRequest = null;
 
-    public function __construct(string $name, string $surname) {
+    public function __construct(string $name, string $surname, string $email) {
         $this->name = $name;
         $this->surname = $surname;
+        $this->email = $email;
         $this->foodsConsumed = new ArrayCollection();
+    }
+
+    public function verifyPassword(string $password): bool {
+        return password_verify($password, $this->password);
+    }
+
+    public function isAdmin(): bool {
+        return $this->isAdmin;
+    }
+
+//    Setters
+
+    public function setAdminLevel(bool $boolean = true): void {
+        $this->isAdmin = $boolean;
     }
 
     public function setHousehold(HouseholdEntity $household): void {
@@ -45,24 +62,31 @@ class UserEntity extends BaseEntity
         $this->household = $household;
     }
 
-    public function getHousehold(): ?HouseholdEntity {
-        return $this->household;
-    }
-
     public function setPassword(string $password): void {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $this->password = $hashed;
     }
 
-    public function verifyPassword(string $password): bool {
-        return password_verify($password, $this->password);
+//    Getters
+
+    public function getName(): string {
+        return $this->name;
     }
 
-    public function setAdminLevel(bool $boolean = true): void {
-        $this->isAdmin = $boolean;
+    public function getSurname(): string {
+        return $this->surname;
     }
 
-    public function isAdmin(): bool {
-        return $this->isAdmin;
+    public function getEmail(): string {
+        return $this->email;
     }
+
+    public function getFoodsConsumed(): Collection {
+        return $this->foodsConsumed;
+    }
+
+    public function getHousehold(): ?HouseholdEntity {
+        return $this->household;
+    }
+
 }
