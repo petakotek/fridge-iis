@@ -42,17 +42,40 @@ class CategoryEntity extends BaseEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private HouseholdEntity $household;
 
-    public function __construct(HouseholdEntity $household){
+    public function __construct(HouseholdEntity $household, string $name) {
+        $this->setName($name);
         $this->foods = new ArrayCollection();
         $household->addCategory($this);
     }
 
+    public function getName(): string {
+        return $this->name;
+    }
+
     public function setName(string $name): void {
+        $name = trim($name);
+        if ($name === '' || mb_strlen($name) > 50) {
+            throw new \InvalidArgumentException('Category name must contain 1 to 50 characters.');
+        }
         $this->name = $name;
     }
 
-    public function getName(): string {
-        return $this->name;
+    public function getParent(): ?self {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): void {
+        if ($parent !== null && $parent->getHousehold() !== $this->household) {
+            throw new \DomainException('Parent category must belong to the same household.');
+        }
+
+        for ($ancestor = $parent; $ancestor !== null; $ancestor = $ancestor->getParent()) {
+            if ($ancestor === $this) {
+                throw new \DomainException('A category cannot be placed under itself or its descendant.');
+            }
+        }
+
+        $this->parent = $parent;
     }
 
     public function setHousehold(HouseholdEntity $household): void {
