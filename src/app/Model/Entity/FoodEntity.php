@@ -70,8 +70,9 @@ class FoodEntity extends BaseEntity
                                 int $protein,
                                 int $fat,
                                 int $carb,
-                                int $fibre) {
-        $this->name = $name;
+                                int $fibre,
+                                int $weight) {
+        $this->setName($name);
         $this->barcode = $barcode;
         $this->price = $price;
         $this->calories = $calories;
@@ -79,7 +80,16 @@ class FoodEntity extends BaseEntity
         $this->fibre = $fibre;
         $this->carb = $carb;
         $this->fat = $fat;
+        $this->weight = $weight;
         $this->categories = new ArrayCollection();
+    }
+
+    public function setName(string $name): void {
+        $name = trim($name);
+        if (mb_strlen($name) > 255) {
+            throw new \InvalidArgumentException('Food name cannot be longer than 255 characters.');
+        }
+        $this->name = $name;
     }
 
     public function setExpiry(?DateTime $time): void
