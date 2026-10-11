@@ -20,4 +20,10 @@ class Verification
             throw new \DomainException('Category belongs to another household.');
         }
     }
+
+    public static function assertHouseholdUser(HouseholdEntity $household, UserEntity $user): void {
+        if ($user->getHousehold() !== $household) {
+            throw new \DomainException('User is not part of this household.');
+        }
+    }
 }
