@@ -10,6 +10,9 @@ class Verification
 {
     public static function assertModerator(HouseholdEntity $household, UserEntity $user): void
     {
+        if ($user->isAdmin()) {
+            return;
+        }
         if ($user !== $household->getModerator()) {
             throw new \DomainException('Current user is not moderator for this household.');
         }
