@@ -68,28 +68,6 @@ final class HouseholdService extends BaseService
         return $household;
     }
 
-    public function addAppliance(HouseholdEntity $household, UserEntity $moderator, string $applianceName): ApplianceEntity {
-        Verification::assertModerator($household, $moderator);
-
-        $appliance = new ApplianceEntity($applianceName);
-        $household->addAppliance($appliance);
-
-        $this->entityManager->persist($appliance);
-        $this->entityManager->flush();
-
-        return $appliance;
-    }
-
-    public function removeAppliance(HouseholdEntity $household, UserEntity $moderator, ApplianceEntity $appliance): void {
-        Verification::assertModerator($household, $moderator);
-        if ($appliance->getHousehold() !== $household) {
-            throw new \DomainException('Appliance is not in this household.');
-        }
-        $this->entityManager->remove($appliance);
-        $this->entityManager->flush();
-        $household->removeAppliance($appliance);
-    }
-
     public function addUser(UserEntity $user, UserEntity $moderator, HouseholdEntity $household): void {
         Verification::assertModerator($household, $moderator);
         $household->addUser($user);
