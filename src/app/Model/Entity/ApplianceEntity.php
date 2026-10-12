@@ -30,6 +30,10 @@ class ApplianceEntity extends BaseEntity
         $shelf->setAppliance($this);
     }
 
+    public function removeShelf(ShelfEntity $shelf) : void {
+        $this->shelves->removeElement($shelf);
+    }
+
 //    Setters
     public function setHousehold(HouseholdEntity $household) : void {
         $this->household = $household;
