@@ -24,7 +24,7 @@ class ShelfEntity extends BaseEntity
 
     public function __construct(int $capacity) {
         $this->foods = new ArrayCollection();
-        $this->shelfCapacity = $capacity;
+        $this->setCapacity($capacity);
     }
 
     public function addFood(FoodEntity $food): void {
@@ -38,6 +38,12 @@ class ShelfEntity extends BaseEntity
     }
 
 //    Setters
+    public function setCapacity(int $capacity): void {
+        if  ($capacity <= 0) {
+            throw new \InvalidArgumentException('Capacity must be greater than 0.');
+        }
+        $this->shelfCapacity = $capacity;
+    }
 
     public function setName(string $name): void {
         $this->name = $name;
