@@ -2,8 +2,11 @@
 
 namespace App\Model\Services;
 
+use App\Model\Common\Verification;
 use App\Model\Entity\FoodEntity;
+use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
+use App\Model\Entity\UserEntity;
 
 final class FoodService extends BaseService
 {
@@ -17,8 +20,12 @@ final class FoodService extends BaseService
         int $carb,
         int $fibre,
         int $weight,
-        ShelfEntity $shelf
+        ShelfEntity $shelf,
+        HouseholdEntity $household,
+        UserEntity $user
     ): FoodEntity {
+
+        Verification::assertHouseholdUser($household, $user);
         $food = new FoodEntity(
             $name,
             $barcode,
@@ -37,8 +44,8 @@ final class FoodService extends BaseService
         return $food;
     }
 
-    public function updateFood(FoodEntity $food): void {
-        //TODO: add verification
+    public function updateFood(FoodEntity $food, HouseholdEntity $household, UserEntity $user): void {
+        Verification::assertHouseholdUser($household, $user);
 
         $this->entityManager->flush();
     }
@@ -74,8 +81,8 @@ final class FoodService extends BaseService
         $this->entityManager->flush();
     }
 
-    public function consumeFood(FoodEntity $food): void {
-        $food->setConsumed();
+    public function consumeFood(FoodEntity $food, UserEntity $user): void {
+        $food->setConsumed($user);
         $this->entityManager->flush();
     }
 }
