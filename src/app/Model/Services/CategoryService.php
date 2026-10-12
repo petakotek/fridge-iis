@@ -46,9 +46,6 @@ final class CategoryService extends BaseService
         );
     }
 
-    /** Returns direct children, or root categories when parent is null.
-     * @return list<CategoryEntity>
-     */
     public function getSubcategories(HouseholdEntity $household, ?CategoryEntity $parent = null): array {
         if ($parent !== null) {
             Verification::assertHouseholdCategory($household, $parent);
