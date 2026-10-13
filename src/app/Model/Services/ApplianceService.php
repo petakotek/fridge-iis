@@ -44,6 +44,8 @@ final class ApplianceService extends BaseService
 
     public function updateApplianceName(ApplianceEntity $appliance, UserEntity $user, HouseholdEntity $household, string $name): void {
         Verification::assertModerator($household, $user);
+        Verification::assertHouseholdAppliance($household, $appliance);
+
         $appliance->setName($name);
         $this->entityManager->persist($appliance);
         $this->entityManager->flush();
@@ -51,9 +53,7 @@ final class ApplianceService extends BaseService
 
     public function removeAppliance(HouseholdEntity $household, UserEntity $moderator, ApplianceEntity $appliance): void {
         Verification::assertModerator($household, $moderator);
-        if ($appliance->getHousehold() !== $household) {
-            throw new \DomainException('Appliance is not in this household.');
-        }
+        Verification::assertHouseholdAppliance($household, $appliance);
         $this->entityManager->remove($appliance);
         $this->entityManager->flush();
         // remove appliance from Household appliances
