@@ -1,6 +1,14 @@
 Nette Web Project
 =================
 
+## Testy
+
+Ze složky `.development` spusť jednorázovou Compose službu `test`:
+
+```bash
+docker compose run --rm --build test
+```
+
 ## Databázové migrace
 
 Změny databázového schématu spravujeme pomocí Doctrine Migrations. Migrační soubory
