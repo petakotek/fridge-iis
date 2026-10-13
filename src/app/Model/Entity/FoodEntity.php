@@ -187,6 +187,9 @@ class FoodEntity extends BaseEntity
     }
 
     public function isTrashed(): bool {
+        if ($this->trashed === null) {
+            return false;
+        }
         return $this->trashed;
     }
 
@@ -202,4 +205,7 @@ class FoodEntity extends BaseEntity
         return $this->weight;
     }
 
+    public function getShelf(): ShelfEntity {
+        return $this->shelf;
+    }
 }
