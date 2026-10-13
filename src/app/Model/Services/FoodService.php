@@ -82,6 +82,9 @@ final class FoodService extends BaseService
     }
 
     public function consumeFood(FoodEntity $food, UserEntity $user): void {
+        $shelf = $food->getShelf();
+        $appliance = $shelf->getAppliance();
+        Verification::assertHouseholdUser($appliance->getHousehold(), $user);
         $food->setConsumed($user);
         $this->entityManager->flush();
     }
