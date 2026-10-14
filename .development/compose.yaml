@@ -35,6 +35,20 @@ services:
       retries: 5
       start_period: 10s
 
+  test:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    restart: "no"
+    user: "${PHP_USER_ID:-1000}:${PHP_GROUP_ID:-1000}"
+    working_dir: /var/www/html
+    volumes:
+      - ../src:/var/www/html
+    environment:
+      COMPOSER_HOME: /tmp/composer
+    command: ["php", "vendor/bin/tester", "tests", "-s"]
+
   database:
     image: mariadb:11.8.8
     restart: unless-stopped
