@@ -39,7 +39,7 @@
 		}
 	},
 	"scripts": {
-    	"phpstan": "@php vendor/bin/phpstan analyse",
+    	"phpstan": "@php vendor/bin/phpstan analyse app",
     	"tester": "@php vendor/bin/tester tests -s"
 	},
 	"minimum-stability": "stable",
