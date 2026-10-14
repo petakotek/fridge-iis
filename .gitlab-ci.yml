@@ -1,0 +1,13 @@
+stages:
+  - test
+
+before_script:
+  - cd src
+  - composer install --prefer-dist --no-interaction --no-progress
+
+
+test-job:
+  stage: test
+  script:
+    - composer tester
+    - composer phpstan
