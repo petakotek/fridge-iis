@@ -3,4 +3,3 @@
 !.env.example
 src/temp/cache
 .idea
-/src/vendor/
