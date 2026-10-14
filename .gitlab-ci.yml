@@ -1,17 +1,17 @@
-image: php:8.4-cli-bookworm
+image: dockette/php:8.4
 
 stages:
   - test
 
 before_script:
-  - apt-get update && apt-get install -y --no-install-recommends git unzip
-  - curl --fail --silent --show-error --location https://getcomposer.org/download/latest-stable/composer.phar --output /usr/local/bin/composer
   - chmod +x /usr/local/bin/composer
   - composer --version
   - cd src
   - composer install --prefer-dist --no-interaction --no-progress
 
 test-composer:
+  rules:
+
   stage: test
   script:
     - composer tester
