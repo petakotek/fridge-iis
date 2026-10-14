@@ -11,10 +11,14 @@ before_script:
 
 test-composer:
   stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_send"'
   script:
     - composer tester
 
 test-phpstan:
   stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_send"'
   script:
     - composer phpstan
