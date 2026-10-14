@@ -10,8 +10,6 @@ before_script:
   - composer install --prefer-dist --no-interaction --no-progress
 
 test-composer:
-  rules:
-
   stage: test
   script:
     - composer tester
