@@ -1,5 +1,8 @@
 image: php:8.4-cli-bookworm
 
+stages:
+  - test
+
 before_script:
   - apt-get update && apt-get install -y --no-install-recommends git unzip
   - curl --fail --silent --show-error --location https://getcomposer.org/download/latest-stable/composer.phar --output /usr/local/bin/composer
@@ -8,8 +11,12 @@ before_script:
   - cd src
   - composer install --prefer-dist --no-interaction --no-progress
 
-test:
+test-composer:
   stage: test
   script:
     - composer tester
+
+test-phpstan:
+  stage: test
+  script:
     - composer phpstan
