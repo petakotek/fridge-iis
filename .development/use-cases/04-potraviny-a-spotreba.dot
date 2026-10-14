@@ -1,0 +1,42 @@
+digraph PotravinyASpotreba {
+    graph [charset="UTF-8", rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.4, ranksep=1,
+        fontname="DejaVu Sans", fontsize=20, labelloc=t, label="Lednice — potraviny a osobní profil spotřeby"];
+    node [shape=ellipse, fontname="DejaVu Sans", fontsize=11, style=filled, fillcolor="#eef5ff", color="#476582"];
+    edge [fontname="DejaVu Sans", fontsize=10, color="#526171"];
+
+    member [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Člen domácnosti<BR/>(také správce domácnosti)>];
+    host [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Host>];
+    user [shape=plain, style="", label=<<FONT FACE="Noto Sans Symbols2" POINT-SIZE="40">&#x1FBC5;</FONT><BR/>Registrovaný uživatel<BR/>bez členství v této domácnosti>];
+
+    subgraph cluster_system {
+        label="Informační systém — potraviny a spotřeba";
+        fontsize=14;
+        color="#9aabba";
+        UC07 [label="UC07: Prohlédnout domácnost\npřes sdílený odkaz / token"];
+        UC08 [label="UC08: Ověřit token\na určit příslušnou domácnost"];
+        UC27 [label="UC27: Prohlédnout obsah\nspotřebičů domácnosti"];
+        UC28 [label="UC28: Přidat potravinu\nna poličku spotřebiče"];
+        UC29 [label="UC29: Ověřit nosnost poličky"];
+        UC30 [label="UC30: Označit potravinu\njako zkonzumovanou"];
+        UC31 [label="UC31: Označit potravinu\njako vyhozenou"];
+        UC32 [label="UC32: Zobrazit vlastní profil\nspotřeby za zvolené období"];
+        UC33 [label="UC33: Zobrazit upozornění\nna končící trvanlivost"];
+    }
+
+    member -> { UC27 UC28 UC30 UC31 UC32 } [dir=none];
+    host -> UC07 [dir=none];
+    user -> UC07 [dir=none];
+    UC07 -> UC08 [style=dashed, label="«include»"];
+    UC07 -> UC27 [style=dashed, label="«include»"];
+    UC28 -> UC29 [style=dashed, label="«include»"];
+    UC33 -> UC27 [style=dashed, label="«extend»\n[blíží se konec trvanlivosti]"];
+
+    food [shape=note, fillcolor="#f8f8f8", label="Potravina: datum trvanlivosti, hmotnost / objem,\nčárový kód, cena, zařazení do víceúrovňové kategorie;\nkalorická hodnota, bílkoviny, tuky, sacharidy\na vláknina na 100 g/ml.\nVýběr poličky a kategorie probíhá z nabídky."];
+    food -> UC28 [style=dotted, dir=none, constraint=false];
+    capacity [shape=note, fillcolor="#f8f8f8", label="Součet hmotností uložených potravin včetně nové\nnesmí překročit maximální nosnost poličky.\nU potravin zadaných objemem je pro kontrolu\npotřeba evidovat také hmotnost; ml se nerovnají g."];
+    capacity -> UC29 [style=dotted, dir=none, constraint=false];
+    state [shape=note, fillcolor="#f8f8f8", label="V základní variantě se spotřebuje / vyhodí celá položka.\nEviduje se stav, čas a uživatel, který akci provedl;\nu konzumace je tento uživatel konzumentem.\nPotravina uvolní nosnost, její historický záznam zůstává.\nNelze ji zkonzumovat ani vyhodit podruhé."];
+    state -> UC30 [style=dotted, dir=none, constraint=false];
+    profile [shape=note, fillcolor="#f8f8f8", label="Období: den, týden nebo interval od–do.\nVýstup: co a kdy uživatel zkonzumoval,\nkalorický a nutriční příjem a cena zkonzumovaných potravin.\nVýpočet živin z množství a hodnot na 100 g/ml.\nVyhozené potraviny se nezapočítávají do příjmu ani ceny\nzkonzumovaných potravin; profil je vždy vlastní."];
+    profile -> UC32 [style=dotted, dir=none, constraint=false];
+}
