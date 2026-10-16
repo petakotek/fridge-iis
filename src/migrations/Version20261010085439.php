@@ -20,6 +20,7 @@ final class Version20261010085439 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE ApplianceEntity DROP FOREIGN KEY FK_67A1F418E79FF843');
         $this->addSql('ALTER TABLE ApplianceEntity CHANGE household_id household_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE ApplianceEntity ADD CONSTRAINT FK_67A1F418E79FF843 FOREIGN KEY (household_id) REFERENCES HouseholdEntity (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE FoodEntity DROP FOREIGN KEY `FK_3D806BF837FDBD6D`');
@@ -40,6 +41,7 @@ final class Version20261010085439 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE ApplianceEntity DROP FOREIGN KEY FK_67A1F418E79FF843');
         $this->addSql('ALTER TABLE ApplianceEntity CHANGE household_id household_id INT NOT NULL');
+        $this->addSql('ALTER TABLE ApplianceEntity ADD CONSTRAINT FK_67A1F418E79FF843 FOREIGN KEY (household_id) REFERENCES HouseholdEntity (id) ON DELETE RESTRICT');
         $this->addSql('ALTER TABLE FoodEntity DROP FOREIGN KEY FK_3D806BF837FDBD6D');
         $this->addSql('ALTER TABLE FoodEntity CHANGE expiry expiry DATETIME NOT NULL, CHANGE weight weight INT NOT NULL, CHANGE barcode barcode VARCHAR(13) NOT NULL, CHANGE price price NUMERIC(10, 2) NOT NULL, CHANGE calories calories INT NOT NULL, CHANGE protein protein INT NOT NULL, CHANGE fat fat INT NOT NULL, CHANGE carb carb INT NOT NULL, CHANGE fibre fibre INT NOT NULL');
         $this->addSql('ALTER TABLE FoodEntity ADD CONSTRAINT `FK_3D806BF837FDBD6D` FOREIGN KEY (consumer_id) REFERENCES UserEntity (id)');
