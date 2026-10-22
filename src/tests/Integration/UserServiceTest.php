@@ -71,6 +71,21 @@ final class UserServiceTest extends ServiceTestCase
         Assert::null($service->verifyUser($user->getEmail(), 'wrong'));
         Assert::null($service->verifyUser('unknown@example.test', 'fixture-password'));
     }
+
+    public function testUpdateProfilePersistsDetailsAndOptionalPassword(): void
+    {
+        $user = $this->user();
+        $id = $user->getId();
+        (new UserService($this->em))->updateProfile($user, 'Eva', 'Nová', 'new@example.test', 'new-password');
+        $this->em->clear();
+
+        $stored = (new UserService($this->em))->getUserById($id);
+        Assert::same('Eva', $stored->getName());
+        Assert::same('Nová', $stored->getSurname());
+        Assert::same('new@example.test', $stored->getEmail());
+        Assert::true($stored->verifyPassword('new-password'));
+        Assert::false($stored->verifyPassword('fixture-password'));
+    }
 }
 
 (new UserServiceTest())->run();

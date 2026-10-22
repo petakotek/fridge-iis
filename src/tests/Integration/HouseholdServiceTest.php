@@ -61,6 +61,32 @@ final class HouseholdServiceTest extends ServiceTestCase
         Assert::same('New home', $household->getName());
     }
 
+    public function testRegenerateTokenInvalidatesOldTokenAndKeepsMembersAndRequests(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $requester = $this->user();
+        $service = new HouseholdService($this->em);
+        $oldToken = $household->getToken();
+        $service->createHouseholdRequest($household, $requester, $oldToken);
+        $this->em->flush();
+
+        $service->regenerateToken($household, $household->getModerator());
+        $newToken = $household->getToken();
+        Assert::notSame($oldToken, $newToken);
+        $householdId = $household->getId();
+        $memberId = $member->getId();
+        $requesterId = $requester->getId();
+        $this->em->clear();
+
+        $stored = $service->getHouseholdById($householdId);
+        Assert::exception(fn() => $service->getHouseholdByToken($oldToken), \InvalidArgumentException::class);
+        Assert::same($stored, $service->getHouseholdByToken($newToken));
+        Assert::same($stored, $this->em->find(UserEntity::class, $memberId)->getHousehold());
+        Assert::same($stored, $this->em->find(UserEntity::class, $requesterId)->getHouseholdRequest());
+    }
+
     public function testNonModeratorCannotManageHousehold(): void
     {
         $household = $this->household();
@@ -70,9 +96,11 @@ final class HouseholdServiceTest extends ServiceTestCase
         $requester->setRequest($household);
         $this->em->flush();
         $service = new HouseholdService($this->em);
+        $token = $household->getToken();
 
         foreach ([
             fn() => $service->updateName($household, $member, 'Unauthorized'),
+            fn() => $service->regenerateToken($household, $member),
             fn() => $service->addUser($requester, $member, $household),
             fn() => $service->removeHouseholdUser($household, $member, $household->getModerator()),
             fn() => $service->acceptHouseholdRequest($household, $member, $requester),
@@ -82,6 +110,7 @@ final class HouseholdServiceTest extends ServiceTestCase
             Assert::exception($operation, \DomainException::class, 'Current user is not moderator for this household.');
         }
         Assert::same('Test household', $household->getName());
+        Assert::same($token, $household->getToken());
         Assert::same($household, $member->getHousehold());
         Assert::null($requester->getHousehold());
         Assert::same($household, $requester->getHouseholdRequest());
@@ -126,6 +155,49 @@ final class HouseholdServiceTest extends ServiceTestCase
         Assert::same(2, $this->em->getRepository(UserEntity::class)->count([]));
     }
 
+    public function testLeaveHouseholdPersistsAfterLazyCollectionLoads(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $this->em->flush();
+        $memberId = $member->getId();
+        $this->em->clear();
+
+        $member = $this->em->find(UserEntity::class, $memberId);
+        (new HouseholdService($this->em))->leaveHousehold($member);
+        $this->em->clear();
+
+        Assert::null($this->em->find(UserEntity::class, $memberId)->getHousehold());
+    }
+
+    public function testModeratorRemovalPersistsAfterLazyCollectionLoads(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $this->em->flush();
+        $householdId = $household->getId();
+        $memberId = $member->getId();
+        $this->em->clear();
+
+        $household = $this->em->find(HouseholdEntity::class, $householdId);
+        $member = $this->em->find(UserEntity::class, $memberId);
+        (new HouseholdService($this->em))->removeHouseholdUser($household, $household->getModerator(), $member);
+        $this->em->clear();
+
+        Assert::null($this->em->find(UserEntity::class, $memberId)->getHousehold());
+    }
+
+    public function testModeratorCannotLeaveHousehold(): void
+    {
+        $household = $this->household();
+        Assert::exception(
+            fn() => (new HouseholdService($this->em))->leaveHousehold($household->getModerator()),
+            \DomainException::class,
+        );
+    }
+
     public function testCannotRemoveModeratorOrForeignUser(): void
     {
         $household = $this->household();
@@ -168,6 +240,20 @@ final class HouseholdServiceTest extends ServiceTestCase
         Assert::same($household, $requester->getHouseholdRequest());
         Assert::same([$requester], $service->getHouseholdRequests($household));
         Assert::same([], $service->getHouseholdRequests($other));
+    }
+
+    public function testRequesterCanCancelOwnRequest(): void
+    {
+        $household = $this->household();
+        $requester = $this->user();
+        $requester->setRequest($household);
+        $this->em->flush();
+        $requesterId = $requester->getId();
+
+        (new HouseholdService($this->em))->cancelOwnRequest($requester);
+        $this->em->clear();
+
+        Assert::null($this->em->find(UserEntity::class, $requesterId)->getHouseholdRequest());
     }
 
     public function testExistingMemberCannotRequestAnotherHousehold(): void

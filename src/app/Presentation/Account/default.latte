@@ -1,0 +1,34 @@
+{block title}Můj účet{/block}
+
+{block content}
+<header class="page-header">
+	<div>
+		<small>Účet / Profil</small>
+		<h1>Můj účet</h1>
+		<p>Upravte své osobní údaje a nastavení účtu.</p>
+	</div>
+</header>
+
+<div class="stack">
+	<section class="card">
+		<h2>Profilové údaje</h2>
+		<p>E-mail nebo heslo můžete změnit po zadání současného hesla.</p>
+		{form profileForm}
+			<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+			<div class="field">{label name /}{input name}</div>
+			<div class="field">{label surname /}{input surname}</div>
+			<div class="field">{label email /}{input email}</div>
+			<div class="field">{label newPassword /}{input newPassword, autocomplete: 'new-password'}<small>Nechte prázdné, pokud heslo nechcete měnit.</small></div>
+			<div class="field">{label currentPassword /}{input currentPassword, autocomplete: 'current-password'}</div>
+			{input send, class: 'button button-primary'}
+		{/form}
+	</section>
+	{if $currentUser->getHousehold() && $currentUser->getHousehold()->getModerator() !== $currentUser}
+		<section class="card">
+			<h2>Členství v domácnosti</h2>
+			<p>Jste členem domácnosti {$currentUser->getHousehold()->getName()}. Po odchodu už neuvidíte její obsah.</p>
+			{form leaveHouseholdForm}{input send, class: 'button button-danger'}{/form}
+		</section>
+	{/if}
+</div>
+{/block}

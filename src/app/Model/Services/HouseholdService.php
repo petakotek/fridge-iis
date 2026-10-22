@@ -10,6 +10,9 @@ use App\Model\Entity\UserEntity;
 final class HouseholdService extends BaseService
 {
     public function createHousehold(string $name, UserEntity $moderator): HouseholdEntity {
+        if ($moderator->getHousehold() !== null || $moderator->getHouseholdRequest() !== null) {
+            throw new \DomainException('User already belongs to or has requested a household.');
+        }
         $household = new HouseholdEntity($name);
         $household->generateToken();
 
@@ -28,8 +31,8 @@ final class HouseholdService extends BaseService
         );
 
         foreach ($householdUsers as $householdUser) {
-            $householdUser->removeHousehold($household);
             $household->removeUser($householdUser);
+            $householdUser->removeHousehold($household);
         }
 
         $this->entityManager->remove($household);
@@ -41,6 +44,17 @@ final class HouseholdService extends BaseService
 
         $household->setName($newName);
         $this->entityManager->persist($household);
+        $this->entityManager->flush();
+    }
+
+    public function regenerateToken(HouseholdEntity $household, UserEntity $user): void {
+        Verification::assertModerator($household, $user);
+
+        $oldToken = $household->getToken();
+        do {
+            $household->generateToken();
+        } while ($household->getToken() === $oldToken);
+
         $this->entityManager->flush();
     }
 
@@ -80,16 +94,40 @@ final class HouseholdService extends BaseService
         if ($remover === $moderator) {
             throw new \DomainException('Moderator cannot be removed by himself.');
         }
-        $remover->removeHousehold($household);
         $household->removeUser($remover);
+        $remover->removeHousehold($household);
         $this->entityManager->flush();
     }
 
     public function createHouseholdRequest(HouseholdEntity $household, UserEntity $requester, string $token): void {
         if ($token === $household->getToken()) {
+            if ($requester->getHouseholdRequest() !== null) {
+                throw new \DomainException('User already has a pending household request.');
+            }
             $requester->setRequest($household);
             $this->entityManager->flush();
         }
+    }
+
+    public function cancelOwnRequest(UserEntity $requester): void {
+        if ($requester->getHouseholdRequest() === null) {
+            throw new \DomainException('User has no pending household request.');
+        }
+        $requester->unsetHouseholdRequest();
+        $this->entityManager->flush();
+    }
+
+    public function leaveHousehold(UserEntity $member): void {
+        $household = $member->getHousehold();
+        if ($household === null) {
+            throw new \DomainException('User does not belong to a household.');
+        }
+        if ($household->getModerator() === $member) {
+            throw new \DomainException('Moderator must transfer management before leaving.');
+        }
+        $household->removeUser($member);
+        $member->removeHousehold($household);
+        $this->entityManager->flush();
     }
 
     public function getHouseholdRequests(HouseholdEntity $household): array {
@@ -124,7 +162,7 @@ final class HouseholdService extends BaseService
             throw new \DomainException('Household request is not in this household.');
         }
 
-        $requester->unsetHouseholdRequest($household);
+        $requester->unsetHouseholdRequest();
         $this->entityManager->flush();
     }
 }

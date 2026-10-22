@@ -1,0 +1,108 @@
+:root {
+	/* Změna tématu: upravte tyto čtyři barvy. */
+	--text: #27342c;
+	--accent: #348250;
+	--surface: #fff;
+	--danger: #a43d31;
+	--muted: color-mix(in srgb, var(--text) 60%, var(--surface));
+	--accent-hover: color-mix(in srgb, var(--accent) 80%, var(--text));
+	--background: color-mix(in srgb, var(--surface) 96%, var(--text));
+	--border: color-mix(in srgb, var(--text) 11%, var(--surface));
+	--highlight: color-mix(in srgb, var(--accent) 12%, var(--surface));
+	--danger-background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+	--radius: 8px;
+	--card-radius: 14px;
+	--content-width: 1050px;
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	color: var(--text);
+	background: var(--background);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+a { color: inherit; text-decoration: none; }
+small { color: var(--muted); }
+:where(a, summary, input, select):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+:where(.page-surface, .card, .dropdown-panel) { border: 1px solid var(--border); border-radius: var(--card-radius); }
+
+/* Rozložení aplikace */
+.app-shell { display: grid; grid-template-columns: 244px minmax(0, 1fr); grid-template-rows: 68px minmax(calc(100vh - 68px), auto); min-height: 100vh; }
+.topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 26px; padding: 0 36px 0 28px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.brand { display: inline-flex; align-items: center; gap: 10px; flex: 0 0 216px; }
+.brand-mark, .avatar { display: grid; place-items: center; background: var(--highlight); color: var(--accent); }
+.brand-mark { width: 34px; height: 34px; border-radius: var(--radius); }
+.brand-mark svg { width: 23px; height: 23px; }
+.brand-name { font-size: 25px; font-weight: 750; letter-spacing: -.05em; line-height: 1; }
+.brand-dot { color: var(--accent); }
+.topbar-context { min-width: 0; overflow: hidden; padding-left: 26px; border-left: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+
+.sidebar { min-width: 0; padding: 30px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.sidebar nav { display: grid; gap: 5px; }
+.sidebar nav a { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 13px; border-radius: var(--radius); color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.sidebar nav a:hover, .sidebar nav a[aria-current=page] { background: var(--highlight); color: var(--accent); }
+.sidebar nav svg { width: 17px; height: 17px; flex: none; stroke: currentColor; stroke-width: 1.8; }
+
+.main-content { display: flex; min-width: 0; flex-direction: column; padding: clamp(10px, 1.2vw, 16px); }
+.page-surface { flex: 1; min-width: 0; padding: clamp(32px, 4vw, 48px) clamp(18px, 4.3vw, 72px) clamp(48px, 6vw, 80px); background: var(--surface); }
+.page-surface:has(.form-page) { display: flex; flex-direction: column; justify-content: center; }
+
+/* Opakovaně použitelné prvky */
+.dropdown { position: relative; }
+.topbar > .dropdown { margin-left: auto; }
+.dropdown summary { display: flex; align-items: center; gap: 9px; padding: 5px; border-radius: var(--radius); cursor: pointer; list-style: none; font-size: 13px; }
+.dropdown summary::-webkit-details-marker { display: none; }
+.dropdown summary:hover, .dropdown[open] summary { background: var(--highlight); }
+.dropdown summary::after { content: "⌄"; margin: -4px 3px 0 1px; color: var(--muted); font-size: 20px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: 750; }
+.dropdown-panel { position: absolute; z-index: 10; top: calc(100% + 10px); right: 0; width: 260px; padding: 8px; background: var(--surface); }
+.dropdown-panel header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 12px 14px; border-bottom: 1px solid var(--border); }
+.dropdown-panel header small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dropdown-panel :is(a, input[type=submit]) { display: block; width: 100%; padding: 10px 12px; border: 0; border-radius: var(--radius); background: transparent; color: var(--text); text-align: left; font: inherit; font-size: 13px; cursor: pointer; }
+.dropdown-panel :is(a, input[type=submit]):hover { background: var(--highlight); }
+.dropdown-panel form { margin: 0; padding-top: 5px; border-top: 1px solid var(--border); }
+
+.badge { padding: 5px 9px; border-radius: 20px; background: var(--background); color: var(--muted); font-size: 11px; font-weight: 700; }
+.page-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px; max-width: var(--content-width); margin: 0 auto 32px; }
+.page-header small { display: block; margin-bottom: 13px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.page-header h1 { margin: 0; font-size: clamp(28px, 3vw, 36px); font-weight: 700; letter-spacing: -.035em; }
+.page-header p { margin: 9px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.actions form { margin: 0; }
+.page-header > .actions { justify-content: flex-end; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border: 1px solid transparent; border-radius: var(--radius); font: inherit; font-size: 12px; font-weight: 700; line-height: 1.3; white-space: nowrap; cursor: pointer; }
+.button-primary { background: var(--accent); color: var(--surface); }
+.button-primary:hover { background: var(--accent-hover); }
+.button-outline { border-color: var(--border); background: var(--surface); color: var(--accent); }
+.button-outline:hover { background: var(--highlight); }
+.button-danger { border-color: var(--border); background: var(--danger-background); color: var(--danger); }
+.card { width: 100%; padding: clamp(22px, 2.5vw, 30px); background: var(--background); }
+.card h2 { margin: 0 0 7px; font-size: 19px; }
+.stack { display: grid; gap: 18px; max-width: var(--content-width); margin: 0 auto; }
+.stack .card > p { margin: 0 0 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.stack .card form { max-width: 580px; }
+.notice { max-width: var(--content-width); margin: 0 auto 20px; padding: 13px 16px; border-radius: var(--radius); background: var(--highlight); color: var(--accent); font-size: 13px; }
+.notice.error { background: var(--danger-background); color: var(--danger); }
+
+.form-page { width: min(100%, 480px); margin: auto; }
+.form-page .page-header { justify-content: center; margin-bottom: 32px; text-align: center; }
+.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 19px; }
+.field label { font-size: 12px; font-weight: 700; }
+.field :is(input, select) { width: 100%; min-height: 41px; padding: 0 11px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
+.field :is(input, select):focus { border-color: var(--accent); }
+.field small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+.empty-state { display: flex; min-height: 425px; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
+.empty-state > svg { width: 112px; height: 112px; margin-bottom: 18px; color: var(--accent); }
+.empty-state h2 { margin: 0 0 9px; font-size: 23px; font-weight: 650; }
+.empty-state p { max-width: 350px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.empty-state .actions { justify-content: center; margin-top: 24px; }
+
+@media (max-width: 720px) {
+	.app-shell { grid-template-columns: 1fr; grid-template-rows: 64px auto 1fr; }
+	.topbar { gap: 14px; padding: 0 18px; }
+	.brand { flex: 0 0 auto; }
+	.topbar-context { padding: 0; border: 0; }
+	.dropdown summary strong { display: none; }
+	.sidebar { padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
+	.sidebar nav { display: flex; overflow-x: auto; }
+}

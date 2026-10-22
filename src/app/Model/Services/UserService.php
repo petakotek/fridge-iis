@@ -14,7 +14,15 @@ final class UserService extends BaseService
             throw new \InvalidArgumentException("Name and surname can't be empty");
         }
 
+        $email = trim($email);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
+            throw new \InvalidArgumentException('Invalid email address.');
+        }
+        if ($this->entityManager->getRepository(UserEntity::class)->findOneBy(['email' => $email]) !== null) {
+            throw new \DomainException('Email is already in use.');
+        }
         $user = new UserEntity($name, $surname, $email);
+        $user->setProfile($name, $surname, $email);
         $user->setPassword($password);
 
         $this->entityManager->persist($user);
@@ -41,13 +49,20 @@ final class UserService extends BaseService
         return $user;
     }
 
-// Example of User Login
-//$this->getUser()->login(
-//new \Nette\Security\SimpleIdentity(
-//$user->getId(),
-//$user->isAdmin() ? ['admin'] : ['user'],
-//),
-//);
-//
-//$this->redirect('Home:default');
+    public function updateProfile(UserEntity $user, string $name, string $surname, string $email, ?string $newPassword = null): void {
+        $email = trim($email);
+        $existing = $this->entityManager->getRepository(UserEntity::class)->findOneBy(['email' => $email]);
+        if ($existing !== null && $existing !== $user) {
+            throw new \DomainException('Email is already in use.');
+        }
+        $user->setProfile($name, $surname, $email);
+        if ($newPassword !== null) {
+            if (mb_strlen($newPassword) < 8) {
+                throw new \InvalidArgumentException('Password must contain at least 8 characters.');
+            }
+            $user->setPassword($newPassword);
+        }
+        $this->entityManager->flush();
+    }
+
 }

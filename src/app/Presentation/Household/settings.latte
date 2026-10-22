@@ -1,0 +1,41 @@
+{block title}Nastavení domácnosti{/block}
+
+{block content}
+<header class="page-header">
+	<div>
+		<small>Domácnost / Nastavení</small>
+		<h1>Nastavení domácnosti</h1>
+		<p>Spravujte název domácnosti a pozvánkový token.</p>
+	</div>
+	<div class="actions"><a class="button button-outline" n:href="Home:default">Zpět na přehled</a></div>
+</header>
+<div class="stack">
+	<section class="card">
+		<h2>Údaje domácnosti</h2>
+		{form settingsForm}
+			<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+			<div class="field">{label name /}{input name}</div>
+			{input send, class: 'button button-primary'}
+		{/form}
+	</section>
+	<section class="card">
+		<h2>Pozvánkový token</h2>
+		<p>Tento token předejte lidem, kteří chtějí požádat o členství ve vaší domácnosti. Vygenerováním nového tokenu přestane původní token fungovat. Stávajících členů a žádostí se změna nedotkne.</p>
+		<div class="actions">
+			<code>{$household->getToken()}</code>
+			{form regenerateTokenForm}
+				{input send, class: 'button button-outline'}
+			{/form}
+		</div>
+	</section>
+	<section class="card" n:if="count($requests) > 0">
+		<h2>Žádosti o členství</h2>
+		<p>Vyberte žádost a rozhodněte, zda ji přijmete.</p>
+		{form decisionForm}
+			<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+			<div class="field">{label requesterId /}{input requesterId}</div>
+			<div class="actions">{input accept, class: 'button button-primary'}{input reject, class: 'button button-outline'}</div>
+		{/form}
+	</section>
+</div>
+{/block}
