@@ -51,7 +51,7 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                 $form->addError($e->getMessage());
                 return;
             }
-            $this->restoreRequest($this->backlink);
+            //$this->restoreRequest($this->backlink);
             $this->redirect("Home:");
         };
         return $form;
