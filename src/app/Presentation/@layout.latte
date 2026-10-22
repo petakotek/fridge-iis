@@ -1,3 +1,6 @@
+{varType App\Model\Entity\UserEntity $currentUser}
+{varType string $accountRole}
+
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -6,7 +9,7 @@
 
 	<title>{ifset title}{include title|stripHtml} · {/ifset}Spíž</title>
 
-	<link rel="stylesheet" href="{$basePath}/www/css/app.css">
+	<link rel="stylesheet" href="{= $basePath . '/www/css/app.css'}">
 	{asset? 'main.js'}
 </head>
 
