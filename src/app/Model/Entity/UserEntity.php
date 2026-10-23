@@ -79,6 +79,21 @@ class UserEntity extends BaseEntity
         $this->password = $hashed;
     }
 
+    public function setProfile(string $name, string $surname, string $email): void {
+        $name = trim($name);
+        $surname = trim($surname);
+        $email = trim($email);
+        if ($name === '' || $surname === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Invalid profile details.');
+        }
+        if (mb_strlen($name) > 255 || mb_strlen($surname) > 255 || mb_strlen($email) > 255) {
+            throw new \InvalidArgumentException('Profile details are too long.');
+        }
+        $this->name = $name;
+        $this->surname = $surname;
+        $this->email = $email;
+    }
+
     public function setRequest(HouseholdEntity $household): void {
         if ($this->household === null) {
             $this->householdRequest = $household;

@@ -2,6 +2,9 @@
 
 ## Lokální vývojové prostředí
 
+http://localhost:8080/~xvoldrv00/
+
+
 Prostředí zrcadlí produkční kombinaci Apache + FastCGI, PHP 8.4.24 a
 MariaDB 11.8.8. Zdrojový adresář `src` je připojen jako obsah produkčního
 adresáře `WWW` a aplikace používá prefix `/~xvoldrv00/`.

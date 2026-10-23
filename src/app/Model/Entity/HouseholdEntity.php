@@ -19,7 +19,6 @@ class HouseholdEntity extends BaseEntity
     private Collection $users;
 
     #[ORM\OneToMany(targetEntity: ApplianceEntity::class, mappedBy: "household")]
-    #[ORM\JoinColumn (nullable: true, onDelete: 'CASCADE')]
     private Collection $appliances;
 
     #[ORM\OneToMany(targetEntity: CategoryEntity::class, mappedBy: "household")]

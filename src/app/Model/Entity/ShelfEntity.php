@@ -15,11 +15,10 @@ class ShelfEntity extends BaseEntity
     private int $shelfCapacity;
 
     #[ORM\OneToMany (targetEntity: FoodEntity::class, mappedBy: "shelf")]
-    #[ORM\JoinColumn (nullable: true, onDelete: 'CASCADE')]
     private ?Collection $foods;
 
     #[ORM\ManyToOne (targetEntity: ApplianceEntity::class, inversedBy: 'shelves')]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?ApplianceEntity $appliance = null;
 
     public function __construct(int $capacity) {

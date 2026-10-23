@@ -60,7 +60,7 @@ class FoodEntity extends BaseEntity
     private Collection $categories;
 
     #[ORM\ManyToOne (targetEntity: ShelfEntity::class, inversedBy: 'foods')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ShelfEntity $shelf;
 
     public function __construct(string $name,
