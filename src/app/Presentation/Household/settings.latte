@@ -1,5 +1,6 @@
 {varType App\Model\Entity\HouseholdEntity $household}
 {varType App\Model\Entity\UserEntity[] $requests}
+{varType App\Model\Entity\UserEntity[] $members}
 
 {block title}Nastavení domácnosti{/block}
 
@@ -8,7 +9,7 @@
 	<div>
 		<small>Domácnost / Nastavení</small>
 		<h1>Nastavení domácnosti</h1>
-		<p>Spravujte název domácnosti a pozvánkový token.</p>
+		<p>Spravujte údaje domácnosti, členství a pozvánkový token.</p>
 	</div>
 	<div class="actions"><a class="button button-outline" n:href="Home:default">Zpět na přehled</a></div>
 </header>
@@ -38,6 +39,28 @@
 			<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
 			<div class="field">{label requesterId /}{input requesterId}</div>
 			<div class="actions">{input accept, class: 'button button-primary'}{input reject, class: 'button button-outline'}</div>
+		{/form}
+	</section>
+	<section class="card">
+		<h2>Předat správu domácnosti</h2>
+		<p>Vybraný člen se stane správcem. Vy zůstanete členem domácnosti a přijdete o přístup k jejímu nastavení.</p>
+		{if count($members) > 1}
+			{form transferModeratorForm}
+				<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+				<div class="field">{label memberId /}{input memberId}</div>
+				{input send, class: 'button button-outline'}
+			{/form}
+		{else}
+			<p>Správu můžete předat, až bude v domácnosti další člen.</p>
+		{/if}
+	</section>
+	<section class="card">
+		<h2>Smazat domácnost</h2>
+		<p>Smazáním domácnosti se odstraní její spotřebiče, police, potraviny a kategorie. Členové si ponechají účty, ale přijdou o členství. Čekající žádosti se zruší.</p>
+		{form deleteHouseholdForm, onsubmit: "return confirm('Smazání domácnosti je nevratné. Opravdu ji chcete smazat?')"}
+			<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+			<div class="field">{label confirmation /}{input confirmation}</div>
+			{input send, class: 'button button-danger'}
 		{/form}
 	</section>
 </div>

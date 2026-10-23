@@ -6,7 +6,11 @@ declare(strict_types=1);
 
 namespace Tests\Services;
 
+use App\Model\Entity\ApplianceEntity;
+use App\Model\Entity\CategoryEntity;
+use App\Model\Entity\FoodEntity;
 use App\Model\Entity\HouseholdEntity;
+use App\Model\Entity\ShelfEntity;
 use App\Model\Entity\UserEntity;
 use App\Model\Services\HouseholdService;
 use Tester\Assert;
@@ -87,6 +91,54 @@ final class HouseholdServiceTest extends ServiceTestCase
         Assert::same($stored, $this->em->find(UserEntity::class, $requesterId)->getHouseholdRequest());
     }
 
+    public function testTransferModeratorPersistsRolesAndAllowsPreviousModeratorToLeave(): void
+    {
+        $household = $this->household();
+        $previousModeratorId = $household->getModerator()->getId();
+        $member = $this->user();
+        $household->addUser($member);
+        $this->em->flush();
+        $memberId = $member->getId();
+        $householdId = $household->getId();
+        $service = new HouseholdService($this->em);
+
+        $service->transferModerator($household, $household->getModerator(), $member);
+        $this->em->clear();
+
+        $stored = $service->getHouseholdById($householdId);
+        $previousModerator = $this->em->find(UserEntity::class, $previousModeratorId);
+        $newModerator = $this->em->find(UserEntity::class, $memberId);
+        Assert::same($newModerator, $stored->getModerator());
+        Assert::same($stored, $previousModerator->getHousehold());
+        Assert::same($stored, $newModerator->getHousehold());
+        Assert::exception(fn() => $service->updateName($stored, $previousModerator, 'Unauthorized'), \DomainException::class);
+        Assert::exception(fn() => $service->leaveHousehold($newModerator), \DomainException::class);
+        $service->updateName($stored, $newModerator, 'New name');
+        $service->leaveHousehold($previousModerator);
+        $this->em->clear();
+
+        Assert::same('New name', $service->getHouseholdById($householdId)->getName());
+        Assert::null($this->em->find(UserEntity::class, $previousModeratorId)->getHousehold());
+        Assert::same($memberId, $service->getHouseholdById($householdId)->getModerator()->getId());
+    }
+
+    public function testTransferModeratorRejectsUsersWhoAreNotOtherMembers(): void
+    {
+        $household = $this->household();
+        $moderator = $household->getModerator();
+        $outsider = $this->user();
+        $requester = $this->user();
+        $requester->setRequest($household);
+        $foreignMember = $this->household()->getModerator();
+        $this->em->flush();
+        $service = new HouseholdService($this->em);
+
+        foreach ([$moderator, $outsider, $requester, $foreignMember] as $candidate) {
+            Assert::exception(fn() => $service->transferModerator($household, $moderator, $candidate), \DomainException::class);
+        }
+        Assert::same($moderator, $household->getModerator());
+    }
+
     public function testNonModeratorCannotManageHousehold(): void
     {
         $household = $this->household();
@@ -101,6 +153,7 @@ final class HouseholdServiceTest extends ServiceTestCase
         foreach ([
             fn() => $service->updateName($household, $member, 'Unauthorized'),
             fn() => $service->regenerateToken($household, $member),
+            fn() => $service->transferModerator($household, $member, $requester),
             fn() => $service->addUser($requester, $member, $household),
             fn() => $service->removeHouseholdUser($household, $member, $household->getModerator()),
             fn() => $service->acceptHouseholdRequest($household, $member, $requester),
@@ -214,6 +267,8 @@ final class HouseholdServiceTest extends ServiceTestCase
         $moderator = $household->getModerator();
         $member = $this->user();
         $household->addUser($member);
+        $requester = $this->user();
+        $requester->setRequest($household);
         $this->em->flush();
         $id = $household->getId();
         (new HouseholdService($this->em))->removeHousehold($household, $moderator);
@@ -221,9 +276,40 @@ final class HouseholdServiceTest extends ServiceTestCase
         Assert::false($household->isInHousehold($moderator));
         $this->em->clear();
         Assert::null($this->em->find(HouseholdEntity::class, $id));
-        Assert::same(2, $this->em->getRepository(UserEntity::class)->count([]));
+        Assert::same(3, $this->em->getRepository(UserEntity::class)->count([]));
         Assert::null($this->em->find(UserEntity::class, $member->getId())->getHousehold());
         Assert::null($this->em->find(UserEntity::class, $moderator->getId())->getHousehold());
+        Assert::null($this->em->find(UserEntity::class, $requester->getId())->getHouseholdRequest());
+    }
+
+    public function testRemoveHouseholdDeletesContentsWithoutChangingAnotherHousehold(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household);
+        $food = $this->food($shelf);
+        $category = $this->category($household);
+        $childCategory = $this->category($household, 'Child', $category);
+        $food->addCategory($childCategory);
+        $other = $this->household();
+        $otherShelf = $this->shelf($other);
+        $otherFood = $this->food($otherShelf);
+        $this->em->flush();
+
+        $applianceId = $shelf->getAppliance()->getId();
+        $shelfId = $shelf->getId();
+        $foodId = $food->getId();
+        $categoryId = $category->getId();
+        $childCategoryId = $childCategory->getId();
+        (new HouseholdService($this->em))->removeHousehold($household, $household->getModerator());
+        $this->em->clear();
+
+        Assert::null($this->em->find(ApplianceEntity::class, $applianceId));
+        Assert::null($this->em->find(ShelfEntity::class, $shelfId));
+        Assert::null($this->em->find(FoodEntity::class, $foodId));
+        Assert::null($this->em->find(CategoryEntity::class, $categoryId));
+        Assert::null($this->em->find(CategoryEntity::class, $childCategoryId));
+        Assert::same($other->getId(), $this->em->find(FoodEntity::class, $otherFood->getId())
+            ->getShelf()->getAppliance()->getHousehold()->getId());
     }
 
     public function testRequestRequiresMatchingTokenAndIsScopedToHousehold(): void

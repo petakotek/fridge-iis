@@ -35,6 +35,7 @@ final class HouseholdPresenter extends AuthenticatedPresenter
     {
         $this->template->household = $this->currentUser->getHousehold();
         $this->template->requests = $this->households->getHouseholdRequests($this->currentUser->getHousehold());
+        $this->template->members = $this->households->getHouseholdMembers($this->currentUser->getHousehold());
     }
 
     protected function createComponentCreateForm(): Form
@@ -117,6 +118,64 @@ final class HouseholdPresenter extends AuthenticatedPresenter
             }
             $this->flashMessage('Byl vygenerován nový pozvánkový token.');
             $this->redirect('this');
+        };
+        return $form;
+    }
+
+    protected function createComponentDeleteHouseholdForm(): Form
+    {
+        $form = new Form;
+        $form->addText('confirmation', 'Pro potvrzení napište název domácnosti')->setRequired();
+        $form->addSubmit('send', 'Smazat domácnost');
+        $form->onSuccess[] = function (Form $form, $data): void {
+            $household = $this->currentUser->getHousehold();
+            if ($household === null) {
+                $this->error('Domácnost nenalezena.', 404);
+            }
+            if (trim($data->confirmation) !== $household->getName()) {
+                $form->addError('Zadaný název domácnosti nesouhlasí.');
+                return;
+            }
+            try {
+                $this->households->removeHousehold($household, $this->currentUser);
+            } catch (\DomainException) {
+                $this->error('Přístup odepřen.', 403);
+            }
+            $this->flashMessage('Domácnost byla smazána.');
+            $this->redirect('Home:default');
+        };
+        return $form;
+    }
+
+    protected function createComponentTransferModeratorForm(): Form
+    {
+        $household = $this->currentUser->getHousehold();
+        $options = [];
+        if ($household !== null) {
+            foreach ($this->households->getHouseholdMembers($household) as $member) {
+                if ($member !== $this->currentUser) {
+                    $options[$member->getId()] = $member->getName() . ' ' . $member->getSurname() . ' (' . $member->getEmail() . ')';
+                }
+            }
+        }
+
+        $form = new Form;
+        $form->addSelect('memberId', 'Nový správce', $options)->setPrompt('Vyberte člena')->setRequired();
+        $form->addSubmit('send', 'Předat správu');
+        $form->onSuccess[] = function (Form $form, $data): void {
+            $household = $this->currentUser->getHousehold();
+            if ($household === null) {
+                $this->error('Domácnost nenalezena.', 404);
+            }
+            try {
+                $newModerator = $this->users->getUserById((int) $data->memberId);
+                $this->households->transferModerator($household, $this->currentUser, $newModerator);
+            } catch (\DomainException|\InvalidArgumentException) {
+                $form->addError('Správu se nepodařilo předat. Ověřte členství vybraného uživatele.');
+                return;
+            }
+            $this->flashMessage('Správa domácnosti byla předána. Nyní jste jejím členem.');
+            $this->redirect('Home:default');
         };
         return $form;
     }

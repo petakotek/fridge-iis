@@ -3,7 +3,6 @@
 namespace App\Model\Services;
 
 use App\Model\Common\Verification;
-use App\Model\Entity\ApplianceEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\UserEntity;
 
@@ -25,18 +24,19 @@ final class HouseholdService extends BaseService
 
     public function removeHousehold(HouseholdEntity $household, UserEntity $user): void {
         Verification::assertModerator($household, $user);
-        $householdUsers = $this->entityManager->getRepository(UserEntity::class)
-            ->findBy(
-                ['household' => $household]
-        );
 
-        foreach ($householdUsers as $householdUser) {
-            $household->removeUser($householdUser);
-            $householdUser->removeHousehold($household);
-        }
+        $this->entityManager->wrapInTransaction(function () use ($household): void {
+            foreach ($this->getHouseholdRequests($household) as $requester) {
+                $requester->unsetHouseholdRequest();
+            }
 
-        $this->entityManager->remove($household);
-        $this->entityManager->flush();
+            foreach ($this->entityManager->getRepository(UserEntity::class)->findBy(['household' => $household]) as $member) {
+                $household->removeUser($member);
+                $member->removeHousehold($household);
+            }
+
+            $this->entityManager->remove($household);
+        });
     }
 
     public function updateName(HouseholdEntity $household, UserEntity $user, string $newName): void {
@@ -55,6 +55,17 @@ final class HouseholdService extends BaseService
             $household->generateToken();
         } while ($household->getToken() === $oldToken);
 
+        $this->entityManager->flush();
+    }
+
+    public function transferModerator(HouseholdEntity $household, UserEntity $currentModerator, UserEntity $newModerator): void {
+        Verification::assertModerator($household, $currentModerator);
+        Verification::assertHouseholdUser($household, $newModerator);
+        if ($newModerator === $household->getModerator()) {
+            throw new \DomainException('User is already the moderator of this household.');
+        }
+
+        $household->setModerator($newModerator);
         $this->entityManager->flush();
     }
 
@@ -135,6 +146,11 @@ final class HouseholdService extends BaseService
             ->findBy(
                 ['householdRequest' => $household]
         );
+    }
+
+    public function getHouseholdMembers(HouseholdEntity $household): array {
+        return $this->entityManager->getRepository(UserEntity::class)
+            ->findBy(['household' => $household], ['surname' => 'ASC', 'name' => 'ASC']);
     }
 
     public function acceptHouseholdRequest(HouseholdEntity $household, UserEntity $moderator, UserEntity $requester): void {

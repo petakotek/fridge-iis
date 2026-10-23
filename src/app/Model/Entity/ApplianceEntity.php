@@ -13,11 +13,10 @@ class ApplianceEntity extends BaseEntity
     private string $name;
 
     #[ORM\OneToMany(targetEntity: ShelfEntity::class, mappedBy: "appliance")]
-    #[ORM\JoinColumn(nullable: true, onDelete: "CASCADE")]
     private Collection $shelves;
 
     #[ORM\ManyToOne (targetEntity: HouseholdEntity::class, inversedBy: 'appliances')]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?HouseholdEntity $household = null;
 
     public function __construct(string $name) {
