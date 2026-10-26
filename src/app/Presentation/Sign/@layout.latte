@@ -1,0 +1,20 @@
+{layout '../@layout.latte'}
+
+{block content}
+<div class="auth-card">
+	<div class="auth-titlebar">Přihlášení</div>
+
+	<div class="auth-body">
+		<h1 class="auth-logo">FIT LEDNICE</h1>
+		<p class="auth-subtitle">Správa potravin v domácnosti</p>
+
+		<nav class="auth-tabs">
+			<a n:href="in" n:class="$presenter->isLinkCurrent('in') ? active">Přihlášení</a>
+			<a n:href="up" n:class="$presenter->isLinkCurrent('up') ? active">Registrace</a>
+		</nav>
+
+		{include form}
+	</div>
+
+</div>
+{/block}

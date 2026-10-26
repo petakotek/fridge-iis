@@ -1,0 +1,37 @@
+{block title}Registrace{/block}
+
+{block form}
+<form n:name="signUpForm" class="auth-form">
+	<ul class="form-errors" n:ifcontent>
+		<li n:foreach="$form->getOwnErrors() as $error">{$error}</li>
+	</ul>
+
+	<div class="auth-row-2">
+		<div>
+			<label n:name="name">Jméno</label>
+			<input n:name="name">
+			<small class="field-error" n:ifcontent>{inputError name}</small>
+		</div>
+		<div>
+			<label n:name="surname">Příjmení</label>
+			<input n:name="surname">
+			<small class="field-error" n:ifcontent>{inputError surname}</small>
+		</div>
+	</div>
+
+	<label n:name="email">E-mail</label>
+	<input n:name="email" placeholder="jan.novak@email.cz">
+	<small class="field-error" n:ifcontent>{inputError email}</small>
+
+	<label n:name="password">Heslo</label>
+	<input n:name="password">
+	<small class="field-hint">Alespoň 8 znaků.</small>
+	<small class="field-error" n:ifcontent>{inputError password}</small>
+
+	<label n:name="passwordVerify">Potvrzení hesla</label>
+	<input n:name="passwordVerify">
+	<small class="field-error" n:ifcontent>{inputError passwordVerify}</small>
+
+	<button n:name="send" class="btn-primary">Vytvořit účet</button>
+</form>
+{/block}

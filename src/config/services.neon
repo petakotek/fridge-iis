@@ -1,5 +1,6 @@
 services:
     - App\Core\RouterFactory::createRouter
+    - App\Model\Security\UserAuthenticator
     entityManager:
         create: App\Model\Doctrine\EntityManagerFactory::create
         arguments:
