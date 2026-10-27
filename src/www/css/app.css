@@ -90,6 +90,34 @@ small { color: var(--muted); }
 .field :is(input, select) { width: 100%; min-height: 41px; padding: 0 11px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
 .field :is(input, select):focus { border-color: var(--accent); }
 .field small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.field small.field-error { color: var(--danger); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.field-check { display: flex; align-items: center; gap: 8px; margin-bottom: 19px; font-size: 13px; cursor: pointer; }
+.field-check input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.button-block { width: 100%; min-height: 41px; font-size: 13px; }
+
+/* Přihlášení a registrace */
+.auth-page { display: flex; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 100px 16px 40px; }
+.auth-brand { position: absolute; top: 24px; left: 32px; font-size: 44px; font-weight: 750; letter-spacing: -.05em; line-height: 1; }
+.auth-page .form-page { margin: 0; background: var(--surface); }
+.auth-page .form-page .page-header { margin-bottom: 26px; }
+.auth-page .notice { width: min(100%, 480px); margin: 0; }
+.auth-switch { margin: 22px 0 0; color: var(--muted); font-size: 13px; text-align: center; }
+.auth-switch a { color: var(--accent); font-weight: 700; }
+.auth-switch a:hover { text-decoration: underline; }
+.auth-stack { display: grid; gap: 14px; width: min(100%, 480px); }
+.auth-guest .page-header { margin-bottom: 18px; }
+.auth-guest .page-header h2 { margin: 0; font-size: 19px; }
+
+/* Přístup hosta */
+.guest-page { max-width: var(--content-width); margin: 0 auto; padding: 100px 16px 40px; }
+.guest-page .stack { margin-top: 0; }
+.guest-page .card h3 { margin: 22px 0 10px; font-size: 14px; }
+.guest-page .card h3 small { margin-left: 8px; font-weight: 500; }
+.food-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; }
+.food-table :is(th, td) { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+.food-table th { color: var(--muted); font-size: 11px; font-weight: 700; }
+.food-table tr:last-child td { border-bottom: 0; }
 
 .empty-state { display: flex; min-height: 425px; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
 .empty-state > svg { width: 112px; height: 112px; margin-bottom: 18px; color: var(--accent); }
@@ -105,4 +133,5 @@ small { color: var(--muted); }
 	.dropdown summary strong { display: none; }
 	.sidebar { padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
 	.sidebar nav { display: flex; overflow-x: auto; }
+	.field-row { grid-template-columns: 1fr; }
 }

@@ -1,24 +1,47 @@
 {block title}Přihlášení{/block}
 
-{block form}
-<form n:name="signInForm" class="auth-form">
-	<ul class="form-errors" n:ifcontent>
-		<li n:foreach="$form->getOwnErrors() as $error">{$error}</li>
-	</ul>
+{block content}
+<div class="auth-stack">
+<section class="form-page card">
+	<header class="page-header">
+		<div>
+			<h1>Přihlášení</h1>
+			<p>Přihlaste se ke správě potravin ve vaší domácnosti.</p>
+		</div>
+	</header>
+	<form n:name="signInForm">
+		<div class="notice error" n:foreach="$form->getOwnErrors() as $error">{$error}</div>
+		<div class="field">
+			<label n:name="email">E-mail</label>
+			<input n:name="email" placeholder="jan.novak@email.cz" autocomplete="email">
+			<small class="field-error" n:ifcontent>{inputError email}</small>
+		</div>
+		<div class="field">
+			<label n:name="password">Heslo</label>
+			<input n:name="password" autocomplete="current-password">
+			<small class="field-error" n:ifcontent>{inputError password}</small>
+		</div>
+		<label n:name="remember" class="field-check"><input n:name="remember"> Zapamatovat si mě</label>
+		<button n:name="send" class="button button-primary button-block">Přihlásit se</button>
+	</form>
+	<p class="auth-switch">Nemáte účet? <a n:href="up">Zaregistrujte se</a></p>
+</section>
 
-	<label n:name="email">E-mail</label>
-	<input n:name="email" placeholder="jan.novak@email.cz">
-	<small class="field-error" n:ifcontent>{inputError email}</small>
-
-	<label n:name="password">Heslo</label>
-	<input n:name="password">
-	<small class="field-error" n:ifcontent>{inputError password}</small>
-
-	<div class="auth-row">
-		<label n:name="remember" class="auth-check"><input n:name="remember"> Zapamatovat si mě</label>
-		<span class="link-disabled" title="Zatím není k dispozici">Zapomenuté heslo?</span>
-	</div>
-
-	<button n:name="send" class="btn-primary">Přihlásit se</button>
-</form>
+<section class="form-page card auth-guest">
+	<header class="page-header">
+		<div>
+			<h2>Přístup jako host</h2>
+		</div>
+	</header>
+	<form n:name="guestForm">
+		<div class="notice error" n:foreach="$form->getOwnErrors() as $error">{$error}</div>
+		<div class="field">
+			<label n:name="token">Token domácnosti</label>
+			<input n:name="token" autocomplete="off">
+			<small class="field-error" n:ifcontent>{inputError token}</small>
+		</div>
+		<button n:name="send" class="button button-outline button-block">Vstoupit jako host</button>
+	</form>
+</section>
+</div>
 {/block}

@@ -6,6 +6,7 @@ use App\Model\Entity\UserEntity;
 use App\Model\Services\UserService;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
+use Nette\Security\User;
 
 abstract class AuthenticatedPresenter extends Presenter
 {
@@ -21,14 +22,17 @@ abstract class AuthenticatedPresenter extends Presenter
         parent::startup();
         $this->getSession()->start();
         if (!$this->getUser()->isLoggedIn()) {
-            $this->redirect('Auth:login');
+            if ($this->getUser()->getLogoutReason() === User::LogoutInactivity) {
+                $this->flashMessage('Byli jste odhlášeni z důvodu nečinnosti.');
+            }
+            $this->redirect('Sign:in', ['backlink' => $this->storeRequest()]);
         }
 
         try {
             $this->currentUser = $this->users->getUserById((int) $this->getUser()->getId());
         } catch (\InvalidArgumentException) {
             $this->getUser()->logout(true);
-            $this->redirect('Auth:login');
+            $this->redirect('Sign:in');
         }
     }
 
@@ -50,7 +54,8 @@ abstract class AuthenticatedPresenter extends Presenter
         $form->addSubmit('send', 'Odhlásit se');
         $form->onSuccess[] = function (): void {
             $this->getUser()->logout(true);
-            $this->redirect('Auth:login');
+            $this->flashMessage('Byli jste odhlášeni.');
+            $this->redirect('Sign:in');
         };
         return $form;
     }

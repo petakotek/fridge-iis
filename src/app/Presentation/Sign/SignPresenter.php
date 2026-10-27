@@ -2,6 +2,7 @@
 
 namespace App\Presentation\Sign;
 
+use App\Model\Services\HouseholdService;
 use App\Model\Services\UserService;
 use Nette;
 use Nette\Application\Attributes\Persistent;
@@ -11,8 +12,10 @@ final class SignPresenter extends Nette\Application\UI\Presenter
 {
     #[Persistent]
     public string $backlink = "";
-    public function __construct(private UserService $userService)
-    {
+    public function __construct(
+        private UserService $userService,
+        private HouseholdService $householdService,
+    ) {
         parent::__construct();
         // addEmail() has a built-in format rule with an English default message
         Nette\Forms\Validator::$messages[Form::Email] =
@@ -33,6 +36,29 @@ final class SignPresenter extends Nette\Application\UI\Presenter
         }
     }
 
+    protected function createComponentGuestForm(): Form
+    {
+        $form = new Form();
+        $form->addText("token", "Token domácnosti")->setRequired("Zadejte token.");
+        $form->addSubmit("send", "Vstoupit jako host");
+
+        $form->onSuccess[] = function (Form $form, \stdClass $data): void {
+            $token = trim($data->token);
+            try {
+                $household = $this->householdService->getHouseholdByToken($token);
+            } catch (\InvalidArgumentException) {
+                $form->addError("Domácnost s tímto tokenem nebyla nalezena.");
+                return;
+            }
+            $session = $this->getSession("guest");
+            $session->setExpiration("2 hours");
+            $session->set("householdId", $household->getId());
+            $session->set("token", $token);
+            $this->redirect("Guest:default");
+        };
+        return $form;
+    }
+
     protected function createComponentSignInForm(): Form
     {
         $form = new Form();
@@ -51,7 +77,7 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                 $form->addError($e->getMessage());
                 return;
             }
-            //$this->restoreRequest($this->backlink);
+            $this->restoreRequest($this->backlink);
             $this->redirect("Home:");
         };
         return $form;
@@ -90,12 +116,5 @@ final class SignPresenter extends Nette\Application\UI\Presenter
             $this->redirect("Home:");
         };
         return $form;
-    }
-
-    public function actionOut(): void
-    {
-        $this->getUser()->logout(true); // true = also clear the identity
-        $this->flashMessage("Byli jste odhlášeni.");
-        $this->redirect("in");
     }
 }
