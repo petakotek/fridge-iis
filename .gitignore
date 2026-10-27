@@ -4,4 +4,7 @@
 src/temp/cache
 .idea
 /src/vendor/
+/src/node_modules/
+/src/www/assets/
+/.npm-cache/
 /src/log/
