@@ -57,6 +57,10 @@ class ShelfEntity extends BaseEntity
     }
 
     public function setName(string $name): void {
+        $name = trim($name);
+        if ($name === '' || mb_strlen($name) > 255) {
+            throw new \InvalidArgumentException('Shelf name must contain 1 to 255 characters.');
+        }
         $this->name = $name;
     }
 

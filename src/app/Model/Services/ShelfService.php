@@ -10,10 +10,12 @@ use App\Model\Entity\UserEntity;
 
 final class ShelfService extends BaseService
 {
-    public function addShelf(HouseholdEntity $household, UserEntity $moderator, int $capacity, ApplianceEntity $appliance): ShelfEntity {
+    public function addShelf(HouseholdEntity $household, UserEntity $moderator, int $capacity, ApplianceEntity $appliance, string $name = 'Police'): ShelfEntity {
         Verification::assertModerator($household, $moderator);
+        Verification::assertHouseholdAppliance($household, $appliance);
 
         $shelf = new ShelfEntity($capacity);
+        $shelf->setName($name);
         $appliance->addShelf($shelf);
 
         $this->entityManager->persist($shelf);
@@ -24,7 +26,8 @@ final class ShelfService extends BaseService
 
     public function getShelves(ApplianceEntity $appliance) : array {
         $shelves = $this->entityManager->getRepository(ShelfEntity::class)->findBy(
-            ['appliance' => $appliance]
+            ['appliance' => $appliance],
+            ['id' => 'ASC'],
         );
 
         if (empty($shelves)) {
@@ -46,10 +49,39 @@ final class ShelfService extends BaseService
         return $shelf;
     }
 
+    public function updateShelf(HouseholdEntity $household, UserEntity $moderator, ShelfEntity $shelf, string $name, int $capacity): void
+    {
+        Verification::assertModerator($household, $moderator);
+        $appliance = $shelf->getAppliance();
+        if ($appliance === null) {
+            throw new \DomainException('Shelf has no appliance.');
+        }
+        Verification::assertHouseholdAppliance($household, $appliance);
+        $usedCapacity = 0;
+        foreach ($shelf->getFoods() as $food) {
+            if (!$food->isConsumed() && !$food->isTrashed()) {
+                $usedCapacity += $food->getWeight();
+            }
+        }
+        if ($capacity < $usedCapacity) {
+            throw new \DomainException('Capacity is smaller than the stored food weight.');
+        }
+        // Validate both values before changing the managed entity.
+        $validated = new ShelfEntity($capacity);
+        $validated->setName($name);
+        $shelf->setName($validated->getName());
+        $shelf->setCapacity($capacity);
+        $this->entityManager->flush();
+    }
+
     public function removeShelf(HouseholdEntity $household, UserEntity $moderator, ShelfEntity $shelf) : void {
         Verification::assertModerator($household, $moderator);
 
         $appliance = $shelf->getAppliance();
+        if ($appliance === null) {
+            throw new \DomainException('Shelf has no appliance.');
+        }
+        Verification::assertHouseholdAppliance($household, $appliance);
         $appliance->removeShelf($shelf);
 
         $this->entityManager->remove($shelf);
