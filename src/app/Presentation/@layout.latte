@@ -1,5 +1,6 @@
 {varType App\Model\Entity\UserEntity $currentUser}
 {varType string $accountRole}
+{varType App\Model\Entity\ApplianceEntity[] $sidebarAppliances}
 
 <!DOCTYPE html>
 <html lang="cs">
@@ -58,6 +59,19 @@
 					</a>
 				{/foreach}
 			</nav>
+            {if $sidebarAppliances}
+                <section class="sidebar-section" aria-labelledby="sidebar-appliances-title">
+                    <h2 id="sidebar-appliances-title">Spotřebiče</h2>
+                    <nav class="appliance-navigation" aria-label="Spotřebiče">
+                        {foreach $sidebarAppliances as $sidebarAppliance}
+                            <a n:href="Appliance:detail, id: $sidebarAppliance->getId()" {if $presenter->isLinkCurrent('Appliance:detail', ['id' => $sidebarAppliance->getId()])}aria-current="page"{/if}>
+                                {include 'Accessory/applianceIcon.latte', name: $sidebarAppliance->getName()}
+                                <span>{$sidebarAppliance->getName()}</span>
+                            </a>
+                        {/foreach}
+                    </nav>
+                </section>
+            {/if}
 		</aside>
 
 		<main class="main-content" id="main-content">
