@@ -46,6 +46,13 @@ small { color: var(--muted); }
 .page-surface { flex: 1; min-width: 0; padding: clamp(32px, 4vw, 48px) clamp(18px, 4.3vw, 72px) clamp(48px, 6vw, 80px); background: var(--surface); }
 .page-surface:has(.form-page) { display: flex; flex-direction: column; justify-content: center; }
 
+.sidebar-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.sidebar-section h2 { margin: 0 13px 10px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.sidebar nav.appliance-navigation { display: flex; flex-direction: column; gap: 5px; }
+.sidebar .appliance-navigation a { min-width: 0; white-space: normal; }
+.sidebar .appliance-navigation a span { min-width: 0; overflow-wrap: anywhere; }
+.sidebar .appliance-navigation .appliance-icon { padding: 0; border-radius: 0; background: transparent; }
+
 /* Opakovaně použitelné prvky */
 .dropdown { position: relative; }
 .topbar > .dropdown { margin-left: auto; }
@@ -80,6 +87,20 @@ small { color: var(--muted); }
 .stack { display: grid; gap: 18px; max-width: var(--content-width); margin: 0 auto; }
 .stack .card > p { margin: 0 0 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .stack .card form { max-width: 580px; }
+/* Seznamy spotřebičů a polic */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; max-width: var(--content-width); margin: 0 auto; }
+.card-grid > :is(h2, .empty-state) { grid-column: 1 / -1; }
+.card-grid > h2 { margin: 0; }
+.card-grid > .card { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.card-grid .card h3 { margin: 0; overflow-wrap: anywhere; }
+.card-grid .card h3 a:hover { color: var(--accent); text-decoration: underline; }
+.card-grid .card > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.card-grid .card > .actions { margin-top: auto; }
+
+.appliance-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.appliance-card-heading h3 { min-width: 0; }
+.appliance-icon { flex: none; width: 56px; height: 56px; padding: 5px; border-radius: var(--radius); background: var(--highlight); color: var(--accent); }
+
 .notice { max-width: var(--content-width); margin: 0 auto 20px; padding: 13px 16px; border-radius: var(--radius); background: var(--highlight); color: var(--accent); font-size: 13px; }
 .notice.error { background: var(--danger-background); color: var(--danger); }
 
