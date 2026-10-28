@@ -1,0 +1,27 @@
+{varType string $name}
+<svg class="appliance-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    {switch applianceIcon($name)}
+        {case 'fridge'}
+            <rect x="12" y="4" width="24" height="39" rx="3"/>
+            <path d="M12 19h24M17 11v3m0 10v8M16 43v2m16-2v2"/>
+        {case 'freezer'}
+            <rect x="7" y="12" width="34" height="29" rx="3"/>
+            <path d="M7 20h34M20 16h8M12 41v3m24-3v3M24 25v11m-5-8 10 5m-10 0 10-5"/>
+        {case 'microwave'}
+            <rect x="4" y="11" width="40" height="27" rx="3"/>
+            <rect x="9" y="16" width="24" height="17" rx="2"/>
+            <path d="M38 17h1m-1 5h1M9 38v3m30-3v3"/>
+            <circle cx="38" cy="30" r="2"/>
+        {case 'oven'}
+            <rect x="8" y="6" width="32" height="37" rx="3"/>
+            <path d="M8 15h32M15 10h1m7 0h1m7 0h1M16 21h16M13 43v2m22-2v2"/>
+            <rect x="13" y="19" width="22" height="18" rx="2"/>
+        {case 'pantry'}
+            <rect x="8" y="5" width="32" height="38" rx="3"/>
+            <path d="M24 5v38M19 21v6m10-6v6M12 43v2m24-2v2"/>
+        {default}
+            <rect x="8" y="6" width="32" height="37" rx="3"/>
+            <path d="M8 16h32M14 11h1m5 0h1M16 43v2m16-2v2"/>
+            <circle cx="24" cy="29" r="8"/>
+    {/switch}
+</svg>
