@@ -4,12 +4,20 @@ namespace App\Presentation\Accessory;
 
 use App\Model\Entity\UserEntity;
 use App\Model\Services\UserService;
+use App\Model\Services\ApplianceService;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
 
 abstract class AuthenticatedPresenter extends Presenter
 {
     protected UserEntity $currentUser;
+    private ApplianceService $navigationAppliances;
+
+    public function injectApplianceNavigation(ApplianceService $appliances): void
+    {
+        $this->navigationAppliances = $appliances;
+    }
+
 
     public function __construct(protected UserService $users)
     {
@@ -37,6 +45,9 @@ abstract class AuthenticatedPresenter extends Presenter
         parent::beforeRender();
         $household = $this->currentUser->getHousehold();
         $this->template->currentUser = $this->currentUser;
+        $this->template->sidebarAppliances = $household !== null
+            ? $this->navigationAppliances->getAppliances($household)
+            : [];
         $this->template->accountRole = $this->currentUser->isAdmin()
             ? 'Administrátor'
             : ($household !== null
