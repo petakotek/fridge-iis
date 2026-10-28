@@ -3,15 +3,34 @@
 namespace App\Model\Services;
 
 use App\Model\Entity\UserEntity;
+use Nette\Utils\Validators;
+
 final class UserService extends BaseService
 {
-
-    public function createUser(string $name, string $surname, string $email, string $password): UserEntity {
-        if  ($password == "") {
+    public function createUser(
+        string $name,
+        string $surname,
+        string $email,
+        string $password,
+    ): UserEntity {
+        if ($password == "") {
             throw new \InvalidArgumentException("Password can't be empty");
         }
         if ($name == "" || $surname == "") {
-            throw new \InvalidArgumentException("Name and surname can't be empty");
+            throw new \InvalidArgumentException(
+                "Name and surname can't be empty",
+            );
+        }
+        if (!Validators::isEmail($email)) {
+            throw new \InvalidArgumentException("Invalid e-mail address");
+        }
+        $existing = $this->entityManager
+            ->getRepository(UserEntity::class)
+            ->findOneBy(["email" => $email]);
+        if ($existing !== null) {
+            throw new \InvalidArgumentException(
+                "E-mail is already registered",
+            );
         }
 
         $email = trim($email);
@@ -31,18 +50,22 @@ final class UserService extends BaseService
         return $user;
     }
 
-    public function getUserById(int $id): UserEntity {
-        $user = $this->entityManager->getRepository(UserEntity::class)->find($id);
+    public function getUserById(int $id): UserEntity
+    {
+        $user = $this->entityManager
+            ->getRepository(UserEntity::class)
+            ->find($id);
         if (!$user) {
             throw new \InvalidArgumentException("User not found");
         }
         return $user;
     }
 
-    public function verifyUser(string $email, string $password): ?UserEntity {
+    public function verifyUser(string $email, string $password): ?UserEntity
+    {
         $user = $this->entityManager
-                        ->getRepository(UserEntity::class)
-                        ->findOneBy(['email' => $email]);
+            ->getRepository(UserEntity::class)
+            ->findOneBy(["email" => $email]);
         if ($user == null || !$user->verifyPassword($password)) {
             return null;
         }
