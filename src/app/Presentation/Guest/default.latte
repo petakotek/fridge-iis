@@ -17,6 +17,11 @@
 </header>
 
 <div class="stack">
+	<section class="card">
+		<h2>Chcete se k domácnosti připojit?</h2>
+		<p>Po registraci se správci automaticky odešle žádost o připojení.</p>
+		<a class="button button-primary" n:href="Sign:up">Zaregistrovat se</a>
+	</section>
 	{foreach $appliances as $item}
 		<section class="card">
 			<h2>{$item['appliance']->getName()}</h2>

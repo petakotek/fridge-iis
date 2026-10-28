@@ -2,6 +2,7 @@
 
 namespace App\Presentation\Sign;
 
+use App\Model\Entity\HouseholdEntity;
 use App\Model\Services\HouseholdService;
 use App\Model\Services\UserService;
 use Nette;
@@ -33,6 +34,25 @@ final class SignPresenter extends Nette\Application\UI\Presenter
     {
         if ($this->getUser()->isLoggedIn()) {
             $this->redirect("Home:");
+        }
+    }
+
+    public function renderUp(): void
+    {
+        $this->template->guestHousehold = $this->getGuestHousehold();
+    }
+
+    // Household the visitor is browsing as a guest, if the stored token is still valid
+    private function getGuestHousehold(): ?HouseholdEntity
+    {
+        $token = $this->getSession("guest")->get("token");
+        if ($token === null) {
+            return null;
+        }
+        try {
+            return $this->householdService->getHouseholdByToken($token);
+        } catch (\InvalidArgumentException) {
+            return null;
         }
     }
 
@@ -101,7 +121,7 @@ final class SignPresenter extends Nette\Application\UI\Presenter
 
         $form->onSuccess[] = function (Form $form, \stdClass $data): void {
             try {
-                $this->userService->createUser(
+                $user = $this->userService->createUser(
                     $data->name,
                     $data->surname,
                     $data->email,
@@ -112,7 +132,19 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                 return;
             }
             $this->getUser()->login($data->email, $data->password);
-            $this->flashMessage("Účet byl vytvořen.");
+
+            // a guest who registers automatically asks to join the household they were viewing
+            $guestSession = $this->getSession("guest");
+            $household = $this->getGuestHousehold();
+            if ($household !== null) {
+                $this->householdService->createHouseholdRequest($household, $user, $guestSession->get("token"));
+                $this->flashMessage("Účet byl vytvořen a správci domácnosti {$household->getName()} byla odeslána žádost o připojení.");
+            } elseif ($guestSession->get("token") !== null) {
+                $this->flashMessage("Účet byl vytvořen, ale token domácnosti už není platný. Požádejte správce o nový.", "error");
+            } else {
+                $this->flashMessage("Účet byl vytvořen.");
+            }
+            $guestSession->remove();
             $this->redirect("Home:");
         };
         return $form;

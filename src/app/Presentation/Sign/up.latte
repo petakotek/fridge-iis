@@ -1,3 +1,5 @@
+{varType App\Model\Entity\HouseholdEntity|null $guestHousehold}
+
 {block title}Registrace{/block}
 
 {block content}
@@ -5,7 +7,8 @@
 	<header class="page-header">
 		<div>
 			<h1>Vytvořit účet</h1>
-			<p>Po registraci můžete založit domácnost nebo se k nějaké připojit.</p>
+			<p n:if="$guestHousehold">Po registraci se automaticky odešle žádost o připojení do domácnosti {$guestHousehold->getName()}.</p>
+			<p n:if="!$guestHousehold">Po registraci můžete založit domácnost nebo se k nějaké připojit.</p>
 		</div>
 	</header>
 	<form n:name="signUpForm">
