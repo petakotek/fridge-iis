@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>{ifset title}{include title|stripHtml} · {/ifset}Spíž</title>
+
+	<link rel="stylesheet" href="{= $basePath . '/www/css/app.css'}">
+	{asset? 'main.js'}
+</head>
+
+<body>
+	<a class="auth-brand" n:href="Guest:default" aria-label="Spíž – přístup hosta">Spíž</a>
+	<main class="guest-page" id="main-content">
+		{foreach $flashes as $flash}
+			<div n:class="notice, $flash->type" role="status">{$flash->message}</div>
+		{/foreach}
+		{include content}
+	</main>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{varType App\Model\Entity\HouseholdEntity $household}
+{varType array $appliances}
+
+{block title}{$household->getName()}{/block}
+
+{block content}
+<header class="page-header">
+	<div>
+		<small>Host / Jen pro čtení</small>
+		<h1>{$household->getName()}</h1>
+		<p>Prohlížíte obsah domácnosti jako host. </p>
+	</div>
+	<div class="actions">
+		<span class="badge">Host</span>
+		{form leaveForm}{input send, class: 'button button-outline'}{/form}
+	</div>
+</header>
+
+<div class="stack">
+	{foreach $appliances as $item}
+		<section class="card">
+			<h2>{$item['appliance']->getName()}</h2>
+			{foreach $item['shelves'] as $row}
+				<h3>{$row['shelf']->getName()} <small>Obsazeno {count($row['foods'])} / {$row['shelf']->getShelfCapacity()}</small></h3>
+				<table class="food-table" n:if="$row['foods']">
+					<thead><tr><th>Potravina</th><th>Spotřebovat do</th><th>Hmotnost</th></tr></thead>
+					<tbody>
+						<tr n:foreach="$row['foods'] as $food">
+							<td>{$food->getName()}</td>
+							<td>{$food->getExpiry()|date:'j. n. Y'}</td>
+							<td>{if $food->getWeight() !== null}{$food->getWeight()} g{/if}</td>
+						</tr>
+					</tbody>
+				</table>
+				<small n:if="!$row['foods']">Polička je prázdná.</small>
+			{else}
+				<small>Spotřebič nemá žádné poličky.</small>
+			{/foreach}
+		</section>
+	{else}
+		<section class="empty-state">
+			<h2>Zatím tu nic není</h2>
+			<p>Tato domácnost zatím nemá žádné spotřebiče.</p>
+		</section>
+	{/foreach}
+</div>
+{/block}

@@ -1,0 +1,45 @@
+{block title}Registrace{/block}
+
+{block content}
+<section class="form-page card">
+	<header class="page-header">
+		<div>
+			<h1>Vytvořit účet</h1>
+			<p>Po registraci můžete založit domácnost nebo se k nějaké připojit.</p>
+		</div>
+	</header>
+	<form n:name="signUpForm">
+		<div class="notice error" n:foreach="$form->getOwnErrors() as $error">{$error}</div>
+		<div class="field-row">
+			<div class="field">
+				<label n:name="name">Jméno</label>
+				<input n:name="name" autocomplete="given-name">
+				<small class="field-error" n:ifcontent>{inputError name}</small>
+			</div>
+			<div class="field">
+				<label n:name="surname">Příjmení</label>
+				<input n:name="surname" autocomplete="family-name">
+				<small class="field-error" n:ifcontent>{inputError surname}</small>
+			</div>
+		</div>
+		<div class="field">
+			<label n:name="email">E-mail</label>
+			<input n:name="email" placeholder="jan.novak@email.cz" autocomplete="email">
+			<small class="field-error" n:ifcontent>{inputError email}</small>
+		</div>
+		<div class="field">
+			<label n:name="password">Heslo</label>
+			<input n:name="password" autocomplete="new-password">
+			<small>Alespoň 8 znaků.</small>
+			<small class="field-error" n:ifcontent>{inputError password}</small>
+		</div>
+		<div class="field">
+			<label n:name="passwordVerify">Potvrzení hesla</label>
+			<input n:name="passwordVerify" autocomplete="new-password">
+			<small class="field-error" n:ifcontent>{inputError passwordVerify}</small>
+		</div>
+		<button n:name="send" class="button button-primary button-block">Vytvořit účet</button>
+	</form>
+	<p class="auth-switch">Už máte účet? <a n:href="in">Přihlaste se</a></p>
+</section>
+{/block}
