@@ -1,5 +1,6 @@
 {varType App\Model\Entity\HouseholdEntity|null $household}
 {varType App\Model\Entity\HouseholdEntity|null $request}
+{varType App\Model\Entity\ApplianceEntity[] $appliances}
 {varType bool $isModerator}
 
 {block title}Přehled{/block}
@@ -12,7 +13,10 @@
 		<p>{if $household}{$household->getName()}{elseif $request}Čekáte na přijetí do domácnosti {$request->getName()}.{else}Založte si domácnost nebo požádejte o připojení.{/if}</p>
 	</div>
 	{if $household && $isModerator}
-		<div class="actions"><a class="button button-primary" n:href="Household:settings">Nastavení domácnosti</a></div>
+		<div class="actions">
+            <a class="button button-primary" n:href="Appliance:create">Přidat spotřebič</a>
+			<a class="button button-outline" n:href="Household:settings">Nastavení domácnosti</a>
+		</div>
 	{elseif $request}
 		<div class="actions">
 			<span class="badge">Žadatel</span>
@@ -21,21 +25,51 @@
 	{/if}
 </header>
 
-<section class="empty-state" aria-labelledby="welcome-title">
-	<svg viewBox="0 0 112 112" fill="none" aria-hidden="true"><rect x="18" y="38" width="76" height="57" rx="9" style="fill: var(--highlight)"/><path d="M18 51h76M33 51v44M79 51v44" stroke="currentColor" stroke-width="2"/><path d="M26 38V28a7 7 0 0 1 14 0v10m12 0V22a7 7 0 0 1 14 0v16m8 0V29a7 7 0 0 1 14 0v9" style="fill: var(--highlight)" stroke="currentColor" stroke-width="2"/><path d="M48 70h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-	{if $request}
-		<h2 id="welcome-title">Žádost čeká na schválení</h2>
-		<p>Správce domácnosti {$request->getName()} vaši žádost zatím neposoudil.</p>
-	{elseif $household}
-		<h2 id="welcome-title">Vítejte ve Spíži</h2>
-		<p>Tady najdete přehled své domácnosti. Zatím tu nejsou žádné informace k zobrazení.</p>
-	{else}
-		<h2 id="welcome-title">Vítejte ve Spíži</h2>
-		<p>Pro začátek vytvořte domácnost nebo zadejte pozvánkový token od jejího správce.</p>
-		<div class="actions">
-			<a class="button button-primary" n:href="Household:create">Vytvořit domácnost</a>
-			<a class="button button-outline" n:href="Household:request">Požádat o připojení</a>
-		</div>
-	{/if}
+{if $household}
+<section class="card-grid" aria-labelledby="appliances-title">
+    {if $appliances != null}
+        <h2 id="appliances-title">Spotřebiče v domácnosti</h2>
+    {/if}
+    {foreach $appliances as $appliance}
+        <article class="card appliance-card">
+            <div class="appliance-card-heading">
+                <h3><a n:href="Appliance:detail, id: $appliance->getId()">{$appliance->getName()}</a></h3>
+                {include '../Accessory/applianceIcon.latte', name: $appliance->getName()}
+            </div>
+            {if $isModerator}
+                <div class="actions">
+                    <a class="button button-outline" n:href="Appliance:edit, id: $appliance->getId()">Upravit</a>
+                    <a class="button button-danger" n:href="Appliance:delete, id: $appliance->getId()">Smazat</a>
+                </div>
+            {/if}
+        </article>
+    {else}
+        <div class="empty-state">
+            <h3>Zatím tu nejsou žádné spotřebiče</h3>
+            {if $isModerator}
+                <p>Přidejte první spotřebič do své domácnosti.</p>
+                <div class="actions">
+                    <a class="button button-primary" n:href="Appliance:create">Přidat spotřebič</a>
+                </div>
+            {else}
+                <p>Spotřebiče může přidat správce domácnosti.</p>
+            {/if}
+        </div>
+    {/foreach}
 </section>
+{else}
+<section class="empty-state" aria-labelledby="welcome-title">
+    {if $request}
+        <h2 id="welcome-title">Žádost čeká na schválení</h2>
+        <p>Správce domácnosti {$request->getName()} vaši žádost zatím neposoudil.</p>
+    {else}
+        <h2 id="welcome-title">Vítejte ve Spíži</h2>
+        <p>Pro začátek vytvořte domácnost nebo zadejte pozvánkový token od jejího správce.</p>
+        <div class="actions">
+            <a class="button button-primary" n:href="Household:create">Vytvořit domácnost</a>
+            <a class="button button-outline" n:href="Household:request">Požádat o připojení</a>
+        </div>
+    {/if}
+</section>
+{/if}
 {/block}
