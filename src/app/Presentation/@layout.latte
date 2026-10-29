@@ -1,6 +1,7 @@
 {varType App\Model\Entity\UserEntity $currentUser}
 {varType string $accountRole}
 {varType App\Model\Entity\ApplianceEntity[] $sidebarAppliances}
+{varType int $pendingRequestCount}
 
 <!DOCTYPE html>
 <html lang="cs">
@@ -32,8 +33,12 @@
 			{ifset $currentUser}
 				<details class="dropdown">
 					<summary>
-						<span class="avatar" aria-hidden="true">{mb_substr($currentUser->getName(), 0, 1)|upper}</span>
+						<span class="profile-avatar">
+							<span class="avatar" aria-hidden="true">{mb_substr($currentUser->getName(), 0, 1)|upper}</span>
+							<span class="profile-notification" aria-hidden="true" n:if="$pendingRequestCount > 0"></span>
+						</span>
 						<strong>{$currentUser->getName()} {$currentUser->getSurname()}</strong>
+						<span class="visually-hidden" n:if="$pendingRequestCount > 0">Nevyřízené žádosti o členství</span>
 					</summary>
 					<div class="dropdown-panel">
 						<header>
@@ -42,6 +47,7 @@
 							<span class="badge">{$accountRole}</span>
 						</header>
 						<a n:href="Account:default">Upravit profil</a>
+						<a href="{link Household:settings}#requests" n:if="$pendingRequestCount > 0">Nevyřízené žádosti ({$pendingRequestCount})</a>
 						{form logoutForm}
 							{input send}
 						{/form}

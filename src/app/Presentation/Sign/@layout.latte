@@ -12,7 +12,7 @@
 
 <body>
 	<main class="auth-page" id="main-content">
-		<a class="auth-brand" n:href="Sign:in" aria-label="Spíž – přihlášení">Spíž</a>
+		<a class="auth-brand" n:href="Home:default" aria-label="Spíž – úvodní stránka">Spíž</a>
 		{foreach $flashes as $flash}
 			<div n:class="notice, $flash->type" role="status">{$flash->message}</div>
 		{/foreach}
