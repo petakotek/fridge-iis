@@ -38,6 +38,10 @@ final class CategoryService extends BaseService
         return $category;
     }
 
+    /**
+     * @param HouseholdEntity $household
+     * @return CategoryEntity[]
+     */
     public function getCategories(HouseholdEntity $household): array {
         return $this->entityManager->getRepository(CategoryEntity::class)
             ->findBy(
