@@ -11,7 +11,7 @@
 </head>
 
 <body>
-	<a class="auth-brand" n:href="Guest:default" aria-label="Spíž – přístup hosta">Spíž</a>
+	<a class="auth-brand" n:href="Home:default" aria-label="Spíž – úvodní stránka">Spíž</a>
 	<main class="guest-page" id="main-content">
 		{foreach $flashes as $flash}
 			<div n:class="notice, $flash->type" role="status">{$flash->message}</div>

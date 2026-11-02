@@ -9,13 +9,15 @@
 <header class="page-header">
 	<div>
 		<small>Domácnost / Přehled</small>
-		<h1>Přehled domácnosti</h1>
-		<p>{if $household}{$household->getName()}{elseif $request}Čekáte na přijetí do domácnosti {$request->getName()}.{else}Založte si domácnost nebo požádejte o připojení.{/if}</p>
+		<h1>{if $household}{$household->getName()}{else}Přehled domácnosti{/if}</h1>
+		{if !$household}
+			<p>{if $request}Čekáte na přijetí do domácnosti {$request->getName()}.{else}Založte si domácnost nebo požádejte o připojení.{/if}</p>
+		{/if}
 	</div>
 	{if $household && $isModerator}
 		<div class="actions">
             <a class="button button-primary" n:href="Appliance:create">Přidat spotřebič</a>
-			<a class="button button-outline" n:href="Household:settings">Nastavení domácnosti</a>
+			<a class="button button-outline" n:href="Household:settings">Správa domácnosti</a>
 		</div>
 	{elseif $request}
 		<div class="actions">

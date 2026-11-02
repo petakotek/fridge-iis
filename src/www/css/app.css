@@ -60,6 +60,9 @@ small { color: var(--muted); }
 .dropdown summary::-webkit-details-marker { display: none; }
 .dropdown summary:hover, .dropdown[open] summary { background: var(--highlight); }
 .dropdown summary::after { content: "⌄"; margin: -4px 3px 0 1px; color: var(--muted); font-size: 20px; }
+.profile-avatar { position: relative; display: inline-flex; flex: none; }
+.profile-notification { position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; border: 2px solid var(--surface); border-radius: 50%; background: var(--danger); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .avatar { width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: 750; }
 .dropdown-panel { position: absolute; z-index: 10; top: calc(100% + 10px); right: 0; width: 260px; padding: 8px; background: var(--surface); }
 .dropdown-panel header { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 12px 14px; border-bottom: 1px solid var(--border); }
@@ -87,6 +90,9 @@ small { color: var(--muted); }
 .stack { display: grid; gap: 18px; max-width: var(--content-width); margin: 0 auto; }
 .stack .card > p { margin: 0 0 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .stack .card form { max-width: 580px; }
+.invite-actions code { overflow-wrap: anywhere; }
+.stack .card > .copy-status { margin: 10px 0 0; color: var(--accent); font-size: 13px; }
+.copy-status:empty { display: none; }
 /* Seznamy spotřebičů a polic */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; max-width: var(--content-width); margin: 0 auto; }
 .card-grid > :is(h2, .empty-state) { grid-column: 1 / -1; }
