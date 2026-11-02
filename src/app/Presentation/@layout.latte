@@ -18,7 +18,8 @@
 <body>
 	{* Další odkazy v postranním panelu stačí přidat do tohoto seznamu. *}
 	{var $navigation = [
-		['label' => 'Přehled', 'destination' => 'Home:default'],
+		['label' => 'Přehled', 'destination' => 'Home:default', 'current' => 'Home:*'],
+		['label' => 'Kategorie', 'destination' => 'Category:default', 'current' => 'Category:*'],
 	]}
 
 	<div class="app-shell">
@@ -59,8 +60,12 @@
 		<aside class="sidebar" aria-label="Postranní panel">
 			<nav aria-label="Hlavní navigace">
 				{foreach $navigation as $item}
-					<a href="{link $item['destination']}" {if $presenter->isLinkCurrent($item['destination'])}aria-current="page"{/if}>
-						<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+					<a href="{link $item['destination']}" {if $presenter->isLinkCurrent($item['current'])}aria-current="page"{/if}>
+						{if $item['destination'] === 'Category:default'}
+							<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 13 11 22 2 13V3h10l8 8a1.4 1.4 0 0 1 0 2Z" stroke-linejoin="round"/><circle cx="7" cy="8" r="1.5"/></svg>
+						{else}
+							<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+						{/if}
 						<span>{$item['label']}</span>
 					</a>
 				{/foreach}
