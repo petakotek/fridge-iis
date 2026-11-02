@@ -1,0 +1,20 @@
+{varType App\Model\Entity\CategoryEntity $category}
+{block title}Upravit kategorii{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Kategorie / Úprava</small>
+            <h1>Upravit kategorii</h1>
+            <p>{$category->getName()}</p>
+        </div>
+    </header>
+    {form editForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="field">{label name /}{input name}</div>
+        <div class="field">{label parent /}{input parent}<small>Výběrem nadřazené kategorie přesunete i všechny podkategorie.</small></div>
+        <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="default">Zpět</a></div>
+    {/form}
+</section>
+{/block}
