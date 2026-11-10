@@ -171,7 +171,7 @@ final class FoodPresenter extends AuthenticatedPresenter
             ->addRule(FormAlias::MinLength, 'Zadejte název potraviny.', 1)
             ->addRule(FormAlias::MaxLength, 'Název může mít nejvýše 255 znaků.', 255)
             ->setHtmlAttribute('autofocus', true);
-        $form->addText('expiry', 'Datum spotřeby')->setHtmlType('date')
+        $form->addText('expiry', 'Minimální trvanlivost')->setHtmlType('date')
             ->setNullable()
             ->addRule(static function (TextInput $input): bool {
                 $date = \DateTime::createFromFormat('!Y-m-d', $input->getValue());

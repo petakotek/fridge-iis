@@ -9,7 +9,18 @@
     <div>
         <small>Domácnost / Potraviny</small>
         <h1>Potraviny</h1>
-        <p>{if $selectedShelf}{$selectedShelf->getAppliance()->getName()} / {$selectedShelf->getName()}{elseif $status === 'consumed'}Potraviny, které jste spotřebovali.{elseif $status === 'trashed'}Vyhozené potraviny z vaší domácnosti.{else}Přehled uložených potravin v domácnosti.{/if}</p>
+        <p>{if $selectedShelf}
+            <a style="text-decoration: underline" n:href="Appliance:detail, id: $selectedShelf->getAppliance()->getId()">
+            {$selectedShelf->getAppliance()->getName()}</a> / {$selectedShelf->getName()}
+        <h3><small>Obsazeno {$selectedShelf->getUsedWeight()} / {$selectedShelf->getShelfCapacity()}</small></h3>
+            {elseif $status === 'consumed'}
+                Potraviny, které jste spotřebovali.
+            {elseif $status === 'trashed'}
+                Vyhozené potraviny z vaší domácnosti.
+            {else}
+                Přehled uložených potravin v domácnosti.
+            {/if}
+        </p>
     </div>
     <div class="actions">
         <a class="button button-primary" n:if="$hasShelves" n:href="add, shelfId: $selectedShelf?->getId()">Přidat potravinu</a>
@@ -25,8 +36,10 @@
 </nav>
 <section class="card-grid" aria-label="Potraviny">
     {foreach $foods as $food}
+
         <article class="card">
-            <h3><a n:href="detail, id: $food->getId()">{$food->getName()}</a></h3>
+            <a n:href="detail, id: $food->getId()">
+            <h3>{$food->getName()}</h3>
             <p>{$food->getShelf()->getAppliance()->getName()} / {$food->getShelf()->getName()}</p>
             <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
             {if $food->isConsumed()}
@@ -49,7 +62,9 @@
                     <a class="button button-outline" n:href="detail, id: $food->getId()">Zobrazit detail</a>
                 {/if}
             </div>
+            </a>
         </article>
+
     {else}
         <div class="empty-state">
             {if $status === 'consumed'}
