@@ -57,12 +57,7 @@ final class ShelfService extends BaseService
             throw new \DomainException('Shelf has no appliance.');
         }
         Verification::assertHouseholdAppliance($household, $appliance);
-        $usedCapacity = 0;
-        foreach ($shelf->getFoods() as $food) {
-            if (!$food->isConsumed() && !$food->isTrashed()) {
-                $usedCapacity += $food->getWeight();
-            }
-        }
+        $usedCapacity = $shelf->getUsedWeight();
         if ($capacity < $usedCapacity) {
             throw new \DomainException('Capacity is smaller than the stored food weight.');
         }

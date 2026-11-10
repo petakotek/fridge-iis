@@ -30,14 +30,7 @@ class ShelfEntity extends BaseEntity
         if ($this->shelfCapacity - $food->getWeight() < 0){
             throw new \DomainException('Food weight is too big for this shelf.');
         }
-        $capacity = $this->shelfCapacity;
-
-        foreach ($this->foods as $foodData) {
-            if ($foodData->isConsumed() || $foodData->isTrashed()){
-                continue;
-            }
-            $capacity -= $foodData->getWeight();
-        }
+        $capacity = $this->shelfCapacity - $this->getUsedWeight();
         if ($capacity - $food->getWeight() < 0){
             throw new \DomainException('Food weight is too big for this shelf.');
         }
@@ -80,6 +73,16 @@ class ShelfEntity extends BaseEntity
 
     public function getShelfCapacity(): int {
         return $this->shelfCapacity;
+    }
+
+    public function getUsedWeight(): int {
+        $weight = 0;
+        foreach ($this->foods as $food) {
+            if (!$food->isConsumed() && !$food->isTrashed()) {
+                $weight += $food->getWeight() ?? 0;
+            }
+        }
+        return $weight;
     }
 
     public function getFoods(): Collection {

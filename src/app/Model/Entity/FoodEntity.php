@@ -80,7 +80,7 @@ class FoodEntity extends BaseEntity
         $this->fibre = $fibre;
         $this->carb = $carb;
         $this->fat = $fat;
-        $this->weight = $weight;
+        $this->setWeight($weight);
         $this->categories = new ArrayCollection();
     }
 
@@ -138,6 +138,14 @@ class FoodEntity extends BaseEntity
 
         $this->trashed = true;
         $this->discardedAt = new DateTime();
+    }
+
+    public function setStored(): void {
+        $this->consumer?->getFoodsConsumed()->removeElement($this);
+        $this->consumer = null;
+        $this->consumedAt = null;
+        $this->trashed = null;
+        $this->discardedAt = null;
     }
 
 //    Getter functions
@@ -207,5 +215,13 @@ class FoodEntity extends BaseEntity
 
     public function getShelf(): ShelfEntity {
         return $this->shelf;
+    }
+
+    private function setWeight(int $weight)
+    {
+        if ($weight <= 0) {
+            throw new \InvalidArgumentException('Weight must be greater than 0.');
+        }
+        $this->weight = $weight;
     }
 }

@@ -67,6 +67,20 @@ final class FoodService extends BaseService
             );
     }
 
+    public function getConsumedFoodsByShelf(ShelfEntity $shelf, UserEntity $user): array {
+        return $this->entityManager->getRepository(FoodEntity::class)->findBy(
+            ['shelf' => $shelf, 'consumer' => $user],
+            ['consumedAt' => 'DESC', 'id' => 'DESC'],
+        );
+    }
+
+    public function getTrashedFoodsByShelf(ShelfEntity $shelf): array {
+        return $this->entityManager->getRepository(FoodEntity::class)->findBy(
+            ['shelf' => $shelf, 'trashed' => true],
+            ['discardedAt' => 'DESC', 'id' => 'DESC'],
+        );
+    }
+
     public function removeFood(FoodEntity $food): void {
         foreach ($food->getCategories() as $category){
             $food->removeCategory($category);
@@ -78,6 +92,23 @@ final class FoodService extends BaseService
 
     public function trashFood(FoodEntity $food): void {
         $food->setTrashed();
+        $this->entityManager->flush();
+    }
+
+    public function restoreFood(FoodEntity $food, UserEntity $user): void {
+        $shelf = $food->getShelf();
+        $household = $shelf->getAppliance()?->getHousehold();
+        if ($household === null) {
+            throw new \DomainException('Food has no household.');
+        }
+        Verification::assertHouseholdUser($household, $user);
+        if (!$food->isConsumed() && !$food->isTrashed()) {
+            throw new \DomainException('Food is already stored.');
+        }
+
+        // Check capacity while this food is still excluded from stored food weight.
+        $shelf->addFood($food);
+        $food->setStored();
         $this->entityManager->flush();
     }
 

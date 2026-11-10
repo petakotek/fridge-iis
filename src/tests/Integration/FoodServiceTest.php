@@ -102,6 +102,39 @@ final class FoodServiceTest extends ServiceTestCase
         Assert::same([], $service->getFoodsByShelf($this->em->find(ShelfEntity::class, $emptyId)));
     }
 
+    public function testHistoryQueriesRespectShelfConsumerAndStatus(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $shelf = $this->shelf($household);
+        $otherShelf = $this->shelf($household);
+        $service = new FoodService($this->em);
+        $this->food($shelf);
+        $consumed = $this->food($shelf);
+        $service->consumeFood($consumed, $member);
+        $otherConsumer = $this->food($shelf);
+        $service->consumeFood($otherConsumer, $household->getModerator());
+        $service->consumeFood($this->food($otherShelf), $member);
+        $trashed = $this->food($shelf);
+        $service->trashFood($trashed);
+        $service->trashFood($this->food($otherShelf));
+        $recentConsumed = $this->food($shelf);
+        $service->consumeFood($recentConsumed, $member);
+        $recentTrashed = $this->food($shelf);
+        $service->trashFood($recentTrashed);
+        $expectedConsumed = [$recentConsumed->getId(), $consumed->getId()];
+        $expectedTrashed = [$recentTrashed->getId(), $trashed->getId()];
+        $shelfId = $shelf->getId();
+        $memberId = $member->getId();
+        $this->em->clear();
+
+        $shelf = $this->em->find(ShelfEntity::class, $shelfId);
+        $member = $this->em->find(UserEntity::class, $memberId);
+        Assert::same($expectedConsumed, array_map(fn(FoodEntity $food) => $food->getId(), $service->getConsumedFoodsByShelf($shelf, $member)));
+        Assert::same($expectedTrashed, array_map(fn(FoodEntity $food) => $food->getId(), $service->getTrashedFoodsByShelf($shelf)));
+    }
+
     public function testConsumeFoodPersistsConsumerAndTimeWithoutDeletingRecord(): void
     {
         $household = $this->household();
@@ -195,6 +228,85 @@ final class FoodServiceTest extends ServiceTestCase
         $third = $this->addFood($shelf, $household, $household->getModerator(), 100);
         Assert::same([$third], $service->getFoodsByShelf($shelf));
         Assert::same(3, $this->em->getRepository(FoodEntity::class)->count([]));
+    }
+
+    public function testRestoreConsumedAndTrashedFoodClearsHistoryAndUsesShelfCapacity(): void
+    {
+        foreach (['consumed', 'trashed'] as $status) {
+            $household = $this->household();
+            $member = $this->user();
+            $household->addUser($member);
+            $shelf = $this->shelf($household, 150);
+            $food = $this->food($shelf, 100);
+            $category = $this->category($household);
+            $food->addCategory($category);
+            $food->setExpiry(new \DateTime('2030-01-15'));
+            $service = new FoodService($this->em);
+            if ($status === 'consumed') {
+                $service->consumeFood($food, $member);
+            } else {
+                $service->trashFood($food);
+            }
+            $this->food($shelf, 50);
+            $id = $food->getId();
+            $memberId = $member->getId();
+            $this->em->clear();
+            $food = $service->getFoodById($id);
+            $member = $this->em->find(UserEntity::class, $memberId);
+            if ($status === 'consumed') {
+                Assert::true($member->getFoodsConsumed()->contains($food));
+            }
+
+            $service->restoreFood($food, $member);
+            Assert::false($member->getFoodsConsumed()->contains($food));
+            $this->em->refresh($food);
+            Assert::false($food->isConsumed());
+            Assert::false($food->isTrashed());
+            Assert::null($food->getConsumedAt());
+            Assert::null($food->getDiscardedAt());
+            Assert::same('2030-01-15', $food->getExpiry()->format('Y-m-d'));
+            Assert::count(1, $food->getCategories());
+            Assert::count(2, $service->getFoodsByShelf($food->getShelf()));
+            Assert::same([], $service->getConsumedFoodsByShelf($food->getShelf(), $member));
+            Assert::same([], $service->getTrashedFoodsByShelf($food->getShelf()));
+        }
+    }
+
+    public function testFailedRestorationKeepsHistoryForFullShelfAndOutsider(): void
+    {
+        foreach (['consumed', 'trashed'] as $status) {
+            $household = $this->household();
+            $shelf = $this->shelf($household, 100);
+            $food = $this->food($shelf, 80);
+            $member = $household->getModerator();
+            $service = new FoodService($this->em);
+            if ($status === 'consumed') {
+                $service->consumeFood($food, $member);
+            } else {
+                $service->trashFood($food);
+            }
+            $consumedAt = $food->getConsumedAt();
+            $discardedAt = $food->getDiscardedAt();
+            $outsider = $this->household()->getModerator();
+            Assert::exception(fn() => $service->restoreFood($food, $outsider), \DomainException::class);
+            $this->food($shelf, 21);
+            Assert::exception(fn() => $service->restoreFood($food, $member), \DomainException::class);
+            $this->em->refresh($food);
+            Assert::same($status === 'consumed', $food->isConsumed());
+            Assert::same($status === 'trashed', $food->isTrashed());
+            Assert::equal($consumedAt, $food->getConsumedAt());
+            Assert::equal($discardedAt, $food->getDiscardedAt());
+            Assert::count(1, $service->getFoodsByShelf($shelf));
+        }
+    }
+
+    public function testRestoringStoredFoodIsRejected(): void
+    {
+        $household = $this->household();
+        $food = $this->food($this->shelf($household));
+        Assert::exception(fn() => (new FoodService($this->em))->restoreFood($food, $household->getModerator()), \DomainException::class);
+        Assert::false($food->isConsumed());
+        Assert::false($food->isTrashed());
     }
 
     public function testOutsiderCannotConsumeFood(): void
