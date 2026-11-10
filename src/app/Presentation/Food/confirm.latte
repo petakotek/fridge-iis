@@ -1,0 +1,27 @@
+{varType App\Model\Entity\FoodEntity $food}
+{varType string $confirmationLabel}
+{varType string $confirmationMessage}
+{varType string $buttonClass}
+{block title}{$confirmationLabel}{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Domácnost / Potraviny</small>
+            <h1>{$confirmationLabel}</h1>
+            <p>{$food->getName()}</p>
+        </div>
+    </header>
+    <p>{$confirmationMessage}</p>
+    {form confirmationForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="actions">
+            <button n:name="send" class="button {$buttonClass}">
+                {$form['send']->getCaption()}
+            </button>
+            <a class="button button-outline" n:href="detail, id: $food->getId()">Zrušit</a>
+        </div>
+    {/form}
+</section>
+{/block}

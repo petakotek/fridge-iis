@@ -1,0 +1,103 @@
+{varType App\Model\Entity\FoodEntity $food}
+{block title}{$food->getName()}{/block}
+
+{block content}
+<header class="page-header">
+    <div>
+        <small>Domácnost / Potraviny</small>
+        <h1>{$food->getName()}</h1>
+        <p>{$food->getShelf()->getAppliance()->getName()} / {$food->getShelf()->getName()}</p>
+    </div>
+    <div class="actions">
+        <a class="button button-outline" n:href="edit, id: $food->getId()">Upravit</a>
+        <a class="button button-danger" n:href="delete, id: $food->getId()">Smazat trvale</a>
+        <a class="button button-outline" n:href="default, shelfId: $food->getShelf()->getId(), status: $food->isConsumed() ? 'consumed' : ($food->isTrashed() ? 'trashed' : 'active')">Zpět na potraviny</a>
+    </div>
+</header>
+<article class="actions">
+    {if !$food->isConsumed() && !$food->isTrashed()}
+        <a class="button button-primary" n:href="consume, id: $food->getId()">Spotřebovat</a>
+        <a class="button button-outline-danger" n:href="trash, id: $food->getId()">Vyhodit</a>
+    {else}
+        <a class="button button-primary" n:href="restore, id: $food->getId()">Vrátit do zásob</a>
+    {/if}
+</article>
+<article class="card card-grid">
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'expiry'}
+            <span>
+                {if $food->getExpiry()}
+                    {$food->getExpiry()|date:'j. n. Y'}
+                {else}
+                    Neuvedeno
+                {/if}
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'weight'}
+            <span>
+                {$food->getWeight()} g
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'price'}
+            <span>
+                {$food->getPrice()|number:2, ',', ' '} Kč
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'calories'}
+            <span>
+                {$food->getCalories()} kcal
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'protein'}
+            <span>
+                {$food->getProtein()} g
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'fat'}
+            <span>
+                {$food->getFat()} g
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'carb'}
+            <span>
+                {$food->getCarb()} g
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="food-value">
+            {include '../Accessory/foodIcon.latte', icon: 'fibre'}
+            <span>
+                {$food->getFibre()} g
+            </span>
+        </span>
+    </p>
+    <div class="food-barcode-value">
+        <p>
+            <span class="food-value">
+                <span>
+                    {include '../Accessory/foodBarcode.latte', barcode: $food->getBarcode()}
+                </span>
+            </span>
+        </p>
+    </div>
+</article>
+{/block}

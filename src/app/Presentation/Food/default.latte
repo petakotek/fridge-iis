@@ -1,0 +1,66 @@
+{varType App\Model\Entity\FoodEntity[] $foods}
+{varType App\Model\Entity\ShelfEntity|null $selectedShelf}
+{varType bool $hasShelves}
+{varType string $status}
+{block title}Potraviny{/block}
+
+{block content}
+<header class="page-header">
+    <div>
+        <small>Domácnost / Potraviny</small>
+        <h1>Potraviny</h1>
+        <p>{if $selectedShelf}{$selectedShelf->getAppliance()->getName()} / {$selectedShelf->getName()}{elseif $status === 'consumed'}Potraviny, které jste spotřebovali.{elseif $status === 'trashed'}Vyhozené potraviny z vaší domácnosti.{else}Přehled uložených potravin v domácnosti.{/if}</p>
+    </div>
+    <div class="actions">
+        <a class="button button-primary" n:if="$hasShelves" n:href="add, shelfId: $selectedShelf?->getId()">Přidat potravinu</a>
+        <a class="button button-outline" n:if="$selectedShelf" n:href="default, shelfId: null, status: $status">Všechny police</a>
+    </div>
+</header>
+<nav class="actions" aria-label="Stav potravin">
+    {foreach ['active' => 'Uložené', 'consumed' => 'Moje spotřebované', 'trashed' => 'Vyhozené v domácnosti'] as $value => $label}
+        <a class="button {if $status === $value}button-primary{else}button-outline{/if}"
+            n:href="default, shelfId: $selectedShelf?->getId(), status: $value"
+            n:attr="aria-current: $status === $value ? 'page' : null">{$label}</a>
+    {/foreach}
+</nav>
+<section class="card-grid" aria-label="Potraviny">
+    {foreach $foods as $food}
+        <article class="card">
+            <h3><a n:href="detail, id: $food->getId()">{$food->getName()}</a></h3>
+            <p>{$food->getShelf()->getAppliance()->getName()} / {$food->getShelf()->getName()}</p>
+            <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
+            {if $food->isConsumed()}
+                <p>Spotřebováno: {$food->getConsumedAt()|date:'j. n. Y H:i'}</p>
+            {elseif $food->isTrashed()}
+                <p>Vyhozeno: {$food->getDiscardedAt()|date:'j. n. Y H:i'}</p>
+            {/if}
+            <div class="actions">
+                {if !$food->isConsumed() && !$food->isTrashed()}
+
+                    <a class="button button-outline" n:href="edit, id: $food->getId()">Upravit</a>
+                <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Spotřebovat" data-tooltip="Spotřebovat">
+                    <a class="button button-primary" n:href="consume, id: $food->getId()">{include '../Accessory/foodActionIcon.latte', action: 'consume'}</a>
+                </span>
+                <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Vyhodit" data-tooltip="Vyhodit">
+                    <a class="button button-danger" n:href="trash, id: $food->getId()">{include '../Accessory/foodActionIcon.latte', action: 'trash'}</a>
+                </span>
+                {else}
+                    <a class="button button-primary" n:href="restore, id: $food->getId()">Vrátit do zásob</a>
+                    <a class="button button-outline" n:href="detail, id: $food->getId()">Zobrazit detail</a>
+                {/if}
+            </div>
+        </article>
+    {else}
+        <div class="empty-state">
+            {if $status === 'consumed'}
+                <h3>Zatím jste nespotřebovali žádné potraviny</h3>
+            {elseif $status === 'trashed'}
+                <h3>Zatím tu nejsou žádné vyhozené potraviny</h3>
+            {else}
+                <h3>Zatím tu nejsou žádné potraviny</h3>
+                <p>{if $hasShelves}Přidejte potravinu pomocí tlačítka výše.{else}Pro přidání potravin musí správce domácnosti nejprve vytvořit spotřebič a polici.{/if}</p>
+            {/if}
+        </div>
+    {/foreach}
+</section>
+{/block}
