@@ -2,13 +2,13 @@
 {varType App\Model\Entity\UserEntity[] $requests}
 {varType App\Model\Entity\UserEntity[] $members}
 
-{block title}Nastavení domácnosti{/block}
+{block title}Správa domácnosti{/block}
 
 {block content}
 <header class="page-header">
 	<div>
-		<small>Domácnost / Nastavení</small>
-		<h1>Nastavení domácnosti</h1>
+		<small>Domácnost / Správa</small>
+		<h1>Správa domácnosti</h1>
 		<p>Spravujte údaje domácnosti, členství a pozvánkový token.</p>
 	</div>
 	<div class="actions"><a class="button button-outline" n:href="Home:default">Zpět na přehled</a></div>
@@ -24,15 +24,18 @@
 	</section>
 	<section class="card">
 		<h2>Pozvánkový token</h2>
-		<p>Tento token předejte lidem, kteří chtějí požádat o členství ve vaší domácnosti. Vygenerováním nového tokenu přestane původní token fungovat. Stávajících členů a žádostí se změna nedotkne.</p>
-		<div class="actions">
+		<p>Tento token předejte lidem, kteří chtějí požádat o členství ve vaší domácnosti. Pozvánkový odkaz jim token předvyplní. Vygenerováním nového tokenu přestane původní token fungovat. Stávajících členů a žádostí se změna nedotkne.</p>
+		<div class="actions invite-actions">
 			<code>{$household->getToken()}</code>
+			<button type="button" class="button button-outline" data-copy-text="{$household->getToken()}">Kopírovat token</button>
+			<button type="button" class="button button-outline" data-copy-url="{link Household:request, token: $household->getToken()}">Kopírovat odkaz</button>
 			{form regenerateTokenForm}
 				{input send, class: 'button button-outline'}
 			{/form}
 		</div>
+		<p class="copy-status" role="status" aria-live="polite"></p>
 	</section>
-	<section class="card" n:if="count($requests) > 0">
+	<section class="card" id="requests" n:if="count($requests) > 0">
 		<h2>Žádosti o členství</h2>
 		<p>Vyberte žádost a rozhodněte, zda ji přijmete.</p>
 		{form decisionForm}
@@ -43,7 +46,7 @@
 	</section>
 	<section class="card">
 		<h2>Předat správu domácnosti</h2>
-		<p>Vybraný člen se stane správcem. Vy zůstanete členem domácnosti a přijdete o přístup k jejímu nastavení.</p>
+		<p>Vybraný člen se stane správcem. Vy zůstanete členem domácnosti a přijdete o přístup k její správě.</p>
 		{if count($members) > 1}
 			{form transferModeratorForm}
 				<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
@@ -64,4 +67,5 @@
 		{/form}
 	</section>
 </div>
+<script src="{= $basePath . '/www/js/clipboard.js'}" defer></script>
 {/block}

@@ -1,0 +1,18 @@
+{block title}Vytvořit spotřebič{/block}
+
+{block content}
+    <section class="form-page">
+        <header class="page-header">
+            <div>
+                <small>Spotřebič / Nový</small>
+                <h1>Vytvořit spotřebič</h1>
+                <p>Zadejte název vašeho spotřebiče.</p>
+            </div>
+        </header>
+        {form createForm}
+            <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+            <div class="field">{label name /}{input name}</div>
+            <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="Home:default">Zpět</a></div>
+        {/form}
+    </section>
+{/block}

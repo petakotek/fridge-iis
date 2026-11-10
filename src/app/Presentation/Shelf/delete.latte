@@ -1,0 +1,20 @@
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{varType App\Model\Entity\ShelfEntity $shelf}
+{block title}Smazat polici{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Spotřebič / Police</small>
+            <h1>Smazat polici</h1>
+            <p>{$appliance->getName()}</p>
+        </div>
+    </header>
+    {form deleteForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <p class="notice error">Opravdu chcete smazat polici „{$shelf->getName()}“? Smazání je nevratné a odstraní také potraviny na této polici.</p>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a></div>
+    {/form}
+</section>
+{/block}

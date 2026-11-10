@@ -1,5 +1,7 @@
 {varType App\Model\Entity\UserEntity $currentUser}
 {varType string $accountRole}
+{varType App\Model\Entity\ApplianceEntity[] $sidebarAppliances}
+{varType int $pendingRequestCount}
 
 <!DOCTYPE html>
 <html lang="cs">
@@ -31,8 +33,12 @@
 			{ifset $currentUser}
 				<details class="dropdown">
 					<summary>
-						<span class="avatar" aria-hidden="true">{mb_substr($currentUser->getName(), 0, 1)|upper}</span>
+						<span class="profile-avatar">
+							<span class="avatar" aria-hidden="true">{mb_substr($currentUser->getName(), 0, 1)|upper}</span>
+							<span class="profile-notification" aria-hidden="true" n:if="$pendingRequestCount > 0"></span>
+						</span>
 						<strong>{$currentUser->getName()} {$currentUser->getSurname()}</strong>
+						<span class="visually-hidden" n:if="$pendingRequestCount > 0">Nevyřízené žádosti o členství</span>
 					</summary>
 					<div class="dropdown-panel">
 						<header>
@@ -41,6 +47,7 @@
 							<span class="badge">{$accountRole}</span>
 						</header>
 						<a n:href="Account:default">Upravit profil</a>
+						<a href="{link Household:settings}#requests" n:if="$pendingRequestCount > 0">Nevyřízené žádosti ({$pendingRequestCount})</a>
 						{form logoutForm}
 							{input send}
 						{/form}
@@ -58,6 +65,19 @@
 					</a>
 				{/foreach}
 			</nav>
+            {if $sidebarAppliances}
+                <section class="sidebar-section" aria-labelledby="sidebar-appliances-title">
+                    <h2 id="sidebar-appliances-title">Spotřebiče</h2>
+                    <nav class="appliance-navigation" aria-label="Spotřebiče">
+                        {foreach $sidebarAppliances as $sidebarAppliance}
+                            <a n:href="Appliance:detail, id: $sidebarAppliance->getId()" {if $presenter->isLinkCurrent('Appliance:detail', ['id' => $sidebarAppliance->getId()])}aria-current="page"{/if}>
+                                {include 'Accessory/applianceIcon.latte', name: $sidebarAppliance->getName()}
+                                <span>{$sidebarAppliance->getName()}</span>
+                            </a>
+                        {/foreach}
+                    </nav>
+                </section>
+            {/if}
 		</aside>
 
 		<main class="main-content" id="main-content">

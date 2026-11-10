@@ -63,8 +63,72 @@ final class ShelfServiceTest extends ServiceTestCase
         $this->em->flush();
         $service = new ShelfService($this->em);
         Assert::exception(fn() => $service->addShelf($household, $member, 500, $shelf->getAppliance()), \DomainException::class);
+        Assert::exception(fn() => $service->updateShelf($household, $member, $shelf, 'Changed', 500), \DomainException::class);
         Assert::exception(fn() => $service->removeShelf($household, $member, $shelf), \DomainException::class);
         Assert::same(1, $this->em->getRepository(ShelfEntity::class)->count([]));
+    }
+
+    public function testUpdateShelfPersistsNameAndCapacity(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household);
+        (new ShelfService($this->em))->updateShelf($household, $household->getModerator(), $shelf, '  Upper shelf  ', 750);
+        $this->em->refresh($shelf);
+        Assert::same('Upper shelf', $shelf->getName());
+        Assert::same(750, $shelf->getShelfCapacity());
+    }
+
+    public function testForeignShelfManagementIsRejected(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($this->household());
+        $service = new ShelfService($this->em);
+        foreach ([
+            fn() => $service->addShelf($household, $household->getModerator(), 500, $shelf->getAppliance()),
+            fn() => $service->updateShelf($household, $household->getModerator(), $shelf, 'Changed', 500),
+            fn() => $service->removeShelf($household, $household->getModerator(), $shelf),
+        ] as $operation) {
+            Assert::exception($operation, \DomainException::class);
+        }
+        Assert::same('Test shelf', $shelf->getName());
+        Assert::same(1, $this->em->getRepository(ShelfEntity::class)->count([]));
+    }
+
+    public function testInvalidUpdateLeavesShelfUnchanged(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household);
+        $this->food($shelf, 100);
+        $service = new ShelfService($this->em);
+        Assert::exception(fn() => $service->updateShelf($household, $household->getModerator(), $shelf, 'Changed', 99), \DomainException::class);
+        foreach (['', '   ', str_repeat('x', 256)] as $name) {
+            Assert::exception(fn() => $service->updateShelf($household, $household->getModerator(), $shelf, $name, 500), \InvalidArgumentException::class);
+        }
+        Assert::exception(fn() => $service->updateShelf($household, $household->getModerator(), $shelf, 'Changed', 0), \DomainException::class);
+        Assert::same('Test shelf', $shelf->getName());
+        Assert::same(1000, $shelf->getShelfCapacity());
+    }
+
+    public function testNamedShelfCreationAndValidation(): void
+    {
+        $household = $this->household();
+        $appliance = $this->appliance($household);
+        $service = new ShelfService($this->em);
+        $shelf = $service->addShelf($household, $household->getModerator(), 500, $appliance, '  Upper shelf  ');
+        $this->em->refresh($shelf);
+        Assert::same('Upper shelf', $shelf->getName());
+        Assert::exception(fn() => $service->addShelf($household, $household->getModerator(), 500, $appliance, ' '), \InvalidArgumentException::class);
+        Assert::same(1, $this->em->getRepository(ShelfEntity::class)->count([]));
+    }
+
+    public function testRemoveShelfCascadesToFood(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household);
+        $foodId = $this->food($shelf)->getId();
+        (new ShelfService($this->em))->removeShelf($household, $household->getModerator(), $shelf);
+        $this->em->clear();
+        Assert::null($this->em->find(\App\Model\Entity\FoodEntity::class, $foodId));
     }
 
     public function testRemoveEmptyShelf(): void

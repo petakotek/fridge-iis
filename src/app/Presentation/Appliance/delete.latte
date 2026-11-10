@@ -1,0 +1,19 @@
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{block title}Smazat spotřebič{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Spotřebič / Smazání</small>
+            <h1>Smazat spotřebič</h1>
+            <p>Opravdu chcete smazat spotřebič „{$appliance->getName()}“?</p>
+        </div>
+    </header>
+    <p class="notice error">Smazání je nevratné. Budou smazány také police a potraviny v tomto spotřebiči.</p>
+    {form deleteForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="Home:default">Zrušit</a></div>
+    {/form}
+</section>
+{/block}

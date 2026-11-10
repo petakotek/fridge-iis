@@ -161,6 +161,7 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                 $this->flashMessage("Účet byl vytvořen.");
             }
             $this->getSession("guest")->remove();
+            $this->restoreRequest($this->backlink);
             $this->redirect("Home:");
         };
         return $form;

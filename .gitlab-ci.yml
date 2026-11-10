@@ -1,22 +1,41 @@
-image: php:8.4-cli-bookworm
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 stages:
   - test
+  - build
 
-before_script:
-  - apt-get update && apt-get install -y --no-install-recommends git unzip
-  - curl --fail --silent --show-error --location https://getcomposer.org/download/latest-stable/composer.phar --output /usr/local/bin/composer
-  - chmod +x /usr/local/bin/composer
-  - composer --version
-  - cd src
-  - composer install --prefer-dist --no-interaction --no-progress
+.php-job:
+  image: php:8.4-cli-bookworm
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git unzip
+    - curl --fail --silent --show-error --location https://getcomposer.org/download/latest-stable/composer.phar --output /usr/local/bin/composer
+    - chmod +x /usr/local/bin/composer
+    - composer --version
+    - cd src
+    - composer install --prefer-dist --no-interaction --no-progress
 
 test-composer:
+  extends: .php-job
   stage: test
   script:
     - composer tester
 
 test-phpstan:
+  extends: .php-job
   stage: test
   script:
     - composer phpstan
+
+build-assets:
+  image: node:22-bookworm-slim
+  stage: build
+  script:
+    - cd src
+    - npm ci --no-audit --no-fund
+    - npm run build
+  artifacts:
+    paths:
+      - src/www/assets/
+    expire_in: 1 week

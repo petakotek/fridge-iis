@@ -1,0 +1,19 @@
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{block title}Upravit spotřebič{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Spotřebič / Úprava</small>
+            <h1>Upravit spotřebič</h1>
+            <p>{$appliance->getName()}</p>
+        </div>
+    </header>
+    {form editForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="field">{label name /}{input name}</div>
+        <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="Home:default">Zpět</a></div>
+    {/form}
+</section>
+{/block}

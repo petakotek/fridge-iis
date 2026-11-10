@@ -1,0 +1,21 @@
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{varType App\Model\Entity\ShelfEntity $shelf}
+{block title}Upravit polici{/block}
+
+{block content}
+<section class="form-page">
+    <header class="page-header">
+        <div>
+            <small>Spotřebič / Police</small>
+            <h1>Upravit polici</h1>
+            <p>{$appliance->getName()}</p>
+        </div>
+    </header>
+    {form editForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="field">{label name /}{input name}</div>
+        <div class="field">{label capacity /}{input capacity}</div>
+        <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a></div>
+    {/form}
+</section>
+{/block}

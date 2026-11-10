@@ -2,6 +2,7 @@
 
 namespace App\Presentation\Home;
 
+use App\Model\Services\ApplianceService;
 use App\Presentation\Accessory\AuthenticatedPresenter;
 use App\Model\Services\HouseholdService;
 use App\Model\Services\UserService;
@@ -9,7 +10,7 @@ use Nette\Application\UI\Form;
 
 final class HomePresenter extends AuthenticatedPresenter
 {
-    public function __construct(UserService $users, private HouseholdService $households)
+    public function __construct(UserService $users, private HouseholdService $households, private ApplianceService $appliance)
     {
         parent::__construct($users);
     }
@@ -19,6 +20,9 @@ final class HomePresenter extends AuthenticatedPresenter
         $this->template->household = $this->currentUser->getHousehold();
         $this->template->request = $this->currentUser->getHouseholdRequest();
         $this->template->isModerator = $this->currentUser->getHousehold()?->getModerator() === $this->currentUser;
+        $this->template->appliances = $this->template->household !== null
+            ? $this->appliance->getAppliances($this->template->household)
+            : [];
     }
 
     protected function createComponentCancelRequestForm(): Form

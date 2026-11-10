@@ -1,0 +1,41 @@
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{varType App\Model\Entity\ShelfEntity[] $shelves}
+{varType bool $isModerator}
+{block title}{$appliance->getName()}{/block}
+
+{block content}
+<header class="page-header">
+    <div>
+        <small>Domácnost / Spotřebič</small>
+        <h1>{$appliance->getName()}</h1>
+        <p>Přehled polic a jejich kapacity.</p>
+    </div>
+    <div class="actions">
+        {if $isModerator}
+            <a class="button button-primary" n:href="Shelf:create, applianceId: $appliance->getId()">Přidat polici</a>
+            <a class="button button-outline" n:href="edit, id: $appliance->getId()">Upravit spotřebič</a>
+            <a class="button button-danger" n:href="delete, id: $appliance->getId()">Smazat spotřebič</a>
+        {/if}
+        <a class="button button-outline" n:href="Home:default">Zpět na přehled</a>
+    </div>
+</header>
+<section class="card-grid" aria-label="Police">
+    {foreach $shelves as $shelf}
+        <article class="card">
+            <h3>{$shelf->getName()}</h3>
+            <p>Kapacita: {$shelf->getShelfCapacity()} g</p>
+            {if $isModerator}
+                <div class="actions">
+                    <a class="button button-outline" n:href="Shelf:edit, id: $shelf->getId()">Upravit</a>
+                    <a class="button button-danger" n:href="Shelf:delete, id: $shelf->getId()">Smazat</a>
+                </div>
+            {/if}
+        </article>
+    {else}
+        <div class="empty-state">
+            <h3>Spotřebič zatím nemá žádné police</h3>
+            <p>{if $isModerator}Přidejte první polici pomocí tlačítka výše.{else}Police může přidat správce domácnosti.{/if}</p>
+        </div>
+    {/foreach}
+</section>
+{/block}

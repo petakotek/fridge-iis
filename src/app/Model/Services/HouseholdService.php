@@ -148,6 +148,11 @@ final class HouseholdService extends BaseService
         );
     }
 
+    public function countHouseholdRequests(HouseholdEntity $household): int {
+        return $this->entityManager->getRepository(UserEntity::class)
+            ->count(['householdRequest' => $household]);
+    }
+
     public function getHouseholdMembers(HouseholdEntity $household): array {
         return $this->entityManager->getRepository(UserEntity::class)
             ->findBy(['household' => $household], ['surname' => 'ASC', 'name' => 'ASC']);

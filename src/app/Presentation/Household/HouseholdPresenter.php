@@ -19,9 +19,12 @@ final class HouseholdPresenter extends AuthenticatedPresenter
         $this->requireNoHousehold();
     }
 
-    public function actionRequest(): void
+    public function actionRequest(?string $token = null): void
     {
         $this->requireNoHousehold();
+        if ($token !== null) {
+            $this['requestForm']->setDefaults(['token' => trim($token)]);
+        }
     }
 
     public function actionSettings(): void
@@ -96,7 +99,7 @@ final class HouseholdPresenter extends AuthenticatedPresenter
                 $form->addError('Název domácnosti se nepodařilo změnit.');
                 return;
             }
-            $this->flashMessage('Nastavení domácnosti bylo uloženo.');
+            $this->flashMessage('Údaje domácnosti byly uloženy.');
             $this->redirect('this');
         };
         return $form;
