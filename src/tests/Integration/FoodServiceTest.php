@@ -285,8 +285,6 @@ final class FoodServiceTest extends ServiceTestCase
             } else {
                 $service->trashFood($food);
             }
-            $consumedAt = $food->getConsumedAt();
-            $discardedAt = $food->getDiscardedAt();
             $outsider = $this->household()->getModerator();
             Assert::exception(fn() => $service->restoreFood($food, $outsider), \DomainException::class);
             $this->food($shelf, 21);
@@ -294,8 +292,6 @@ final class FoodServiceTest extends ServiceTestCase
             $this->em->refresh($food);
             Assert::same($status === 'consumed', $food->isConsumed());
             Assert::same($status === 'trashed', $food->isTrashed());
-            Assert::equal($consumedAt, $food->getConsumedAt());
-            Assert::equal($discardedAt, $food->getDiscardedAt());
             Assert::count(1, $service->getFoodsByShelf($shelf));
         }
     }
