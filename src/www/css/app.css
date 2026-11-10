@@ -76,15 +76,17 @@ small { color: var(--muted); }
 .page-header small { display: block; margin-bottom: 13px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
 .page-header h1 { margin: 0; font-size: clamp(28px, 3vw, 36px); font-weight: 700; letter-spacing: -.035em; }
 .page-header p { margin: 9px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.actions { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .actions form { margin: 0; }
 .page-header > .actions { justify-content: flex-end; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 14px; border: 1px solid transparent; border-radius: var(--radius); font: inherit; font-size: 12px; font-weight: 700; line-height: 1.3; white-space: nowrap; cursor: pointer; }
+.food-action-icon { flex: none; width: 18px; height: 18px; }
 .button-primary { background: var(--accent); color: var(--surface); }
 .button-primary:hover { background: var(--accent-hover); }
 .button-outline { border-color: var(--border); background: var(--surface); color: var(--accent); }
 .button-outline:hover { background: var(--highlight); }
 .button-danger { border-color: var(--border); background: var(--danger-background); color: var(--danger); }
+.button-outline-danger {border-color: var(--danger); color: var(--danger); }
 .card { width: 100%; padding: clamp(22px, 2.5vw, 30px); background: var(--background); }
 .card h2 { margin: 0 0 7px; font-size: 19px; }
 .stack { display: grid; gap: 18px; max-width: var(--content-width); margin: 0 auto; }
@@ -106,6 +108,16 @@ small { color: var(--muted); }
 .appliance-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .appliance-card-heading h3 { min-width: 0; }
 .appliance-icon { flex: none; width: 56px; height: 56px; padding: 5px; border-radius: var(--radius); background: var(--highlight); color: var(--accent); }
+.food-value { font-size: 1.2rem; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; vertical-align: middle; }
+.food-value > span { min-width: 0; overflow-wrap: anywhere; }
+.food-icon { flex: none; width: 30px; height: 30px; color: var(--accent); }
+.food-barcode-value { grid-column: 1 / -1; min-width: 0; text-align: center; }
+.food-barcode { display: block; max-width: 100%; height: auto; margin-inline: auto; border-radius: var(--radius); }
+.food-barcode-error, .food-barcode-note { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+.food-icon-tooltip { position: relative; display: inline-flex; flex: none; border-radius: 3px; cursor: help; }
+.food-icon-tooltip::after { content: attr(data-tooltip); position: absolute; z-index: 10; bottom: calc(100% + 6px); left: 0; width: max-content; max-width: min(240px, 80vw); padding: 6px 9px; border-radius: var(--radius); background: var(--text); color: var(--surface); font-size: 12px; font-weight: 500; line-height: 1.4; visibility: hidden; opacity: 0; pointer-events: none; }
+.food-icon-tooltip:is(:hover, :focus)::after { visibility: visible; opacity: 1; }
+.food-icon-tooltip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .notice { max-width: var(--content-width); margin: 0 auto 20px; padding: 13px 16px; border-radius: var(--radius); background: var(--highlight); color: var(--accent); font-size: 13px; }
 .notice.error { background: var(--danger-background); color: var(--danger); }
