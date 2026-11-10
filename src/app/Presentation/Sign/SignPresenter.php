@@ -13,12 +13,15 @@ final class SignPresenter extends Nette\Application\UI\Presenter
 {
     #[Persistent]
     public string $backlink = "";
+
+    #[Persistent]
+    public string $join = "";
+
     public function __construct(
         private UserService $userService,
         private HouseholdService $householdService,
     ) {
         parent::__construct();
-        // addEmail() has a built-in format rule with an English default message
         Nette\Forms\Validator::$messages[Form::Email] =
             "Zadejte platnou e-mailovou adresu.";
     }
@@ -39,33 +42,38 @@ final class SignPresenter extends Nette\Application\UI\Presenter
 
     public function renderUp(): void
     {
-        $this->template->guestHousehold = $this->getGuestHousehold();
+        $this->template->joinHousehold = $this->getJoinHousehold();
     }
 
-    // Household the visitor is browsing as a guest, if the stored token is still valid
-    private function getGuestHousehold(): ?HouseholdEntity
+    private function getJoinHousehold(): ?HouseholdEntity
     {
-        $token = $this->getSession("guest")->get("token");
-        if ($token === null) {
+        if ($this->join === "") {
             return null;
         }
         try {
-            return $this->householdService->getHouseholdByToken($token);
+            $household = $this->householdService->getHouseholdByToken(
+                $this->join,
+            );
         } catch (\InvalidArgumentException) {
             return null;
         }
+        return $household->getToken() === $this->join ? $household : null;
     }
 
     protected function createComponentGuestForm(): Form
     {
         $form = new Form();
-        $form->addText("token", "Token domácnosti")->setRequired("Zadejte token.");
+        $form
+            ->addText("token", "Token domácnosti")
+            ->setRequired("Zadejte token.");
         $form->addSubmit("send", "Vstoupit jako host");
 
         $form->onSuccess[] = function (Form $form, \stdClass $data): void {
             $token = trim($data->token);
             try {
-                $household = $this->householdService->getHouseholdByToken($token);
+                $household = $this->householdService->getHouseholdByToken(
+                    $token,
+                );
             } catch (\InvalidArgumentException) {
                 $form->addError("Domácnost s tímto tokenem nebyla nalezena.");
                 return;
@@ -128,23 +136,31 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                     $data->password,
                 );
             } catch (\InvalidArgumentException $e) {
-                $form->addError($e->getMessage()); // e.g. "E-mail is already registered"
+                $form->addError($e->getMessage());
                 return;
             }
+            $this->getUser()->setExpiration("30 minutes");
             $this->getUser()->login($data->email, $data->password);
 
-            // a guest who registers automatically asks to join the household they were viewing
-            $guestSession = $this->getSession("guest");
-            $household = $this->getGuestHousehold();
+            $household = $this->getJoinHousehold();
             if ($household !== null) {
-                $this->householdService->createHouseholdRequest($household, $user, $guestSession->get("token"));
-                $this->flashMessage("Účet byl vytvořen a správci domácnosti {$household->getName()} byla odeslána žádost o připojení.");
-            } elseif ($guestSession->get("token") !== null) {
-                $this->flashMessage("Účet byl vytvořen, ale token domácnosti už není platný. Požádejte správce o nový.", "error");
+                $this->householdService->createHouseholdRequest(
+                    $household,
+                    $user,
+                    $this->join,
+                );
+                $this->flashMessage(
+                    "Účet byl vytvořen a správci domácnosti {$household->getName()} byla odeslána žádost o připojení.",
+                );
+            } elseif ($this->join !== "") {
+                $this->flashMessage(
+                    "Účet byl vytvořen, ale token domácnosti už není platný. Požádejte správce o nový.",
+                    "error",
+                );
             } else {
                 $this->flashMessage("Účet byl vytvořen.");
             }
-            $guestSession->remove();
+            $this->getSession("guest")->remove();
             $this->redirect("Home:");
         };
         return $form;
