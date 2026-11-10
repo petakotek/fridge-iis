@@ -1,0 +1,21 @@
+{varType string|null $barcode}
+{var $encoded = foodBarcode($barcode)}
+{if $encoded}
+    <svg class="food-barcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {$encoded['width']} 80" width="{$encoded['width'] * 3}" height="240" role="img" aria-label="Čárový kód {$encoded['value']}">
+        <g fill="#000" shape-rendering="crispEdges">
+            {foreach $encoded['bars'] as $bar}
+                <rect x="{$bar['x']}" y="4" width="{$bar['width']}" height="{$bar['guard'] ? 60 : 56}"/>
+            {/foreach}
+        </g>
+        <text x="{$encoded['width'] / 2}" y="74" text-anchor="middle" font-family="monospace" font-size="7" fill="#000">{$encoded['value']}</text>
+    </svg>
+{elseif $barcode !== null && $barcode !== ''}
+    <span style="display: flex; align-items: center; gap: 5px;">{include '../Accessory/foodIcon.latte', icon: 'barcode'}
+    {$barcode}
+    </span>
+    <small class="food-barcode-error">Neplatný kód.</small>
+{else}
+    <span style="display: flex; align-items: center; gap: 5px;">{include '../Accessory/foodIcon.latte', icon: 'barcode'}
+    Neuvedeno
+    </span>
+{/if}
