@@ -15,6 +15,9 @@ final class LatteExtension extends Extension
 
 	public function getFunctions(): array
 	{
-		return ['applianceIcon' => [ApplianceIcon::class, 'forName']];
+		return [
+			'applianceIcon' => [ApplianceIcon::class, 'forName'],
+			'foodBarcode' => [Barcode::class, 'encode'],
+		];
 	}
 }
