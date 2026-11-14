@@ -13,7 +13,14 @@
             <div class="field">{label shelfId /}{input shelfId}</div>
             <div class="field">{label expiry /}{input expiry}</div>
             <div class="field">{label weight /}{input weight}</div>
-            <div class="field">{label barcode /}{input barcode}</div>
+            <div class="field">
+                {label barcode /}
+                <div class="barcode-lookup">
+                    {input barcode}
+                    <small class="muted">Nejdříve zadejte hmotnost, nutriční hodnoty se podle ní přepočítají.</small>
+                    {input lookup, class: 'button button-outline'}
+                </div>
+            </div>
             <div class="field">{label price /}{input price}</div>
             <div class="field">{label calories /}{input calories}</div>
             <div class="field">{label protein /}{input protein}</div>
@@ -21,6 +28,7 @@
             <div class="field">{label carb /}{input carb}</div>
             <div class="field">{label fibre /}{input fibre}</div>
             <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="default">Zpět na potraviny</a></div>
+            <small class="muted">Údaje podle čárového kódu: <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (ODbL)</small>
         {/form}
     {else}
         <div class="empty-state">
