@@ -172,6 +172,69 @@ final class FoodServiceTest extends ServiceTestCase
         Assert::same(1, $this->em->getRepository(FoodEntity::class)->count([]));
     }
 
+    public function testConsumedFoodsAndCaloriesAreFilteredByUserAndDate(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $this->em->flush();
+        $shelf = $this->shelf($household);
+        $service = new FoodService($this->em);
+
+        $before = $this->food($shelf);
+        $atFrom = $this->food($shelf);
+        $latest = $this->food($shelf);
+        $atTo = $this->food($shelf);
+        $otherUserFood = $this->food($shelf);
+        $this->food($shelf);
+
+        foreach ([$before, $atFrom, $latest, $atTo] as $food) {
+            $service->consumeFood($food, $member);
+        }
+        $service->consumeFood($otherUserFood, $household->getModerator());
+
+        $consumptionTimes = [
+            $before->getId() => '2025-12-31 23:59:59',
+            $atFrom->getId() => '2026-01-01 00:00:00',
+            $latest->getId() => '2026-01-07 23:59:59',
+            $atTo->getId() => '2026-01-08 00:00:00',
+            $otherUserFood->getId() => '2026-01-03 12:00:00',
+        ];
+        foreach ($consumptionTimes as $foodId => $consumedAt) {
+            $this->em->getConnection()->update('FoodEntity', ['consumedAt' => $consumedAt], ['id' => $foodId]);
+        }
+
+        $this->em->clear();
+        $member = $this->em->find(UserEntity::class, $member->getId());
+        $from = new \DateTimeImmutable('2026-01-01 00:00:00');
+        $to = new \DateTimeImmutable('2026-01-08 00:00:00');
+        $foods = $service->getConsumedFoods($member, $from, $to);
+
+        Assert::same([$latest->getId(), $atFrom->getId()], array_map(fn(FoodEntity $food) => $food->getId(), $foods));
+        Assert::same(120, $service->getConsumedCalories($member, $from, $to));
+    }
+
+    public function testConsumedCaloriesTreatsNullAndEmptyHistoryAsZero(): void
+    {
+        $household = $this->household();
+        $member = $this->user();
+        $household->addUser($member);
+        $this->em->flush();
+        $food = $this->food($this->shelf($household));
+        $service = new FoodService($this->em);
+        $service->consumeFood($food, $member);
+        $this->em->getConnection()->update('FoodEntity', ['calories' => null], ['id' => $food->getId()]);
+
+        $this->em->clear();
+        $member = $this->em->find(UserEntity::class, $member->getId());
+        $from = new \DateTimeImmutable('-1 day');
+        $to = new \DateTimeImmutable('+1 day');
+
+        Assert::same(0, $service->getConsumedCalories($member, $from, $to));
+        Assert::same([], $service->getConsumedFoods($household->getModerator(), $from, $to));
+        Assert::same(0, $service->getConsumedCalories($household->getModerator(), $from, $to));
+    }
+
     public function testRemoveFoodClearsCategoryLinksButKeepsCategories(): void
     {
         $household = $this->household();

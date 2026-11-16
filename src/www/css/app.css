@@ -157,6 +157,35 @@ small { color: var(--muted); }
 .food-table :is(th, td) { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
 .food-table th { color: var(--muted); font-size: 11px; font-weight: 700; }
 .food-table tr:last-child td { border-bottom: 0; }
+.table-scroll { overflow-x: auto; }
+.table-scroll .food-table td { white-space: nowrap; }
+.muted { color: var(--muted); }
+.barcode-lookup { display: grid; gap: 8px; justify-items: start; }
+.barcode-lookup input:not([type=submit]) { width: 100%; }
+
+/* Profil spotřeby */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 14px 0 0; }
+.stat { padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.stat dt { color: var(--muted); font-size: 11px; font-weight: 700; }
+.stat dd { margin: 6px 0 0; font-size: 20px; font-weight: 700; }
+.bar-chart-wrap { display: flex; gap: 8px; height: 240px; margin-top: 16px; }
+.bar-chart-axis { display: flex; flex-direction: column; justify-content: space-between; padding: 26px 0 22px; color: var(--muted); font-size: 11px; text-align: right; white-space: nowrap; }
+.bar-chart { display: flex; flex: 1; min-width: 0; align-items: stretch; gap: 3px; padding: 12px 12px 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.bar-chart-value { min-height: 14px; }
+.bar-chart-column { display: flex; flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: flex-end; align-items: center; }
+.bar-chart-bar { width: 100%; max-width: 44px; min-height: 1px; border-radius: 4px 4px 0 0; background: var(--accent); }
+.bar-chart-column:hover .bar-chart-bar { background: var(--accent-hover); }
+.bar-chart-value { margin-bottom: 4px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.bar-chart-label { height: 26px; padding-top: 6px; overflow: visible; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.macro-chart { --macro-protein: #348250; --macro-fat: #d9a13b; --macro-carb: #4a78b5; --macro-fibre: #8a6bb0; display: flex; flex-wrap: wrap; align-items: center; gap: 24px 40px; margin-top: 16px; }
+.macro-pie { flex: none; width: 200px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(var(--macro-protein) 0 calc(var(--s1) * .1%), var(--macro-fat) 0 calc(var(--s2) * .1%), var(--macro-carb) 0 calc(var(--s3) * .1%), var(--macro-fibre) 0); }
+.macro-legend { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.macro-legend li { display: flex; align-items: center; gap: 7px; }
+.macro-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.macro-protein { background: var(--macro-protein); }
+.macro-fat { background: var(--macro-fat); }
+.macro-carb { background: var(--macro-carb); }
+.macro-fibre { background: var(--macro-fibre); }
 
 .empty-state { display: flex; min-height: 425px; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
 .empty-state > svg { width: 112px; height: 112px; margin-bottom: 18px; color: var(--accent); }

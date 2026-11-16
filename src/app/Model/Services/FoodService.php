@@ -3,6 +3,7 @@
 namespace App\Model\Services;
 
 use App\Model\Common\Verification;
+use DateTimeInterface;
 use App\Model\Entity\FoodEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
@@ -79,6 +80,36 @@ final class FoodService extends BaseService
             ['shelf' => $shelf, 'trashed' => true],
             ['discardedAt' => 'DESC', 'id' => 'DESC'],
         );
+    }
+
+    public function getConsumedFoods(UserEntity $user, DateTimeInterface $from, DateTimeInterface $to): array {
+        return $this->entityManager->createQueryBuilder()
+            ->select('food')
+            ->from(FoodEntity::class, 'food')
+            ->where('food.consumer = :user')
+            ->andWhere('food.consumedAt >= :from')
+            ->andWhere('food.consumedAt < :to')
+            ->setParameter('user', $user)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('food.consumedAt', 'DESC')
+            ->addOrderBy('food.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getConsumedCalories(UserEntity $user, DateTimeInterface $from, DateTimeInterface $to): int {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->select('COALESCE(SUM(food.calories), 0)')
+            ->from(FoodEntity::class, 'food')
+            ->where('food.consumer = :user')
+            ->andWhere('food.consumedAt >= :from')
+            ->andWhere('food.consumedAt < :to')
+            ->setParameter('user', $user)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function removeFood(FoodEntity $food): void {

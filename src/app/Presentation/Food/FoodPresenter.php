@@ -2,15 +2,18 @@
 
 namespace App\Presentation\Food;
 
+use App\Model\Common\ProductLookupException;
 use App\Model\Entity\FoodEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
 use App\Model\Services\ApplianceService;
 use App\Model\Services\FoodService;
+use App\Model\Services\ProductLookupService;
 use App\Model\Services\ShelfService;
 use App\Model\Services\UserService;
 use App\Presentation\Accessory\AuthenticatedPresenter;
 use Nette\Application\UI\Form;
+use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Forms\Form as FormAlias;
 
@@ -27,6 +30,7 @@ final class FoodPresenter extends AuthenticatedPresenter
         private readonly FoodService      $foods,
         private readonly ShelfService     $shelves,
         private readonly ApplianceService $appliances,
+        private readonly ProductLookupService $productLookup,
     ) {
         parent::__construct($users);
     }
@@ -195,7 +199,10 @@ final class FoodPresenter extends AuthenticatedPresenter
             ->setRequired('Vyberte polici.')
             ->setDefaultValue($this->getParameter('shelfId'));
         $form->addText('barcode', 'Čárový kód')
-            ->addRule(Form::MaxLength, 'Čárový kód může mít nejvýše 13 znaků.', 13);
+            ->setHtmlAttribute('inputmode', 'numeric')
+            ->addRule(Form::MaxLength, 'Čárový kód může mít nejvýše 13 znaků.', 13)
+            ->addCondition(Form::Filled)
+                ->addRule(Form::Pattern, 'Čárový kód musí mít 8–13 číslic.', '\d{8,13}');
         $form->addFloat('price', 'Cena (Kč)')->setDefaultValue(0)
             ->setRequired('Zadejte cenu.')
             ->addRule(Form::Range, 'Cena musí být od 0 do 99999999,99 Kč.', [0, 99999999.99]);
@@ -213,7 +220,15 @@ final class FoodPresenter extends AuthenticatedPresenter
                 $form[$name]->setDefaultValue(0);
             }
         }
+        // Only barcode and weight are validated, so the lookup works before the rest of the form is filled in.
+        $form->addSubmit('lookup', 'Načíst podle kódu')
+            ->setValidationScope([$form['barcode'], $form['weight']])
+            ->onClick[] = $this->lookupBarcode(...);
         $form->onSuccess[] = function (Form $form, $data): void {
+            // Nette runs onSuccess after the lookup button's onClick too; only the save button may add food.
+            if ($form->isSubmitted() !== $form['send']) {
+                return;
+            }
             $shelf = $this->loadShelf((int) $data->shelfId);
             try {
                 $food = $this->foods->addFood(
@@ -233,6 +248,49 @@ final class FoodPresenter extends AuthenticatedPresenter
             $this->redirect('default', ['shelfId' => $shelf->getId()]);
         };
         return $form;
+    }
+
+    private function lookupBarcode(SubmitButton $button): void
+    {
+        $form = $button->getForm();
+        $barcode = trim((string) $form['barcode']->getValue());
+        if ($barcode === '') {
+            $form['barcode']->addError('Zadejte čárový kód.');
+            return;
+        }
+        $weight = $form['weight']->getValue();
+        if (!is_int($weight) || $weight < 1) {
+            $form['weight']->addError('Nejdříve zadejte hmotnost, podle ní se přepočítají nutriční hodnoty.');
+            return;
+        }
+
+        try {
+            $product = $this->productLookup->lookup($barcode);
+        } catch (\InvalidArgumentException) {
+            $form['barcode']->addError('Čárový kód musí mít 8–13 číslic.');
+            return;
+        } catch (ProductLookupException) {
+            $this->flashMessage('Databáze potravin je nedostupná, vyplňte údaje ručně.', 'error');
+            return;
+        }
+
+        if ($product === null) {
+            $this->flashMessage('Produkt s tímto kódem nebyl nalezen, vyplňte údaje ručně.', 'error');
+            return;
+        }
+
+        // Open Food Facts gives nutrients per 100 g; store them for the entered weight.
+        $values = [];
+        foreach (['calories', 'protein', 'fat', 'carb', 'fibre'] as $key) {
+            if ($product[$key] !== null) {
+                $values[$key] = (int) round($product[$key] * $weight / 100);
+            }
+        }
+        if ($product['name'] !== null && trim((string) $form['name']->getValue()) === '') {
+            $values['name'] = $product['name'];
+        }
+        $form->setValues($values);
+        $this->flashMessage(sprintf('Nutriční hodnoty z Open Food Facts byly přepočítány na %d g. Zkontrolujte je a doplňte zbytek.', $weight));
     }
 
     protected function createComponentEditForm(): Form
