@@ -1,0 +1,76 @@
+{varType App\Model\Entity\HouseholdEntity|null $household}
+{varType App\Model\Entity\CategoryEntity[] $categoryChildren}
+{varType bool $isModerator}
+
+{block title}Kategorie{/block}
+
+{define categoryActions, App\Model\Entity\CategoryEntity $category}
+    <span class="actions" n:if="$isModerator">
+        <a class="button button-outline" n:href="create, parentId: $category->getId()">Přidat podkategorii<span class="visually-hidden"> do {$category->getName()}</span></a>
+        <a class="button button-outline" n:href="edit, id: $category->getId()">Upravit<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
+        <a class="button button-danger" n:href="delete, id: $category->getId()">Smazat<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
+    </span>
+{/define}
+
+{define categoryBranch, int $parentId}
+    <ul class="category-tree">
+        {foreach $categoryChildren[$parentId] ?? [] as $category}
+            <li>
+                {if $parentId === 0 && !empty($categoryChildren[$category->getId()])}
+                    <details class="category-branch">
+                        <summary class="card category-row">
+                            <span class="category-heading">
+                                <svg class="category-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>{$category->getName()}</span>
+                            </span>
+                            {include categoryActions, category: $category}
+                        </summary>
+                        {include categoryBranch, parentId: $category->getId()}
+                    </details>
+                {else}
+                    <div class="card category-row">
+                        <h2>{$category->getName()}</h2>
+                        {include categoryActions, category: $category}
+                    </div>
+                    {if !empty($categoryChildren[$category->getId()])}
+                        {include categoryBranch, parentId: $category->getId()}
+                    {/if}
+                {/if}
+            </li>
+        {/foreach}
+    </ul>
+{/define}
+
+{block content}
+<header class="page-header">
+    <div>
+        <small>Domácnost / Kategorie</small>
+        <h1>Kategorie</h1>
+        <p>Kategorie pro přehledné třídění potravin v domácnosti.</p>
+    </div>
+    <div class="actions" n:if="$isModerator">
+        <a class="button button-primary" n:href="create">Přidat kategorii</a>
+    </div>
+</header>
+
+{if $household}
+    <section class="category-list" aria-label="Kategorie v domácnosti">
+        {if $categoryChildren}
+            {include categoryBranch, parentId: 0}
+        {else}
+            <div class="empty-state">
+                <h2>Zatím tu nejsou žádné kategorie</h2>
+                <p>{if $isModerator}Přidejte první kategorii pro třídění potravin.{else}Kategorie může přidávat a upravovat správce domácnosti.{/if}</p>
+            </div>
+        {/if}
+    </section>
+{else}
+    <section class="empty-state">
+        <h2>Kategorie patří k domácnosti</h2>
+        <p>Pro správu kategorií nejprve vytvořte domácnost nebo se k nějaké připojte.</p>
+        <div class="actions">
+            <a class="button button-outline" n:href="Home:default">Přejít na přehled</a>
+        </div>
+    </section>
+{/if}
+{/block}
