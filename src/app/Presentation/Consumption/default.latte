@@ -1,0 +1,156 @@
+{varType App\Model\Entity\FoodEntity[] $foods}
+{varType array $totals}
+{varType int $totalCalories}
+{varType array $chart}
+{varType int $chartMax}
+{varType bool $singleDay}
+{varType int $dayCount}
+{varType string $periodLabel}
+{varType int $macroTotal}
+{varType array $pie}
+{varType DateTimeImmutable $from}
+{varType DateTimeImmutable $to}
+{varType DateTimeImmutable $today}
+{varType DateTimeImmutable $yesterday}
+{varType DateTimeImmutable $weekFrom}
+{varType App\Model\Entity\UserEntity $currentUser}
+
+{block title}Profil spotřeby{/block}
+
+{block content}
+<header class="page-header">
+	<div>
+		<small>Spotřeba</small>
+		<h1>Detaily spotřeby</h1>
+	</div>
+</header>
+
+<div class="stack">
+	<section class="card">
+		<h2>Období spotřeby</h2>
+		<div class="actions">
+			<a class="button button-outline" n:href="Consumption:default">Dnes</a>
+			<a class="button button-outline" n:href="Consumption:default, from: $yesterday->format('Y-m-d'), to: $yesterday->format('Y-m-d')">Včera</a>
+			<a class="button button-outline" n:href="Consumption:default, from: $weekFrom->format('Y-m-d'), to: $today->format('Y-m-d')">Posledních 7 dní</a>
+			<a class="button button-outline" n:href="Consumption:default, from: $today->modify('-29 days')->format('Y-m-d'), to: $today->format('Y-m-d')">Posledních 30 dní</a>
+		</div>
+		<form method="get" action="{link Consumption:default}">
+			<div class="field-row">
+				<div class="field">
+					<label for="consumption-from">Od</label>
+					<input id="consumption-from" name="from" type="date" value="{$from->format('Y-m-d')}" required>
+				</div>
+				<div class="field">
+					<label for="consumption-to">Do</label>
+					<input id="consumption-to" name="to" type="date" value="{$to->format('Y-m-d')}" required>
+				</div>
+			</div>
+			<button class="button button-primary" type="submit">Zobrazit spotřebu</button>
+		</form>
+	</section>
+
+	<section class="card">
+		<h2>Souhrn – {$periodLabel}</h2>
+		<dl class="stat-grid">
+			<div class="stat"><dt>Energie</dt><dd>{$totalCalories} kcal</dd></div>
+			<div class="stat" n:if="!$singleDay"><dt>Průměr na den</dt><dd>{=(int) round($totalCalories / $dayCount)} kcal</dd></div>
+			<div class="stat"><dt>Potravin</dt><dd>{$totals['count']}</dd></div>
+			<div class="stat"><dt>Hmotnost</dt><dd>{$totals['weight']} g</dd></div>
+			<div class="stat"><dt>Cena</dt><dd>{$totals['price']|number:2, ',', ' '} Kč</dd></div>
+		</dl>
+	</section>
+
+	<section class="card">
+		<h2>{$singleDay ? 'Kalorie po hodinách' : 'Kalorie po dnech'} – {$periodLabel}</h2>
+		{if $totals['count'] > 0}
+			{var $labelStep = max(1, (int) ceil(count($chart) / 12))}
+			<div class="bar-chart-wrap">
+				<div class="bar-chart-axis" aria-hidden="true">
+					<span>{$chartMax} kcal</span>
+					<span>{=(int) round($chartMax / 2)}</span>
+					<span>0</span>
+				</div>
+				<div class="bar-chart" role="img" aria-label="Sloupcový graf kalorií, {$periodLabel}">
+					{foreach $chart as $i => $bucket}
+						<div class="bar-chart-column" title="{$bucket['title']}: {$bucket['calories']} kcal ({$bucket['count']} potravin)">
+							<span class="bar-chart-value">{if $bucket['calories'] > 0 && count($chart) <= 31}{$bucket['calories']}{/if}</span>
+							<div class="bar-chart-bar" style="height: calc((100% - 46px) * {round($bucket['calories'] / $chartMax, 3)})"></div>
+							<span class="bar-chart-label">{if $i % $labelStep === 0}{$bucket['label']}{/if}</span>
+						</div>
+					{/foreach}
+				</div>
+			</div>
+		{else}
+			<p>V tomto období nejsou žádná data pro graf.</p>
+		{/if}
+	</section>
+
+	<section class="card">
+		<h2>Živiny – {$periodLabel}</h2>
+		{if $macroTotal > 0}
+			{var $macros = [
+				['key' => 'protein', 'label' => 'Bílkoviny'],
+				['key' => 'fat', 'label' => 'Tuky'],
+				['key' => 'carb', 'label' => 'Sacharidy'],
+				['key' => 'fibre', 'label' => 'Vláknina'],
+			]}
+			<div class="macro-chart">
+				<div class="macro-pie" role="img" aria-label="Koláčový graf živin – {$periodLabel}"
+					style="--s1: {$pie['s1']}; --s2: {$pie['s2']}; --s3: {$pie['s3']}"></div>
+				<ul class="macro-legend">
+					{foreach $macros as $macro}
+						<li><span class="macro-swatch macro-{$macro['key']}"></span>{$macro['label']}: <strong>{$totals[$macro['key']]} g</strong> ({round($totals[$macro['key']] / $macroTotal * 100)} %)</li>
+					{/foreach}
+				</ul>
+			</div>
+		{else}
+			<p>Spotřebované potraviny nemají vyplněné nutriční hodnoty.</p>
+		{/if}
+	</section>
+
+	<section class="card">
+		<h2>Spotřebované potraviny</h2>
+		{if $foods}
+			<div class="table-scroll">
+				<table class="food-table">
+					<thead>
+						<tr>
+							<th>Potravina</th>
+							<th>Spotřebováno</th>
+							<th>Odkud</th>
+							<th>Hmotnost</th>
+							<th>Kalorie</th>
+							<th>Bílkoviny</th>
+							<th>Tuky</th>
+							<th>Sacharidy</th>
+							<th>Vláknina</th>
+							<th>Cena</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr n:foreach="$foods as $food">
+							<td>
+								<strong>{$food->getName()}</strong>
+								{var $categoryNames = []}
+								{foreach $food->getCategories() as $category}{do $categoryNames[] = $category->getName()}{/foreach}
+								<br n:if="$categoryNames"><small n:if="$categoryNames" class="muted">{implode(', ', $categoryNames)}</small>
+							</td>
+							<td>{$food->getConsumedAt()|date:'j. n. Y H:i'}</td>
+							<td>{$food->getShelf()->getAppliance()?->getName() ?? '—'} / {$food->getShelf()->getName()}</td>
+							<td>{if $food->getWeight() !== null}{$food->getWeight()} g{else}—{/if}</td>
+							<td>{if $food->getCalories() !== null}{$food->getCalories()} kcal{else}—{/if}</td>
+							<td>{if $food->getProtein() !== null}{$food->getProtein()} g{else}—{/if}</td>
+							<td>{if $food->getFat() !== null}{$food->getFat()} g{else}—{/if}</td>
+							<td>{if $food->getCarb() !== null}{$food->getCarb()} g{else}—{/if}</td>
+							<td>{if $food->getFibre() !== null}{$food->getFibre()} g{else}—{/if}</td>
+							<td>{if $food->getPrice() !== null}{$food->getPrice()|number:2, ',', ' '} Kč{else}—{/if}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		{else}
+			<p>V tomto období jste nespotřebovali žádné potraviny.</p>
+		{/if}
+	</section>
+</div>
+{/block}

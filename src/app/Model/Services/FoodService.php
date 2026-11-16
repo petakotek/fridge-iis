@@ -3,6 +3,7 @@
 namespace App\Model\Services;
 
 use App\Model\Common\Verification;
+use DateTimeInterface;
 use App\Model\Entity\FoodEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
@@ -67,6 +68,50 @@ final class FoodService extends BaseService
             );
     }
 
+    public function getConsumedFoodsByShelf(ShelfEntity $shelf, UserEntity $user): array {
+        return $this->entityManager->getRepository(FoodEntity::class)->findBy(
+            ['shelf' => $shelf, 'consumer' => $user],
+            ['consumedAt' => 'DESC', 'id' => 'DESC'],
+        );
+    }
+
+    public function getTrashedFoodsByShelf(ShelfEntity $shelf): array {
+        return $this->entityManager->getRepository(FoodEntity::class)->findBy(
+            ['shelf' => $shelf, 'trashed' => true],
+            ['discardedAt' => 'DESC', 'id' => 'DESC'],
+        );
+    }
+
+    public function getConsumedFoods(UserEntity $user, DateTimeInterface $from, DateTimeInterface $to): array {
+        return $this->entityManager->createQueryBuilder()
+            ->select('food')
+            ->from(FoodEntity::class, 'food')
+            ->where('food.consumer = :user')
+            ->andWhere('food.consumedAt >= :from')
+            ->andWhere('food.consumedAt < :to')
+            ->setParameter('user', $user)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('food.consumedAt', 'DESC')
+            ->addOrderBy('food.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getConsumedCalories(UserEntity $user, DateTimeInterface $from, DateTimeInterface $to): int {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->select('COALESCE(SUM(food.calories), 0)')
+            ->from(FoodEntity::class, 'food')
+            ->where('food.consumer = :user')
+            ->andWhere('food.consumedAt >= :from')
+            ->andWhere('food.consumedAt < :to')
+            ->setParameter('user', $user)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function removeFood(FoodEntity $food): void {
         foreach ($food->getCategories() as $category){
             $food->removeCategory($category);
@@ -78,6 +123,23 @@ final class FoodService extends BaseService
 
     public function trashFood(FoodEntity $food): void {
         $food->setTrashed();
+        $this->entityManager->flush();
+    }
+
+    public function restoreFood(FoodEntity $food, UserEntity $user): void {
+        $shelf = $food->getShelf();
+        $household = $shelf->getAppliance()?->getHousehold();
+        if ($household === null) {
+            throw new \DomainException('Food has no household.');
+        }
+        Verification::assertHouseholdUser($household, $user);
+        if (!$food->isConsumed() && !$food->isTrashed()) {
+            throw new \DomainException('Food is already stored.');
+        }
+
+        // Check capacity while this food is still excluded from stored food weight.
+        $shelf->addFood($food);
+        $food->setStored();
         $this->entityManager->flush();
     }
 

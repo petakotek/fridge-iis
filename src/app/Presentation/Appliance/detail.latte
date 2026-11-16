@@ -23,7 +23,11 @@
     {foreach $shelves as $shelf}
         <article class="card">
             <h3>{$shelf->getName()}</h3>
-            <p>Kapacita: {$shelf->getShelfCapacity()} g</p>
+            <p>Obsazeno: {$shelf->getUsedWeight()} / {$shelf->getShelfCapacity()} g</p>
+            <div class="actions">
+                <a class="button button-outline" n:href="Food:default, shelfId: $shelf->getId()">Potraviny</a>
+                <a class="button button-primary" n:href="Food:add, shelfId: $shelf->getId()">Přidat potravinu</a>
+            </div>
             {if $isModerator}
                 <div class="actions">
                     <a class="button button-outline" n:href="Shelf:edit, id: $shelf->getId()">Upravit</a>
