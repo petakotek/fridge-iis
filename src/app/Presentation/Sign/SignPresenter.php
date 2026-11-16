@@ -107,8 +107,8 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                     $data->email,
                     $data->password,
                 );
-            } catch (\InvalidArgumentException $e) {
-                $form->addError($e->getMessage()); // e.g. "E-mail is already registered"
+            } catch (\DomainException|\InvalidArgumentException $e) {
+                $form->addError($e->getMessage());
                 return;
             }
             $this->getUser()->login($data->email, $data->password);

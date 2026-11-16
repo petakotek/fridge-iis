@@ -17,7 +17,7 @@ final class UserServiceTest extends ServiceTestCase
 {
     public function testCreateUserPersistsProfileAndHashedPassword(): void
     {
-        $user = (new UserService($this->em))->createUser('Eva', 'Nova', 'eva@example.test', 'secret');
+        $user = (new UserService($this->em))->createUser('Eva', 'Nova', 'eva@example.test', 'secret123');
         $id = $user->getId();
         Assert::notNull($id);
         $this->em->clear();
@@ -26,19 +26,19 @@ final class UserServiceTest extends ServiceTestCase
         Assert::same('Eva', $stored->getName());
         Assert::same('Nova', $stored->getSurname());
         Assert::same('eva@example.test', $stored->getEmail());
-        Assert::true($stored->verifyPassword('secret'));
+        Assert::true($stored->verifyPassword('secret123'));
         Assert::false($stored->verifyPassword('wrong'));
         Assert::false($stored->isAdmin());
         Assert::null($stored->getHousehold());
         $hash = $this->em->getConnection()->fetchOne('SELECT password FROM UserEntity WHERE id = ?', [$id]);
-        Assert::notSame('secret', $hash);
-        Assert::true(password_verify('secret', $hash));
+        Assert::notSame('secret123', $hash);
+        Assert::true(password_verify('secret123', $hash));
     }
 
     public function testCreateUserRejectsEmptyRequiredFieldsWithoutSaving(): void
     {
         $service = new UserService($this->em);
-        foreach ([['Jan', 'Novak', ''], ['', 'Novak', 'secret'], ['Jan', '', 'secret']] as [$name, $surname, $password]) {
+        foreach ([['Jan', 'Novak', ''], ['', 'Novak', 'secret123'], ['Jan', '', 'secret123']] as [$name, $surname, $password]) {
             Assert::exception(
                 fn() => $service->createUser($name, $surname, 'invalid@example.test', $password),
                 \InvalidArgumentException::class,
@@ -85,6 +85,62 @@ final class UserServiceTest extends ServiceTestCase
         Assert::same('new@example.test', $stored->getEmail());
         Assert::true($stored->verifyPassword('new-password'));
         Assert::false($stored->verifyPassword('fixture-password'));
+    }
+
+    public function testCreateUserEnforcesPasswordLengthInService(): void
+    {
+        $service = new UserService($this->em);
+        Assert::exception(fn() => $service->createUser('Eva', 'Nova', 'eva@example.test', '1234567'), \InvalidArgumentException::class);
+        Assert::same(0, $this->em->getRepository(UserEntity::class)->count([]));
+
+        $user = $service->createUser('Eva', 'Nova', 'eva@example.test', '12345678');
+        Assert::true($user->verifyPassword('12345678'));
+    }
+
+    public function testRejectedPasswordChangeDoesNotModifyProfileEvenOnLaterFlush(): void
+    {
+        $user = $this->user();
+        $id = $user->getId();
+        $email = $user->getEmail();
+        $service = new UserService($this->em);
+        Assert::exception(fn() => $service->updateProfile($user, 'Eva', 'Nova', 'new@example.test', 'short'), \InvalidArgumentException::class);
+        $this->em->flush();
+        $this->em->clear();
+
+        $stored = $service->getUserById($id);
+        Assert::same('Jan', $stored->getName());
+        Assert::same($email, $stored->getEmail());
+        Assert::true($stored->verifyPassword('fixture-password'));
+    }
+
+    public function testEmailUniquenessIsSharedByCreationAndProfileEditing(): void
+    {
+        $existing = $this->user();
+        $user = $this->user();
+        $service = new UserService($this->em);
+        $duplicate = '  ' . $existing->getEmail() . '  ';
+
+        Assert::exception(fn() => $service->createUser('Eva', 'Nova', $duplicate, 'password123'), \DomainException::class);
+        Assert::exception(fn() => $service->updateProfile($user, 'Eva', 'Nova', $duplicate), \DomainException::class);
+        Assert::same(2, $this->em->getRepository(UserEntity::class)->count([]));
+        Assert::same('Jan', $user->getName());
+
+        $service->updateProfile($user, 'Eva', 'Nova', '  ' . $user->getEmail() . '  ');
+        Assert::same('Eva', $user->getName());
+        Assert::true($user->verifyPassword('fixture-password'));
+    }
+
+    public function testEmailFormatIsValidatedByServiceForCreationAndEditing(): void
+    {
+        $user = $this->user();
+        $email = $user->getEmail();
+        $service = new UserService($this->em);
+
+        Assert::exception(fn() => $service->createUser('Eva', 'Nova', 'invalid-email', 'password123'), \InvalidArgumentException::class, 'Invalid e-mail address');
+        Assert::exception(fn() => $service->updateProfile($user, 'Eva', 'Nova', 'invalid-email'), \InvalidArgumentException::class, 'Invalid e-mail address');
+        Assert::same('Jan', $user->getName());
+        Assert::same($email, $user->getEmail());
+        Assert::same(1, $this->em->getRepository(UserEntity::class)->count([]));
     }
 }
 

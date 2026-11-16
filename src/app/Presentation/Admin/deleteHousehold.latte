@@ -1,0 +1,22 @@
+{varType App\Model\Entity\HouseholdEntity $household}
+
+{block title}Smazat domácnost{/block}
+{block content}
+<header class="page-header">
+    <div>
+        {include 'breadcrumbs.latte', section: 'Domácnosti', destination: 'Admin:households', items: [
+            ['label' => $household->getName(), 'destination' => 'Admin:editHousehold', 'id' => $household->getId()],
+            ['label' => 'Smazat', 'destination' => 'Admin:deleteHousehold', 'id' => $household->getId()],
+        ]}
+        <h1>Smazat domácnost</h1><p>{$household->getName()}</p>
+    </div>
+</header>
+<div class="stack"><section class="card">
+    <p>Trvale se odstraní domácnost i její spotřebiče, police, potraviny a kategorie. Členové si ponechají účty a budou bez domácnosti. Čekající žádosti se zruší.</p>
+    {form deleteHouseholdForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="field">{label confirmation /}{input confirmation}</div>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="editHousehold, id: $household->getId()">Zrušit</a></div>
+    {/form}
+</section></div>
+{/block}

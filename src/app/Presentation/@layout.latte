@@ -11,6 +11,7 @@
 
 	<title>{ifset title}{include title|stripHtml} · {/ifset}Spíž</title>
 
+	<link rel="icon" type="image/svg+xml" href="{= $basePath . '/www/favicon.svg'}">
 	<link rel="stylesheet" href="{= $basePath . '/www/css/app.css'}">
 	{asset? 'main.js'}
 </head>
@@ -22,6 +23,12 @@
 		['label' => 'Potraviny', 'destination' => 'Food:default'],
 		['label' => 'Profil spotřeby', 'destination' => 'Consumption:default'],
 	]}
+	{if $currentUser->isAdmin()}
+		{var $navigation = [
+			['label' => 'Uživatelé', 'destination' => 'Admin:default'],
+			['label' => 'Domácnosti', 'destination' => 'Admin:households'],
+		]}
+	{/if}
 
 	<div class="app-shell">
 		<header class="topbar">

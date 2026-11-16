@@ -1,0 +1,23 @@
+{varType App\Model\Entity\HouseholdEntity[] $households}
+
+{block title}Správa domácností{/block}
+{block content}
+<header class="page-header">
+    <div>
+        {include 'breadcrumbs.latte', section: 'Domácnosti', destination: 'Admin:households'}
+        <h1>Správa domácností</h1><p>Vytvářejte domácnosti a spravujte jejich členy a správce.</p>
+    </div>
+    <div class="actions"><a class="button button-primary" n:href="createHousehold">Přidat domácnost</a><a class="button button-outline" n:href="default">Správa uživatelů</a></div>
+</header>
+<section class="card-grid">
+    {foreach $households as $household}
+        <article class="card">
+            <h2>{$household->getName()}</h2>
+            <p>{if $household->getModerator()}Správce: {$household->getModerator()->getName()} {$household->getModerator()->getSurname()}{else}Bez správce – určete jej ve správě členů.{/if}</p>
+            <div class="actions"><a class="button button-outline" n:href="editHousehold, id: $household->getId()">Upravit a spravovat členy</a><a class="button button-danger" n:href="deleteHousehold, id: $household->getId()">Smazat</a></div>
+        </article>
+    {else}
+        <div class="empty-state"><h2>Zatím tu nejsou žádné domácnosti</h2><p>Vytvořte první domácnost a vyberte její členy.</p></div>
+    {/foreach}
+</section>
+{/block}

@@ -1,0 +1,8 @@
+<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+<p>Pole označená * jsou povinná.</p>
+<div class="field">{label name /}{input name}</div>
+<div class="field">{label surname /}{input surname}</div>
+<div class="field">{label email /}{input email}</div>
+<div class="field">{label password /}{input password, autocomplete: 'new-password'}<small>Alespoň 8 znaků. Při úpravě ponechte prázdné pro zachování hesla.</small></div>
+<div class="field">{label role /}{input role}<small>Administrátor systému nemůže být členem ani správcem domácnosti.</small></div>
+{input send, class: 'button button-primary'}
