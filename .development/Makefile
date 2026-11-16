@@ -7,7 +7,7 @@ release:
 		-x '.env' '.env.*' '*/.env' '*/.env.*' 'temp/cache/*'
 	@cd ../src && zip -q ../.development/dist/xvoldrv00-release.zip .env.example
 	@echo "Release created: ./dist/xvoldrv00-release.zip"
-	scp ./dist/xvoldrv00-release.zip xvoldrv00@eva.fit.vutbr.cz:WWW/
+	scp ./dist/xvoldrv00-release.zip xvoldrv00@eva.fit.vutbr.cz:WWW/IIS/
 	@echo unzip the .zip
 	@echo then run "chmod -R o=rX,g= ~/WWW"
 	ssh xvoldrv00@eva.fit.vutbr.cz
