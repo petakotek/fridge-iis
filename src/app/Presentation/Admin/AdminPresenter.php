@@ -84,7 +84,10 @@ final class AdminPresenter extends AuthenticatedPresenter
             $password->setRequired('Zadejte heslo.');
         }
         $password->addCondition($form::Filled)->addRule($form::MinLength, 'Heslo musí mít alespoň 8 znaků.', 8);
-        $form->addSelect('role', 'Role *', ['user' => 'Registrovaný uživatel', 'admin' => 'Administrátor systému'])->setDefaultValue('user')->setRequired('Vyberte roli.');
+        $role = $form->addSelect('role', 'Role *', ['user' => 'Registrovaný uživatel', 'admin' => 'Administrátor systému'])->setDefaultValue('user')->setRequired('Vyberte roli.');
+        if ($this->editedUser === $this->currentUser) {
+            $role->setItems(['admin' => 'Administrátor systému'])->setDisabled()->setOmitted(false);
+        }
         $form->addSubmit('send', $this->editedUser === null ? 'Vytvořit uživatele' : 'Uložit uživatele');
         if ($this->editedUser !== null) {
             $form->setDefaults([

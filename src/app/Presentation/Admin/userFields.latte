@@ -4,5 +4,5 @@
 <div class="field">{label surname /}{input surname}</div>
 <div class="field">{label email /}{input email}</div>
 <div class="field">{label password /}{input password, autocomplete: 'new-password'}<small>Alespoň 8 znaků. Při úpravě ponechte prázdné pro zachování hesla.</small></div>
-<div class="field">{label role /}{input role}<small>Administrátor systému nemůže být členem ani správcem domácnosti.</small></div>
+<div class="field">{label role /}{input role}<small>{if $form['role']->isDisabled()}Vlastní administrátorskou roli nemůžete změnit.{else}Administrátor systému nemůže být členem ani správcem domácnosti.{/if}</small></div>
 {input send, class: 'button button-primary'}
