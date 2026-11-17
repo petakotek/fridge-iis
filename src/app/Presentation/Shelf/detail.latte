@@ -39,7 +39,7 @@
                 {elseif $food->isTrashed()}
                     <p style="display: flex; align-items: center;">{include '../Accessory/foodActionIcon.latte', action: 'trash'} Vyhozeno: {$food->getDiscardedAt()|date:'j. n. Y H:i'}</p>
                 {/if}
-                <div class="actions">
+                <div n:class="actions, ($food->isConsumed() || $food->isTrashed()) ? food-restore-actions">
                     {if !$food->isConsumed() && !$food->isTrashed()}
                         <a class="button button-outline" n:href="Food:edit, id: $food->getId(), returnTo: $foodNavigation">Upravit</a>
                         <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Spotřebovat" data-tooltip="Spotřebovat">
