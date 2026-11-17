@@ -87,8 +87,10 @@ class HouseholdEntity extends BaseEntity
     }
 
 //    Setters
-    public function setModerator(UserEntity $moderator): void {
-        $this->addUser($moderator);
+    public function setModerator(?UserEntity $moderator): void {
+        if ($moderator !== null) {
+            $this->addUser($moderator);
+        }
         $this->moderator = $moderator;
     }
 

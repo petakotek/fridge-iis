@@ -1,0 +1,13 @@
+{parameters string $section, string $destination, array $items = []}
+
+<nav aria-label="Drobečková navigace">
+    <small>
+        <a n:href="Admin:default">Administrace</a>
+        <span aria-hidden="true">/</span>
+        <a href="{link $destination}" {if !$items}aria-current="page"{/if}>{$section}</a>
+        {foreach $items as $item}
+            <span aria-hidden="true">/</span>
+            <a href="{link $item['destination'], id: ($item['id'] ?? null)}" {if $iterator->last}aria-current="page"{/if}>{$item['label']}</a>
+        {/foreach}
+    </small>
+</nav>

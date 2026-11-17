@@ -222,6 +222,9 @@ final class HouseholdPresenter extends AuthenticatedPresenter
 
     private function requireNoHousehold(): void
     {
+        if ($this->currentUser->isAdmin()) {
+            $this->redirect('Admin:households');
+        }
         if ($this->currentUser->getHousehold() !== null || $this->currentUser->getHouseholdRequest() !== null) {
             $this->redirect('Home:default');
         }

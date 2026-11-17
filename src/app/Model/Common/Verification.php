@@ -9,6 +9,13 @@ use App\Model\Entity\UserEntity;
 
 class Verification
 {
+    public static function assertAdmin(UserEntity $user): void
+    {
+        if (!$user->isAdmin()) {
+            throw new \DomainException('Přístup má pouze administrátor systému.');
+        }
+    }
+
     public static function assertModerator(HouseholdEntity $household, UserEntity $user): void
     {
         if ($user->isAdmin()) {
