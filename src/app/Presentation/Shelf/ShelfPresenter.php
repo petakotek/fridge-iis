@@ -5,17 +5,21 @@ namespace App\Presentation\Shelf;
 use App\Model\Entity\ApplianceEntity;
 use App\Model\Entity\ShelfEntity;
 use App\Model\Services\ApplianceService;
+use App\Model\Services\FoodService;
 use App\Model\Services\ShelfService;
 use App\Model\Services\UserService;
 use App\Presentation\Accessory\AuthenticatedPresenter;
 use Nette\Application\UI\Form;
+use Nette\Utils\Paginator;
 
 final class ShelfPresenter extends AuthenticatedPresenter
 {
+    private const CapacityWarningPercent = 90;
+
     private ApplianceEntity $appliance;
     private ShelfEntity $shelf;
 
-    public function __construct(UserService $users, private ApplianceService $appliances, private ShelfService $shelves)
+    public function __construct(UserService $users, private ApplianceService $appliances, private ShelfService $shelves, private FoodService $foods)
     {
         parent::__construct($users);
     }
@@ -23,7 +27,7 @@ final class ShelfPresenter extends AuthenticatedPresenter
     protected function startup(): void
     {
         parent::startup();
-        if ($this->currentUser->getHousehold()?->getModerator() !== $this->currentUser) {
+        if ($this->getAction() !== 'detail' && $this->currentUser->getHousehold()?->getModerator() !== $this->currentUser) {
             $this->error('Přístup odepřen.', 403);
         }
     }
@@ -37,15 +41,50 @@ final class ShelfPresenter extends AuthenticatedPresenter
         }
         $this->selectAppliance($appliance);
     }
-
-    public function actionEdit(int $id): void
-    {
+    public function actionDetail(int $id, int $page = 1): void {
         $this->loadShelf($id);
+        $household = $this->appliance->getHousehold();
+        $totalWeight = $this->shelf->getShelfCapacity();
+        $usedWeight = $this->shelves->getUsedWeight($this->shelf);
+        $this->template->capacity = [
+            'used' => $usedWeight,
+            'total' => $totalWeight,
+            'remaining' => max(0, $totalWeight - $usedWeight),
+            'percent' => floor($usedWeight * 1000 / $totalWeight) / 10,
+            'warningWeight' => $totalWeight * self::CapacityWarningPercent / 100,
+            'nearLimit' => $usedWeight * 100 >= $totalWeight * self::CapacityWarningPercent,
+            'full' => $usedWeight >= $totalWeight,
+        ];
+        $paginator = new Paginator;
+        $paginator->setItemsPerPage(12);
+        $paginator->setItemCount($this->foods->getFoodCount($household, $this->shelf, 'all'));
+        $paginator->setPage($page);
+        $this->template->foods = $this->foods->getFoods(
+            $household,
+            $paginator->getItemsPerPage(),
+            $paginator->getOffset(),
+            $this->shelf,
+            'all',
+        );
+        $this->template->paginator = $paginator;
+        $this->template->foodNavigation = [
+            'source' => 'shelf', 'shelfId' => $id, 'page' => $paginator->getPage(),
+        ];
+        $this->template->isModerator = $household->getModerator() === $this->currentUser;
     }
 
-    public function actionDelete(int $id): void
+    public function actionEdit(int $id, bool $fromDetail = false, int $page = 1): void
     {
         $this->loadShelf($id);
+        $this->template->fromDetail = $fromDetail;
+        $this->template->returnPage = max(1, $page);
+    }
+
+    public function actionDelete(int $id, bool $fromDetail = false, int $page = 1): void
+    {
+        $this->loadShelf($id);
+        $this->template->fromDetail = $fromDetail;
+        $this->template->returnPage = max(1, $page);
     }
 
     private function loadShelf(int $id): void
@@ -71,7 +110,6 @@ final class ShelfPresenter extends AuthenticatedPresenter
     private function shelfForm(string $label): Form
     {
         $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Odešlete jej znovu.');
         $form->addText('name', 'Název police')->setRequired('Zadejte název police.')
             ->addRule(Form::MaxLength, 'Název může mít nejvýše 255 znaků.', 255);
         $form->addInteger('capacity', 'Kapacita (g)')->setRequired('Zadejte kapacitu police.')
@@ -85,13 +123,13 @@ final class ShelfPresenter extends AuthenticatedPresenter
         $form = $this->shelfForm('Přidat polici');
         $form->onSuccess[] = function (Form $form, $data): void {
             try {
-                $this->shelves->addShelf($this->currentUser->getHousehold(), $this->currentUser, $data->capacity, $this->appliance, $data->name);
+                $shelf = $this->shelves->addShelf($this->currentUser->getHousehold(), $this->currentUser, $data->capacity, $this->appliance, $data->name);
             } catch (\DomainException|\InvalidArgumentException) {
                 $form->addError('Polici se nepodařilo přidat. Zkontrolujte název a kapacitu.');
                 return;
             }
             $this->flashMessage('Police byla přidána.');
-            $this->redirect('Appliance:detail', ['id' => $this->appliance->getId()]);
+            $this->redirect('detail', ['id' => $shelf->getId()]);
         };
         return $form;
     }
@@ -108,6 +146,9 @@ final class ShelfPresenter extends AuthenticatedPresenter
                 return;
             }
             $this->flashMessage('Police byla upravena.');
+            if ($this->template->fromDetail) {
+                $this->redirect('detail', ['id' => $this->shelf->getId(), 'page' => $this->template->returnPage]);
+            }
             $this->redirect('Appliance:detail', ['id' => $this->appliance->getId()]);
         };
         return $form;

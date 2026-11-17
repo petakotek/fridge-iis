@@ -13,7 +13,7 @@
     <p class="notice error">Smazání je nevratné. Budou smazány také police a potraviny v tomto spotřebiči.</p>
     {form deleteForm}
         <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
-        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="Home:default">Zrušit</a></div>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="detail, id: $appliance->getId()">Zrušit</a></div>
     {/form}
 </section>
 {/block}

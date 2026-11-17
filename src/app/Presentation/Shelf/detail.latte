@@ -1,0 +1,70 @@
+{varType App\Model\Entity\ShelfEntity $shelf}
+{varType App\Model\Entity\ApplianceEntity $appliance}
+{varType App\Model\Entity\FoodEntity[] $foods}
+{varType Nette\Utils\Paginator $paginator}
+{varType array $foodNavigation}
+{varType bool $isModerator}
+{block title}{$shelf->getName()}{/block}
+
+{block content}
+    <header class="page-header">
+        <div>
+            <small><a n:href="Home:default">Domácnost</a> /
+                <a n:href="Appliance:detail, id: $appliance->getId()">{$appliance->getName()}</a> /
+                <span aria-current="page">{$shelf->getName()}</span>
+            </small>
+            <h1>{$shelf->getName()}</h1>
+            <p>Potraviny v této poličce.</p>
+        </div>
+        <div class="actions">
+            <a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a>
+            <a class="button button-outline" n:if="$isModerator" n:href="edit, id: $shelf->getId(), fromDetail: true, page: $paginator->getPage()">Upravit polici</a>
+            <a class="button button-danger" n:if="$isModerator" n:href="delete, id: $shelf->getId(), fromDetail: true, page: $paginator->getPage()">Smazat polici</a>
+            <a class="button button-primary" n:href="Food:add, shelfId: $shelf->getId(), returnTo: $foodNavigation">Přidat potravinu</a>
+        </div>
+    </header>
+    {include 'capacity.latte', capacity: $capacity}
+    <section class="card-grid">
+        {foreach $foods as $food}
+
+            <article class="card">
+
+                <h3>
+                    <a n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">{$food->getName()}</a>
+                </h3>
+                <p>Kategorie: {include '../Accessory/foodCategories.latte', food: $food}</p>
+                <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
+                {if $food->isConsumed()}
+                    <p style="display: flex; align-items: center;">{include '../Accessory/foodActionIcon.latte', action: 'consume'} Spotřebováno: {$food->getConsumedAt()|date:'j. n. Y H:i'}</p>
+                {elseif $food->isTrashed()}
+                    <p style="display: flex; align-items: center;">{include '../Accessory/foodActionIcon.latte', action: 'trash'} Vyhozeno: {$food->getDiscardedAt()|date:'j. n. Y H:i'}</p>
+                {/if}
+                <div class="actions">
+                    {if !$food->isConsumed() && !$food->isTrashed()}
+                        <a class="button button-outline" n:href="Food:edit, id: $food->getId(), returnTo: $foodNavigation">Upravit</a>
+                        <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Spotřebovat" data-tooltip="Spotřebovat">
+                            <a class="button button-primary" n:href="Food:consume, id: $food->getId(), returnTo: $foodNavigation">{include '../Accessory/foodActionIcon.latte', action: 'consume'}</a>
+                        </span>
+                        <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Vyhodit" data-tooltip="Vyhodit">
+                            <a class="button button-danger" n:href="Food:trash, id: $food->getId(), returnTo: $foodNavigation">{include '../Accessory/foodActionIcon.latte', action: 'trash'}</a>
+                        </span>
+                    {else}
+                        <a class="button button-primary" n:href="Food:restore, id: $food->getId(), returnTo: $foodNavigation">Vrátit do zásob</a>
+                        <a class="button button-outline" n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">Zobrazit detail</a>
+                    {/if}
+                </div>
+
+            </article>
+        {/foreach}
+    </section>
+    {if $paginator->getPageCount() > 1}
+        <nav class="pagination" aria-label="Stránkování potravin">
+            {for $pageNumber = 1; $pageNumber <= $paginator->getPageCount(); $pageNumber++}
+                <a class="pagination-page"
+                    n:href="detail, id: $shelf->getId(), page: $pageNumber"
+                    aria-label="Stránka {$pageNumber}"
+                    n:attr="aria-current: $paginator->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
+            {/for}
+        </nav>
+    {/if}
+{/block}

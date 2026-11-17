@@ -1,6 +1,7 @@
 {varType App\Model\Entity\HouseholdEntity|null $household}
 {varType App\Model\Entity\HouseholdEntity|null $request}
 {varType App\Model\Entity\ApplianceEntity[] $appliances}
+{varType Nette\Utils\Paginator|null $paginator}
 {varType bool $isModerator}
 
 {block title}Přehled{/block}
@@ -59,6 +60,17 @@
         </div>
     {/foreach}
 </section>
+{if $paginator !== null && $paginator->getPageCount() > 1}
+    <nav class="pagination" aria-label="Stránkování spotřebičů">
+        {for $pageNumber = 1; $pageNumber <= $paginator->getPageCount(); $pageNumber++}
+            <a class="pagination-page"
+                n:href="default, page: $pageNumber"
+                aria-label="Stránka {$pageNumber}"
+                n:attr="aria-current: $paginator->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
+        {/for}
+    </nav>
+{/if}
+
 {else}
 <section class="empty-state" aria-labelledby="welcome-title">
     {if $request}

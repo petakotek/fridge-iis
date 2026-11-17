@@ -4,7 +4,7 @@
 {block content}
 <section class="form-page">
     <header class="page-header">
-        <div><small>Domácnost / Potraviny</small><h1>Přidat potravinu</h1></div>
+        <div>{include 'breadcrumbs.latte', label: 'Přidat potravinu'}<h1>Přidat potravinu</h1></div>
     </header>
     {if $hasShelves}
         {form addForm}
@@ -12,6 +12,7 @@
             <div class="field">{label name /}{input name}</div>
             <div class="field">{label shelfId /}{input shelfId}</div>
             <div class="field">{label expiry /}{input expiry}</div>
+            {include 'categoryFields.latte', form: $form}
             <div class="field">{label weight /}{input weight}</div>
             <div class="field">
                 {label barcode /}
@@ -27,7 +28,7 @@
             <div class="field">{label fat /}{input fat}</div>
             <div class="field">{label carb /}{input carb}</div>
             <div class="field">{label fibre /}{input fibre}</div>
-            <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" n:href="default">Zpět na potraviny</a></div>
+            <div class="actions">{input send, class: 'button button-primary'}<a class="button button-outline" href="{$presenter->link($backDestination, $backParameters)}">{$backLabel}</a></div>
             <small class="muted">Údaje podle čárového kódu: <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (ODbL)</small>
         {/form}
     {else}

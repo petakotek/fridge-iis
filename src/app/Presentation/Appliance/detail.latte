@@ -1,39 +1,38 @@
 {varType App\Model\Entity\ApplianceEntity $appliance}
 {varType App\Model\Entity\ShelfEntity[] $shelves}
+{varType App\Model\Entity\HouseholdEntity $household}
 {varType bool $isModerator}
 {block title}{$appliance->getName()}{/block}
 
 {block content}
 <header class="page-header">
     <div>
-        <small>Domácnost / Spotřebič</small>
+        <small><a n:href="Home:default">Domácnost</a> / <span aria-current="page">{$appliance->getName()}</span></small>
         <h1>{$appliance->getName()}</h1>
         <p>Přehled polic a jejich kapacity.</p>
     </div>
     <div class="actions">
+        <a class="button button-outline" n:href="Home:default">Zpět na přehled</a>
         {if $isModerator}
             <a class="button button-primary" n:href="Shelf:create, applianceId: $appliance->getId()">Přidat polici</a>
             <a class="button button-outline" n:href="edit, id: $appliance->getId()">Upravit spotřebič</a>
             <a class="button button-danger" n:href="delete, id: $appliance->getId()">Smazat spotřebič</a>
         {/if}
-        <a class="button button-outline" n:href="Home:default">Zpět na přehled</a>
     </div>
 </header>
 <section class="card-grid" aria-label="Police">
     {foreach $shelves as $shelf}
         <article class="card">
-            <h3>{$shelf->getName()}</h3>
+
+            <h3><a n:href="Shelf:detail, id: $shelf->getId()">{$shelf->getName()}</a></h3>
             <p>Obsazeno: {$shelf->getUsedWeight()} / {$shelf->getShelfCapacity()} g</p>
-            <div class="actions">
-                <a class="button button-outline" n:href="Food:default, shelfId: $shelf->getId()">Potraviny</a>
-                <a class="button button-primary" n:href="Food:add, shelfId: $shelf->getId()">Přidat potravinu</a>
-            </div>
             {if $isModerator}
                 <div class="actions">
                     <a class="button button-outline" n:href="Shelf:edit, id: $shelf->getId()">Upravit</a>
                     <a class="button button-danger" n:href="Shelf:delete, id: $shelf->getId()">Smazat</a>
                 </div>
             {/if}
+
         </article>
     {else}
         <div class="empty-state">

@@ -48,6 +48,7 @@
 							<span class="profile-notification" aria-hidden="true" n:if="$pendingRequestCount > 0"></span>
 						</span>
 						<strong>{$currentUser->getName()} {$currentUser->getSurname()}</strong>
+						<svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 						<span class="visually-hidden" n:if="$pendingRequestCount > 0">Nevyřízené žádosti o členství</span>
 					</summary>
 					<div class="dropdown-panel">
@@ -69,11 +70,17 @@
 		<aside class="sidebar" aria-label="Postranní panel">
 			<nav aria-label="Hlavní navigace">
 				{foreach $navigation as $item}
-					<a href="{link $item['destination']}" {if $presenter->isLinkCurrent($item['destination'])}aria-current="page"{/if}>
+					<a href="{if $item['destination'] === 'Food:default'}{link Food:default, returnTo: []}{else}{link $item['destination']}{/if}" {if $presenter->isLinkCurrent($item['destination'])}aria-current="page"{/if}>
 						<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 							{if $item['destination'] === 'Food:default'}
 								<path d="M12 8c-2-2-6-2-8 1-3 4 0 12 4 12 2 0 2-1 4-1s2 1 4 1c4 0 7-8 4-12-2-3-6-3-8-1Z"/>
 								<path d="M12 8V6m0 0c0-3 2-4 5-4 0 3-2 4-5 4Z"/>
+							{elseif $item['destination'] === 'Consumption:default'}
+								<path d="M11 3a9 9 0 1 0 10 10H11V3Z"/>
+								<path d="M14 2v8h8a8 8 0 0 0-8-8Z"/>
+							{elseif $item['destination'] === 'Category:default'}
+								<path d="M9 5H2v7l9 9a2 2 0 0 0 3 0l6-6a2 2 0 0 0 0-3L9 5Z"/>
+								<path d="m15 3 7 7"/><circle cx="6.5" cy="9.5" r="1"/>
 							{else}
 								<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
 							{/if}

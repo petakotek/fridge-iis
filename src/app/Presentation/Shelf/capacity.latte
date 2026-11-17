@@ -1,0 +1,24 @@
+{varType array $capacity}
+<section n:class="shelf-capacity, $capacity['nearLimit'] ? shelf-capacity-near-limit" aria-labelledby="shelf-capacity-title">
+    <div class="shelf-capacity-summary">
+        <h2 id="shelf-capacity-title">Kapacita poličky</h2>
+        <p id="shelf-capacity-info">
+            <strong>{$capacity['used']|number:0, ',', ' '} / {$capacity['total']|number:0, ',', ' '} g</strong>
+            <span class="muted">({$capacity['percent']|number:1, ',', ' '} %)</span>
+        </p>
+    </div>
+    <meter min="0" max="{$capacity['total']}" value="{$capacity['used']}"
+        low="{$capacity['warningWeight']}" high="{$capacity['warningWeight']}" optimum="0"
+        aria-labelledby="shelf-capacity-title"
+        aria-describedby="shelf-capacity-info{if $capacity['nearLimit']} shelf-capacity-warning{/if}">
+        {$capacity['percent']|number:1, ',', ' '} %
+    </meter>
+    <p class="shelf-capacity-remaining">Volná kapacita: {$capacity['remaining']|number:0, ',', ' '} g</p>
+    <p class="shelf-capacity-warning" id="shelf-capacity-warning" role="status" n:if="$capacity['nearLimit']">
+        {if $capacity['full']}
+            Polička je plná. Pro další potraviny uvolněte místo.
+        {else}
+            Polička se blíží kapacitnímu limitu.
+        {/if}
+    </p>
+</section>
