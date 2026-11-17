@@ -77,6 +77,22 @@ docker compose exec php php vendor/bin/doctrine-migrations migrate
 Příkaz `migrate` provádí pouze dosud neprovedené migrace. Samotné `up -d`
 migrace nespouští. Obnovení či sestavení image databázový volume nemaže.
 
+## Systémový administrátor
+
+Migrace `Version20261116190000` vytvoří administrátorský účet bez členství
+v domácnosti. Před jejím prvním spuštěním lze v `src/.env` nastavit
+`ADMIN_EMAIL` a `ADMIN_PASSWORD` podle `src/.env.example`. Při shodě e-mailu
+s existujícím účtem se migrace zastaví; existující účet nepovyšuje.
+Pozdější změna těchto hodnot heslo již vytvořeného účtu nemění.
+
+Po přihlášení se administrátor dostane do `/admin`, kde spravuje profily,
+hesla a role uživatelů. V `/admin/households` vytváří, přejmenovává a maže
+domácnosti, přidává a odebírá členy a určuje správce. Uživatel může patřit
+jen do jedné domácnosti; administrátor nemůže být jejím členem ani správcem.
+Při odebrání nebo smazání správce domácnost zůstane bez správce, dokud jí
+administrátor neurčí jiného. Smazání domácnosti zachová uživatelské účty.
+Vlastní účet nelze smazat ani si odebrat administrátorskou roli.
+
 ## Další nastavení
 
 Pro produkci se lokální síťový DSN nahradí unixovým socketem:

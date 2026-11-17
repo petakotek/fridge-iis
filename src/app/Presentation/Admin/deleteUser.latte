@@ -1,0 +1,22 @@
+{varType App\Model\Entity\UserEntity $editedUser}
+
+{block title}Smazat uživatele{/block}
+{block content}
+<header class="page-header">
+    <div>
+        {include 'breadcrumbs.latte', section: 'Uživatelé', destination: 'Admin:default', items: [
+            ['label' => $editedUser->getName() . ' ' . $editedUser->getSurname(), 'destination' => 'Admin:editUser', 'id' => $editedUser->getId()],
+            ['label' => 'Smazat', 'destination' => 'Admin:deleteUser', 'id' => $editedUser->getId()],
+        ]}
+        <h1>Smazat uživatele</h1><p>{$editedUser->getName()} {$editedUser->getSurname()} · {$editedUser->getEmail()}</p>
+    </div>
+</header>
+<div class="stack"><section class="card">
+    <p>Účet bude trvale odstraněn. Jeho domácnost a ostatní členové zůstanou zachováni. Pokud je uživatel správcem, domácnost zůstane bez správce, dokud jí neurčíte nového.</p>
+    {form deleteUserForm}
+        <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+        <div class="field">{label confirmation /}{input confirmation}</div>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="default">Zrušit</a></div>
+    {/form}
+</section></div>
+{/block}

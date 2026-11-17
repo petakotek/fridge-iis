@@ -63,10 +63,16 @@ class UserEntity extends BaseEntity
 //    Setters
 
     public function setAdminLevel(bool $boolean = true): void {
+        if ($boolean && ($this->household !== null || $this->householdRequest !== null)) {
+            throw new \DomainException('Administrátor nemůže být členem domácnosti ani žadatelem.');
+        }
         $this->isAdmin = $boolean;
     }
 
     public function setHousehold(HouseholdEntity $household): void {
+        if ($this->isAdmin) {
+            throw new \DomainException('Administrátor nemůže být členem domácnosti.');
+        }
         if ($this->household !== null && $this->household !== $household
             && $this->household->getModerator() === $this) {
             throw new \DomainException('Transfer household management before moving its moderator.');
@@ -95,6 +101,9 @@ class UserEntity extends BaseEntity
     }
 
     public function setRequest(HouseholdEntity $household): void {
+        if ($this->isAdmin) {
+            throw new \DomainException('Administrátor nemůže žádat o členství v domácnosti.');
+        }
         if ($this->household === null) {
             $this->householdRequest = $household;
         }

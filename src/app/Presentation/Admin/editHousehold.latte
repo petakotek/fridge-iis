@@ -1,0 +1,50 @@
+{varType App\Model\Entity\HouseholdEntity $household}
+{varType App\Model\Entity\UserEntity[] $members}
+
+{block title}Upravit domácnost{/block}
+{block content}
+<header class="page-header">
+    <div>
+        {include 'breadcrumbs.latte', section: 'Domácnosti', destination: 'Admin:households', items: [
+            ['label' => $household->getName(), 'destination' => 'Admin:editHousehold', 'id' => $household->getId()],
+        ]}
+        <h1>{$household->getName()}</h1><p>Údaje domácnosti a správa členů.</p>
+    </div>
+    <a class="button button-outline" n:href="households">Zpět na domácnosti</a>
+</header>
+<div class="stack">
+    <section class="card">
+        <h2>Údaje domácnosti</h2>
+        {form householdForm}
+            <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+            <div class="field">{label name /}{input name}</div>
+            {input send, class: 'button button-primary'}
+        {/form}
+    </section>
+    <section class="card">
+        <h2>Členové domácnosti</h2>
+        <p>{if $household->getModerator()}Správce: {$household->getModerator()->getName()} {$household->getModerator()->getSurname()}{else}Domácnost nemá správce. Přidejte člena a nastavte jej jako správce.{/if}</p>
+        {if $members}
+            <ul>
+                <li n:foreach="$members as $member"><a n:href="editUser, id: $member->getId()">{$member->getName()} {$member->getSurname()}</a> ({$member->getEmail()}){if $household->getModerator() === $member} – správce{/if}</li>
+            </ul>
+            <p>Odebráním správce zůstane domácnost bez správce. Nového můžete určit z jejích členů.</p>
+            {form memberForm}
+                <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+                <div class="field">{label memberId /}{input memberId}</div>
+                <div class="actions">{input moderator, class: 'button button-outline'}{input remove, class: 'button button-danger'}</div>
+            {/form}
+        {else}<p>Domácnost nemá žádné členy.</p>{/if}
+    </section>
+    <section class="card">
+        <h2>Přidat člena</h2>
+        <p>Vybrat lze registrované uživatele bez domácnosti. Přidáním se zruší jejich případná žádost o členství.</p>
+        {form addMemberForm}
+            <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+            <div class="field">{label memberId /}{input memberId}</div>
+            {input send, class: 'button button-primary'}
+        {/form}
+    </section>
+    <section class="card"><h2>Smazat domácnost</h2><p>Odstraní se také její spotřebiče, police, potraviny a kategorie. Uživatelské účty zůstanou zachovány.</p><a class="button button-danger" n:href="deleteHousehold, id: $household->getId()">Smazat domácnost</a></section>
+</div>
+{/block}

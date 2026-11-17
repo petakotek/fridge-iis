@@ -17,6 +17,9 @@ final class HomePresenter extends AuthenticatedPresenter
 
     public function renderDefault(): void
     {
+        if ($this->currentUser->isAdmin()) {
+            $this->redirect('Admin:default');
+        }
         $this->template->household = $this->currentUser->getHousehold();
         $this->template->request = $this->currentUser->getHouseholdRequest();
         $this->template->isModerator = $this->currentUser->getHousehold()?->getModerator() === $this->currentUser;
