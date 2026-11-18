@@ -73,7 +73,8 @@
 					{foreach $chart as $i => $bucket}
 						<div class="bar-chart-column" title="{$bucket['title']}: {$bucket['calories']} kcal ({$bucket['count']} potravin)">
 							<span class="bar-chart-value">{if $bucket['calories'] > 0 && count($chart) <= 31}{$bucket['calories']}{/if}</span>
-							<div class="bar-chart-bar" style="height: calc((100% - 46px) * {round($bucket['calories'] / $chartMax, 3)})"></div>
+							{* Poměr počítá CSS; Latte by desetinnou tečku escapovalo. *}
+							<div class="bar-chart-bar" style="height: calc((100% - 46px) * {$bucket['calories']} / {$chartMax})"></div>
 							<span class="bar-chart-label">{if $i % $labelStep === 0}{$bucket['label']}{/if}</span>
 						</div>
 					{/foreach}
