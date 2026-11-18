@@ -3,7 +3,8 @@
 Podklady: [lednice.md](../lednice.md), [obecne_zadani.md](../obecne_zadani.md),
 [sablona.md](../sablona.md)
 a doplnění požadavků na registraci, členství a sdílení pomocí tokenu.
-Diagramy popisují požadované chování, nikoli stav implementace.
+Diagramy `00–05` popisují původní návrh požadovaného chování.
+Souhrn `06` zachycuje aktuální implementaci a je vložen do [dokumentace](../../doc.html).
 
 ## Soubory
 
@@ -20,7 +21,10 @@ Diagramy popisují požadované chování, nikoli stav implementace.
 Čísla případů užití jsou napříč soubory stejná. Opakovaný uzel představuje
 tentýž případ, nikoli další funkci. Přehled `00` používá souhrnné ovály
 s odkazy na čísla podrobných případů; úplný rozpad je v diagramech `01–05`.
-Nový souhrn `06` číslování nepotřebuje a lze jej číst samostatně.
+Souhrn `06` číslování nepotřebuje a lze jej číst samostatně. Zahrnuje také
+administrátorskou správu domácností, opuštění domácnosti, obnovu potravin,
+načítání podle čárového kódu a grafy spotřeby. Registrace a žádost o členství
+jsou v aplikaci samostatné kroky.
 
 ## Je nutné diagram odevzdávat?
 
@@ -233,6 +237,7 @@ for source in .development/use-cases/*.dot; do
     name=$(basename "$source" .dot)
     dot -Tsvg "$source" -o ".development/use-cases/generated/$name.svg"
 done
+cp .development/use-cases/generated/06-souhrn.svg docs/pripady-uziti.svg
 ```
 
 Adresář `.development/dist/` je již ignorován Gitem. Pro PDF nebo PNG stačí

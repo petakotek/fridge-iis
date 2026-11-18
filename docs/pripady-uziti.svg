@@ -1,0 +1,246 @@
+<svg width="695pt" height="1142pt" viewBox="0.00 0.00 695.00 1142.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(21.6 1120.6)">
+<title>LedniceSouhrn</title>
+<polygon fill="white" stroke="none" points="-21.6,21.6 -21.6,-1120.6 673.61,-1120.6 673.61,21.6 -21.6,21.6"/>
+<g id="clust2" class="cluster">
+<title>cluster_system</title>
+<polygon fill="white" stroke="#9aabba" points="301.21,-8 301.21,-1091 644.01,-1091 644.01,-8 301.21,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-1074.4" font-family="DejaVu Sans" font-size="14.00">Informační systém pro správu potravin</text>
+</g>
+<!-- host -->
+<g id="node1" class="node">
+<title>host</title>
+<text xml:space="preserve" text-anchor="start" x="40.43" y="-1024.5" font-family="Noto Sans Symbols2" font-size="40.00">🯅</text>
+<text xml:space="preserve" text-anchor="start" x="47.91" y="-1010.6" font-family="DejaVu Sans" font-size="11.00">Host</text>
+</g>
+<!-- view -->
+<g id="node6" class="node">
+<title>view</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-1034" rx="120.94" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-1037.3" font-family="DejaVu Sans" font-size="11.00">Prohlížet obsah spotřebičů</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-1024.1" font-family="DejaVu Sans" font-size="11.00">a upozornění na trvanlivost</text>
+</g>
+<!-- host&#45;&gt;view -->
+<g id="edge3" class="edge">
+<title>host-&gt;view</title>
+<path fill="none" stroke="#526171" d="M80.39,-1034C127.82,-1034 254.69,-1034 351.21,-1034"/>
+<text xml:space="preserve" text-anchor="middle" x="215.04" y="-1037" font-family="DejaVu Sans" font-size="10.00">přes platný token</text>
+</g>
+<!-- user -->
+<g id="node2" class="node">
+<title>user</title>
+<text xml:space="preserve" text-anchor="start" x="40.43" y="-896.5" font-family="Noto Sans Symbols2" font-size="40.00">🯅</text>
+<text xml:space="preserve" text-anchor="start" x="0" y="-882.6" font-family="DejaVu Sans" font-size="11.00">Registrovaný uživatel</text>
+</g>
+<!-- profile -->
+<g id="node7" class="node">
+<title>profile</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-970" rx="81.48" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-966.7" font-family="DejaVu Sans" font-size="11.00">Upravit vlastní profil</text>
+</g>
+<!-- user&#45;&gt;profile -->
+<g id="edge4" class="edge">
+<title>user-&gt;profile</title>
+<path fill="none" stroke="#526171" d="M120.82,-915.54C136.14,-917.98 152.62,-920.6 167.87,-923 249.31,-935.81 343.08,-950.27 404.63,-959.73"/>
+</g>
+<!-- create -->
+<g id="node8" class="node">
+<title>create</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-906" rx="109.91" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-909.3" font-family="DejaVu Sans" font-size="11.00">Vytvořit domácnost</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-896.1" font-family="DejaVu Sans" font-size="11.00">a stát se jejím správcem</text>
+</g>
+<!-- user&#45;&gt;create -->
+<g id="edge5" class="edge">
+<title>user-&gt;create</title>
+<path fill="none" stroke="#526171" d="M120.64,-906C183.64,-906 284.74,-906 362.28,-906"/>
+</g>
+<!-- request -->
+<g id="node9" class="node">
+<title>request</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-835" rx="132.27" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-838.3" font-family="DejaVu Sans" font-size="11.00">Požádat o členství přes token</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-825.1" font-family="DejaVu Sans" font-size="11.00">nebo zrušit vlastní žádost</text>
+</g>
+<!-- user&#45;&gt;request -->
+<g id="edge6" class="edge">
+<title>user-&gt;request</title>
+<path fill="none" stroke="#526171" d="M120.64,-895.75C187.08,-884.25 295.89,-865.42 374.76,-851.76"/>
+</g>
+<!-- member -->
+<g id="node3" class="node">
+<title>member</title>
+<text xml:space="preserve" text-anchor="start" x="40.43" y="-634.5" font-family="Noto Sans Symbols2" font-size="40.00">🯅</text>
+<text xml:space="preserve" text-anchor="start" x="14.66" y="-620.6" font-family="DejaVu Sans" font-size="11.00">Člen domácnosti</text>
+</g>
+<!-- member&#45;&gt;user -->
+<g id="edge1" class="edge">
+<title>member-&gt;user</title>
+<path fill="none" stroke="#526171" d="M60.43,-669.12C60.43,-715.56 60.43,-815.02 60.43,-869.12"/>
+<polygon fill="none" stroke="#526171" points="56.93,-869.06 60.43,-879.06 63.93,-869.06 56.93,-869.06"/>
+<text xml:space="preserve" text-anchor="middle" x="51.43" y="-772" font-family="DejaVu Sans" font-size="10.00">dědí práva</text>
+</g>
+<!-- member&#45;&gt;view -->
+<g id="edge7" class="edge">
+<title>member-&gt;view</title>
+<path fill="none" stroke="#526171" d="M70.54,-669.11C95.83,-734.99 173.56,-913.6 301.21,-999 319.03,-1010.92 340.07,-1018.93 361.18,-1024.26"/>
+<text xml:space="preserve" text-anchor="middle" x="215.04" y="-966.33" font-family="DejaVu Sans" font-size="10.00">ve své domácnosti</text>
+</g>
+<!-- leave -->
+<g id="node10" class="node">
+<title>leave</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-764" rx="126.06" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-767.3" font-family="DejaVu Sans" font-size="11.00">Opustit domácnost</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-754.1" font-family="DejaVu Sans" font-size="11.00">(správce po předání správy)</text>
+</g>
+<!-- member&#45;&gt;leave -->
+<g id="edge8" class="edge">
+<title>member-&gt;leave</title>
+<path fill="none" stroke="#526171" d="M105.92,-661.86C153.61,-680.51 231.86,-709.68 301.21,-729 326.23,-735.97 353.67,-742.21 379.08,-747.41"/>
+</g>
+<!-- add_food -->
+<g id="node11" class="node">
+<title>add_food</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-684" rx="163.4" ry="33.66"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-693.9" font-family="DejaVu Sans" font-size="11.00">Přidávat, upravovat a mazat potraviny</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-680.7" font-family="DejaVu Sans" font-size="11.00">(údaje i podle čárového kódu,</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-667.5" font-family="DejaVu Sans" font-size="11.00">kontrola nosnosti poličky)</text>
+</g>
+<!-- member&#45;&gt;add_food -->
+<g id="edge9" class="edge">
+<title>member-&gt;add_food</title>
+<path fill="none" stroke="#526171" d="M106.11,-648.36C158.23,-653.44 247.08,-662.1 324.13,-669.62"/>
+</g>
+<!-- use_food -->
+<g id="node12" class="node">
+<title>use_food</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-604" rx="136.92" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-607.3" font-family="DejaVu Sans" font-size="11.00">Evidovat konzumaci a vyhození</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-594.1" font-family="DejaVu Sans" font-size="11.00">a obnovovat potraviny do zásob</text>
+</g>
+<!-- member&#45;&gt;use_food -->
+<g id="edge10" class="edge">
+<title>member-&gt;use_food</title>
+<path fill="none" stroke="#526171" d="M106.11,-639.64C164.56,-633.94 269.22,-623.74 351.61,-615.7"/>
+</g>
+<!-- consumption -->
+<g id="node13" class="node">
+<title>consumption</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-524" rx="162.91" ry="33.66"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-533.9" font-family="DejaVu Sans" font-size="11.00">Zobrazit vlastní profil spotřeby</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-520.7" font-family="DejaVu Sans" font-size="11.00">za zvolené období</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-507.5" font-family="DejaVu Sans" font-size="11.00">(potraviny, živiny, kalorie, cena, grafy)</text>
+</g>
+<!-- member&#45;&gt;consumption -->
+<g id="edge11" class="edge">
+<title>member-&gt;consumption</title>
+<path fill="none" stroke="#526171" d="M105.89,-629.44C153.88,-613.87 232.68,-588.75 301.21,-569 323.11,-562.69 346.7,-556.24 369.13,-550.26"/>
+</g>
+<!-- manager -->
+<g id="node4" class="node">
+<title>manager</title>
+<text xml:space="preserve" text-anchor="start" x="40.43" y="-280.5" font-family="Noto Sans Symbols2" font-size="40.00">🯅</text>
+<text xml:space="preserve" text-anchor="start" x="4.15" y="-266.6" font-family="DejaVu Sans" font-size="11.00">Správce domácnosti</text>
+</g>
+<!-- manager&#45;&gt;member -->
+<g id="edge2" class="edge">
+<title>manager-&gt;member</title>
+<path fill="none" stroke="#526171" d="M60.43,-315.46C60.43,-377.33 60.43,-535.77 60.43,-607.61"/>
+<polygon fill="none" stroke="#526171" points="56.93,-607.26 60.43,-617.26 63.93,-607.26 56.93,-607.26"/>
+<text xml:space="preserve" text-anchor="middle" x="51.43" y="-464" font-family="DejaVu Sans" font-size="10.00">dědí práva</text>
+</g>
+<!-- household -->
+<g id="node14" class="node">
+<title>household</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-444" rx="89.7" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-447.3" font-family="DejaVu Sans" font-size="11.00">Upravovat a smazat</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-434.1" font-family="DejaVu Sans" font-size="11.00">vlastní domácnost</text>
+</g>
+<!-- manager&#45;&gt;household -->
+<g id="edge12" class="edge">
+<title>manager-&gt;household</title>
+<path fill="none" stroke="#526171" d="M104.16,-315.45C151.01,-342.33 229.14,-384.19 301.21,-409 330.62,-419.13 363.95,-426.77 393.28,-432.29"/>
+</g>
+<!-- membership -->
+<g id="node15" class="node">
+<title>membership</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-364" rx="123.03" ry="33.66"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-373.9" font-family="DejaVu Sans" font-size="11.00">Přijímat / zamítat žádosti</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-360.7" font-family="DejaVu Sans" font-size="11.00">a předat správu domácnosti</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-347.5" font-family="DejaVu Sans" font-size="11.00">spravovat členy</text>
+</g>
+<!-- manager&#45;&gt;membership -->
+<g id="edge13" class="edge">
+<title>manager-&gt;membership</title>
+<path fill="none" stroke="#526171" d="M116.33,-299.9C180.72,-311.52 288.86,-331.03 368.95,-345.48"/>
+</g>
+<!-- equipment -->
+<g id="node16" class="node">
+<title>equipment</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-290" rx="117.71" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-286.7" font-family="DejaVu Sans" font-size="11.00">Spravovat spotřebiče a poličky</text>
+</g>
+<!-- manager&#45;&gt;equipment -->
+<g id="edge14" class="edge">
+<title>manager-&gt;equipment</title>
+<path fill="none" stroke="#526171" d="M116.33,-290C176.9,-290 276.18,-290 354.42,-290"/>
+</g>
+<!-- categories -->
+<g id="node17" class="node">
+<title>categories</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-232" rx="109.56" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-228.7" font-family="DejaVu Sans" font-size="11.00">Spravovat kategorie potravin</text>
+</g>
+<!-- manager&#45;&gt;categories -->
+<g id="edge15" class="edge">
+<title>manager-&gt;categories</title>
+<path fill="none" stroke="#526171" d="M116.33,-282.24C186.07,-272.38 307.12,-255.26 388.28,-243.78"/>
+</g>
+<!-- sharing -->
+<g id="node18" class="node">
+<title>sharing</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-168" rx="139.53" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-171.3" font-family="DejaVu Sans" font-size="11.00">Sdílet odkaz na domácnost,</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-158.1" font-family="DejaVu Sans" font-size="11.00">kopírovat a přegenerovat token</text>
+</g>
+<!-- manager&#45;&gt;sharing -->
+<g id="edge16" class="edge">
+<title>manager-&gt;sharing</title>
+<path fill="none" stroke="#526171" d="M116.4,-267.46C164.52,-248.36 236.64,-221.24 301.21,-203 324.46,-196.43 349.82,-190.55 373.7,-185.57"/>
+</g>
+<!-- admin -->
+<g id="node5" class="node">
+<title>admin</title>
+<text xml:space="preserve" text-anchor="start" x="40.43" y="-58.5" font-family="Noto Sans Symbols2" font-size="40.00">🯅</text>
+<text xml:space="preserve" text-anchor="start" x="22.72" y="-44.6" font-family="DejaVu Sans" font-size="11.00">Administrátor</text>
+</g>
+<!-- admin&#45;&gt;profile -->
+<g id="edge19" class="edge">
+<title>admin-&gt;profile</title>
+<path fill="none" stroke="#526171" d="M70.03,-93.44C81.99,-129.15 104.06,-196.22 120.87,-254 142.9,-329.78 243,-887.71 301.21,-941 325.78,-963.49 361.07,-971.93 393.18,-974.28"/>
+</g>
+<!-- accounts -->
+<g id="node19" class="node">
+<title>accounts</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-104" rx="120" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-100.7" font-family="DejaVu Sans" font-size="11.00">Spravovat uživatele a jejich role</text>
+</g>
+<!-- admin&#45;&gt;accounts -->
+<g id="edge17" class="edge">
+<title>admin-&gt;accounts</title>
+<path fill="none" stroke="#526171" d="M97.83,-71.19C157.83,-76.46 279.62,-87.15 367.91,-94.9"/>
+</g>
+<!-- households -->
+<g id="node20" class="node">
+<title>households</title>
+<ellipse fill="#eef5ff" stroke="#476582" cx="472.61" cy="-40" rx="152.93" ry="24.32"/>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-43.3" font-family="DejaVu Sans" font-size="11.00">Spravovat domácnosti a jejich členy</text>
+<text xml:space="preserve" text-anchor="middle" x="472.61" y="-30.1" font-family="DejaVu Sans" font-size="11.00">a určovat správce domácností</text>
+</g>
+<!-- admin&#45;&gt;households -->
+<g id="edge18" class="edge">
+<title>admin-&gt;households</title>
+<path fill="none" stroke="#526171" d="M97.83,-65.52C149.89,-61.96 248.46,-55.23 331.32,-49.58"/>
+</g>
+</g>
+</svg>
