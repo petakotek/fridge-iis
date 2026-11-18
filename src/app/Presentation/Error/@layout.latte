@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{ifset title}{include title|stripHtml} · {/ifset}Spíž</title>
+    <link rel="icon" type="image/svg+xml" href="{$basePath}/www/favicon.svg">
+    <link rel="stylesheet" href="{$basePath}/www/css/app.css">
+</head>
+<body>
+<a class="auth-brand" n:href=":Home:default" aria-label="Spíž – úvodní stránka">Spíž</a>
+<main class="guest-page" id="main-content">
+    <section class="card">
+        {include content}
+        <a class="button button-outline" n:href=":Home:default">Zpět na úvodní stránku</a>
+    </section>
+</main>
+</body>
+</html>
