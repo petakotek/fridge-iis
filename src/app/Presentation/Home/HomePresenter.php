@@ -4,6 +4,7 @@ namespace App\Presentation\Home;
 
 use App\Model\Services\ApplianceService;
 use App\Presentation\Accessory\AuthenticatedPresenter;
+use App\Model\Services\HouseholdOverviewService;
 use App\Model\Services\HouseholdService;
 use App\Model\Services\UserService;
 use Nette\Application\UI\Form;
@@ -11,18 +12,22 @@ use Nette\Utils\Paginator;
 
 final class HomePresenter extends AuthenticatedPresenter
 {
-    public function __construct(UserService $users, private HouseholdService $households, private ApplianceService $appliance)
+    public function __construct(UserService $users, private HouseholdService $households, private ApplianceService $appliance, private HouseholdOverviewService $overview)
     {
         parent::__construct($users);
     }
 
-    public function renderDefault(int $page = 1): void
+    public function renderDefault(int $page = 1, array $pages = []): void
     {
         if ($this->currentUser->isAdmin()) {
             $this->redirect('Admin:default');
         }
         $this->template->household = $this->currentUser->getHousehold();
-        $this->template->request = $this->currentUser->getHouseholdRequest();
+        $request = $this->currentUser->getHouseholdRequest();
+        $this->template->request = $request;
+        $this->template->requestOverview = $request !== null
+            ? $this->overview->build($request, $pages)
+            : null;
         $this->template->isModerator = $this->currentUser->getHousehold()?->getModerator() === $this->currentUser;
 
         $household = $this->currentUser->getHousehold();

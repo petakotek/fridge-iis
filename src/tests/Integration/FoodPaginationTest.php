@@ -8,6 +8,7 @@ namespace Tests\Services;
 
 use App\Model\Services\ApplianceService;
 use App\Model\Services\FoodService;
+use App\Model\Services\HouseholdOverviewService;
 use App\Model\Services\HouseholdService;
 use App\Model\Services\ShelfService;
 use App\Presentation\Guest\GuestPresenter;
@@ -114,9 +115,11 @@ final class FoodPaginationTest extends ServiceTestCase
 
         $presenter = new GuestPresenter(
             new HouseholdService($this->em),
-            new ApplianceService($this->em),
-            new ShelfService($this->em),
-            $service,
+            new HouseholdOverviewService(
+                new ApplianceService($this->em),
+                new ShelfService($this->em),
+                $service,
+            ),
         );
         // Supply the household normally verified by startup, without opening an HTTP session.
         (new \ReflectionProperty(GuestPresenter::class, 'household'))->setValue($presenter, $household);

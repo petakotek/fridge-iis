@@ -3,6 +3,7 @@
 {varType App\Model\Entity\ApplianceEntity[] $appliances}
 {varType Nette\Utils\Paginator|null $paginator}
 {varType bool $isModerator}
+{varType ?array $requestOverview}
 
 {block title}Přehled{/block}
 
@@ -12,7 +13,7 @@
 		<small>Domácnost / Přehled</small>
 		<h1>{if $household}{$household->getName()}{else}Přehled domácnosti{/if}</h1>
 		{if !$household}
-			<p>{if $request}Čekáte na přijetí do domácnosti {$request->getName()}.{else}Založte si domácnost nebo požádejte o připojení.{/if}</p>
+			<p>{if $request}Čekáte na přijetí do domácnosti {$request->getName()}. Do schválení můžete její obsah pouze prohlížet.{else}Založte si domácnost nebo požádejte o připojení.{/if}</p>
 		{/if}
 	</div>
 	{if $household && $isModerator}
@@ -72,18 +73,17 @@
 {/if}
 
 {else}
+{if $request && $requestOverview}
+    {include '../Accessory/householdOverview.latte', appliances: $requestOverview['appliances'], pages: $requestOverview['pages'], pageLink: 'Home:default'}
+{else}
 <section class="empty-state" aria-labelledby="welcome-title">
-    {if $request}
-        <h2 id="welcome-title">Žádost čeká na schválení</h2>
-        <p>Správce domácnosti {$request->getName()} vaši žádost zatím neposoudil.</p>
-    {else}
-        <h2 id="welcome-title">Vítejte ve Spíži</h2>
-        <p>Pro začátek vytvořte domácnost nebo zadejte pozvánkový token od jejího správce.</p>
-        <div class="actions">
-            <a class="button button-primary" n:href="Household:create">Vytvořit domácnost</a>
-            <a class="button button-outline" n:href="Household:request">Požádat o připojení</a>
-        </div>
-    {/if}
+    <h2 id="welcome-title">Vítejte ve Spíži</h2>
+    <p>Pro začátek vytvořte domácnost nebo zadejte pozvánkový token od jejího správce.</p>
+    <div class="actions">
+        <a class="button button-primary" n:href="Household:create">Vytvořit domácnost</a>
+        <a class="button button-outline" n:href="Household:request">Požádat o připojení</a>
+    </div>
 </section>
+{/if}
 {/if}
 {/block}
