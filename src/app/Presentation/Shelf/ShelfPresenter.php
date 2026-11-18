@@ -57,14 +57,14 @@ final class ShelfPresenter extends AuthenticatedPresenter
         ];
         $paginator = new Paginator;
         $paginator->setItemsPerPage(12);
-        $paginator->setItemCount($this->foods->getFoodCount($household, $this->shelf, 'all'));
+        $paginator->setItemCount($this->foods->getFoodCount($household, $this->shelf, 'active'));
         $paginator->setPage($page);
         $this->template->foods = $this->foods->getFoods(
             $household,
             $paginator->getItemsPerPage(),
             $paginator->getOffset(),
             $this->shelf,
-            'all',
+            'active',
         );
         $this->template->paginator = $paginator;
         $this->template->foodNavigation = [
