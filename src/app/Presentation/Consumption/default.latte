@@ -13,6 +13,9 @@
 {varType DateTimeImmutable $today}
 {varType DateTimeImmutable $yesterday}
 {varType DateTimeImmutable $weekFrom}
+{varType DateTimeImmutable $inputFrom}
+{varType DateTimeImmutable $inputTo}
+{varType ?string $periodError}
 {varType App\Model\Entity\UserEntity $currentUser}
 
 {block title}Profil spotřeby{/block}
@@ -35,14 +38,15 @@
 			<a class="button button-outline" n:href="Consumption:default, from: $today->modify('-29 days')->format('Y-m-d'), to: $today->format('Y-m-d')">Posledních 30 dní</a>
 		</div>
 		<form method="get" action="{link Consumption:default}">
+			<div class="notice error" n:if="$periodError">{$periodError} Zobrazuje se dnešní spotřeba.</div>
 			<div class="field-row">
 				<div class="field">
 					<label for="consumption-from">Od</label>
-					<input id="consumption-from" name="from" type="date" value="{$from->format('Y-m-d')}" required>
+					<input id="consumption-from" name="from" type="date" value="{$inputFrom->format('Y-m-d')}" required>
 				</div>
 				<div class="field">
 					<label for="consumption-to">Do</label>
-					<input id="consumption-to" name="to" type="date" value="{$to->format('Y-m-d')}" required>
+					<input id="consumption-to" name="to" type="date" value="{$inputTo->format('Y-m-d')}" required>
 				</div>
 			</div>
 			<button class="button button-primary" type="submit">Zobrazit spotřebu</button>
