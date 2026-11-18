@@ -171,8 +171,6 @@ final class HouseholdPresenter extends AuthenticatedPresenter
         }
 
         $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Obnovte stránku a zkuste to znovu.')
-            ->setRequired();
         $form->addSelect('memberId', 'Člen domácnosti *', $options)
             ->setPrompt('Vyberte člena')->setRequired('Vyberte člena domácnosti.');
         $form->addSubmit('send', 'Odebrat člena');

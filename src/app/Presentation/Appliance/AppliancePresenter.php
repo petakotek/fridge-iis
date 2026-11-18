@@ -62,7 +62,6 @@ final class AppliancePresenter extends AuthenticatedPresenter
     private function nameForm(string $submitLabel): Form
     {
         $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Odešlete jej znovu.');
         $form->addText('name', 'Název spotřebiče')
             ->setRequired('Zadejte název spotřebiče.')
             ->addRule(Form::MaxLength, 'Název může mít nejvýše 255 znaků.', 255);
@@ -111,7 +110,6 @@ final class AppliancePresenter extends AuthenticatedPresenter
     protected function createComponentDeleteForm(): Form
     {
         $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Odešlete jej znovu.');
         $form->addSubmit('send', 'Smazat spotřebič');
         $form->onSuccess[] = function (Form $form): void {
             try {

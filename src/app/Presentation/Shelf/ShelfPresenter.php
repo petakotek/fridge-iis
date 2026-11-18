@@ -157,7 +157,6 @@ final class ShelfPresenter extends AuthenticatedPresenter
     protected function createComponentDeleteForm(): Form
     {
         $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Odešlete jej znovu.');
         $form->addSubmit('send', 'Smazat polici');
         $form->onSuccess[] = function (Form $form): void {
             try {
