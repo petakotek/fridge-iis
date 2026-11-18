@@ -31,6 +31,8 @@ class DocumentationLinks(HTMLParser):
 
 def excluded(path):
     parts = path.relative_to(PROJECT).parts
+    if path.name.lower() == 'readme' or path.name.lower().startswith('readme.'):
+        return True
     if path.name.startswith('.env') and path.name != '.env.example':
         return True
     if path.name in ('.git', '.idea', '.vscode', '__pycache__', 'node_modules'):

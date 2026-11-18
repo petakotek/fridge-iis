@@ -106,6 +106,7 @@ make submission
 `doc.html`, obrázky dokumentace, migrace, konfigurační příklady a nástroje
 pro sestavení. Složka `.development` ani soubor `naplneni_db.sql` se do archivu nepřidávají.
 Vynechává se také kořenový `Makefile`, `.gitignore` a `.gitlab-ci.yml`.
+Soubory README se nebalí.
 Vynechá knihovny, Node.js závislosti, sestavený frontend, místní
 `.env`, cache a logy. Ověří odkazy na soubory v dokumentaci a limit 5 MB.
 Závislosti a frontend se po rozbalení připraví podle návodu v `doc.html`.
