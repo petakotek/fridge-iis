@@ -17,7 +17,7 @@
         <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
         <div class="field">{label name /}{input name}</div>
         <div class="field">{label capacity /}{input capacity}</div>
-        <div class="actions">{input send, class: 'button button-primary'}{if $fromDetail}<a class="button button-outline" n:href="detail, id: $shelf->getId(), page: $returnPage">Zpět na polici</a>{else}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a>{/if}</div>
+        <div class="actions">{input send, class: 'button button-primary'}{if $fromDetail}<a class="button button-outline" n:href="Shelf:detail, id: $shelf->getId(), page: $returnPage">Zpět na polici</a>{else}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a>{/if}</div>
     {/form}
 </section>
 {/block}

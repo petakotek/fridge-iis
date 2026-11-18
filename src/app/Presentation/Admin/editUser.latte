@@ -9,7 +9,7 @@
         ]}
         <h1>Upravit uživatele</h1><p>{$editedUser->getName()} {$editedUser->getSurname()}</p>
     </div>
-    <a class="button button-outline" n:href="default">Zpět na uživatele</a>
+    <a class="button button-outline" n:href="Admin:default">Zpět na uživatele</a>
 </header>
 <div class="stack">
     <section class="card">{form userForm}{include 'userFields.latte', form: $form}{/form}</section>
@@ -18,10 +18,10 @@
         <p n:if="$editedUser->getHouseholdRequest()">Čekající žádost: {$editedUser->getHouseholdRequest()->getName()}. Přidání do domácnosti tuto žádost zruší.</p>
         {if $editedUser->getHousehold()}
             <p>Domácnost: {$editedUser->getHousehold()->getName()}</p>
-            <a class="button button-outline" n:href="editHousehold, id: $editedUser->getHousehold()->getId()">Spravovat členství</a>
+            <a class="button button-outline" n:href="Admin:editHousehold, id: $editedUser->getHousehold()->getId()">Spravovat členství</a>
         {else}
             <p>Uživatel není členem domácnosti. Vytvořte mu domácnost nebo jej přidejte do některé ze stávajících.</p>
-            <div class="actions"><a class="button button-primary" n:href="createHousehold">Vytvořit domácnost</a><a class="button button-outline" n:href="households">Vybrat domácnost</a></div>
+            <div class="actions"><a class="button button-primary" n:href="Admin:createHousehold">Vytvořit domácnost</a><a class="button button-outline" n:href="households">Vybrat domácnost</a></div>
         {/if}
     </section>
 </div>

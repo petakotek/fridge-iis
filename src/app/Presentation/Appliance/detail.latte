@@ -1,6 +1,5 @@
 {varType App\Model\Entity\ApplianceEntity $appliance}
 {varType App\Model\Entity\ShelfEntity[] $shelves}
-{varType App\Model\Entity\HouseholdEntity $household}
 {varType bool $isModerator}
 {block title}{$appliance->getName()}{/block}
 
@@ -15,8 +14,8 @@
         <a class="button button-outline" n:href="Home:default">Zpět na přehled</a>
         {if $isModerator}
             <a class="button button-primary" n:href="Shelf:create, applianceId: $appliance->getId()">Přidat polici</a>
-            <a class="button button-outline" n:href="edit, id: $appliance->getId()">Upravit spotřebič</a>
-            <a class="button button-danger" n:href="delete, id: $appliance->getId()">Smazat spotřebič</a>
+            <a class="button button-outline" n:href="Appliance:edit, id: $appliance->getId()">Upravit spotřebič</a>
+            <a class="button button-danger" n:href="Appliance:delete, id: $appliance->getId()">Smazat spotřebič</a>
         {/if}
     </div>
 </header>

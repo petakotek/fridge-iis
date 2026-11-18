@@ -39,7 +39,7 @@
 					<nav class="pagination" aria-label="Stránkování potravin: {$row['shelf']->getName()}">
 						{for $pageNumber = 1; $pageNumber <= $row['paginator']->getPageCount(); $pageNumber++}
 							<a class="pagination-page"
-								n:href="default, pages: array_replace($pages, [$row['shelf']->getId() => $pageNumber])"
+								n:href="Guest:default, pages: array_replace($pages, [$row['shelf']->getId() => $pageNumber])"
 								aria-label="Stránka {$pageNumber}"
 								n:attr="aria-current: $row['paginator']->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
 						{/for}

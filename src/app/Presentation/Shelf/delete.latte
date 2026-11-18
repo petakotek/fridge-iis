@@ -16,7 +16,7 @@
     {form deleteForm}
         <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
         <p class="notice error">Opravdu chcete smazat polici „{$shelf->getName()}“? Smazání je nevratné a odstraní také potraviny na této polici.</p>
-        <div class="actions">{input send, class: 'button button-danger'}{if $fromDetail}<a class="button button-outline" n:href="detail, id: $shelf->getId(), page: $returnPage">Zpět na polici</a>{else}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a>{/if}</div>
+        <div class="actions">{input send, class: 'button button-danger'}{if $fromDetail}<a class="button button-outline" n:href="Shelf:detail, id: $shelf->getId(), page: $returnPage">Zpět na polici</a>{else}<a class="button button-outline" n:href="Appliance:detail, id: $appliance->getId()">Zpět na spotřebič</a>{/if}</div>
     {/form}
 </section>
 {/block}

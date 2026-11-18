@@ -64,7 +64,7 @@
     <nav class="pagination" aria-label="Stránkování spotřebičů">
         {for $pageNumber = 1; $pageNumber <= $paginator->getPageCount(); $pageNumber++}
             <a class="pagination-page"
-                n:href="default, page: $pageNumber"
+                n:href="Home:default, page: $pageNumber"
                 aria-label="Stránka {$pageNumber}"
                 n:attr="aria-current: $paginator->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
         {/for}

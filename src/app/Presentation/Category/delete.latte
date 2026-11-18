@@ -13,7 +13,7 @@
     <p>Kategorii lze smazat pouze tehdy, pokud neobsahuje podkategorie a není přiřazena k potravinám.</p>
     {form deleteForm}
         <div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
-        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="default">Zrušit</a></div>
+        <div class="actions">{input send, class: 'button button-danger'}<a class="button button-outline" n:href="Category:default">Zrušit</a></div>
     {/form}
 </section>
 {/block}
