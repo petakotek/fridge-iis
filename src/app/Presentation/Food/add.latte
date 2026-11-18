@@ -14,15 +14,20 @@
             <div class="field">{label expiry /}{input expiry}</div>
             {include 'categoryFields.latte', form: $form}
             <div class="field">{label weight /}{input weight}</div>
+            <small class="muted">Hmotnost v gramech je nutná pro kontrolu nosnosti police i u nápojů. Objem v ml ji nenahrazuje.</small>
             <div class="field">
                 {label barcode /}
                 <div class="barcode-lookup">
                     {input barcode}
-                    <small class="muted">Nejdříve zadejte hmotnost, nutriční hodnoty se podle ní přepočítají.</small>
+                    <small class="muted">Načtou se hodnoty na 100 g/ml. Jednotku ověřte podle obalu.</small>
                     {input lookup, class: 'button button-outline'}
                 </div>
             </div>
             <div class="field">{label price /}{input price}</div>
+            <div class="field">{label nutritionBasis /}{input nutritionBasis}</div>
+            <div class="field" id="food-volume">{label volume /}{input volume}</div>
+            <p class="muted">Energii a živiny opište pro zvolené množství. Údaje na 100 g/ml se při uložení přepočítají na celé balení. Například 60 kcal na 100 g při hmotnosti 200 g znamená 120 kcal za balení.</p>
+            <small class="muted">Hodnoty za celé balení se zaokrouhlují na celé kcal a gramy.</small>
             <div class="field">{label calories /}{input calories}</div>
             <div class="field">{label protein /}{input protein}</div>
             <div class="field">{label fat /}{input fat}</div>

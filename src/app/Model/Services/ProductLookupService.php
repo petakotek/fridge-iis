@@ -36,7 +36,7 @@ final class ProductLookupService
 
     /**
      * @return array{name: ?string, calories: ?float, protein: ?float, fat: ?float, carb: ?float, fibre: ?float}|null
-     *         nutrients per 100 g; null when the product is not in the database
+     *         nutrients per 100 g/ml; null when the product is not in the database
      * @throws \InvalidArgumentException for a malformed barcode
      * @throws ProductLookupException when the database is unavailable
      */

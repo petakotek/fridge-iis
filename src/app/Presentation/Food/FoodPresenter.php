@@ -2,6 +2,7 @@
 
 namespace App\Presentation\Food;
 
+use App\Model\Common\FoodNutrition;
 use App\Model\Common\ProductLookupException;
 use App\Model\Entity\FoodEntity;
 use App\Model\Entity\HouseholdEntity;
@@ -319,34 +320,55 @@ final class FoodPresenter extends AuthenticatedPresenter
         $form->addFloat('price', 'Cena (Kč)')->setDefaultValue(0)
             ->setRequired('Zadejte cenu.')
             ->addRule(Form::Range, 'Cena musí být od 0 do 99999999,99 Kč.', [0, 99999999.99]);
+        $form->addInteger('weight', 'Hmotnost celého balení (g)')
+            ->setRequired('Zadejte hmotnost celého balení v gramech.')
+            ->addRule(Form::Range, 'Zadejte celé číslo od 1 do 2147483647.', [1, 2147483647]);
+        $form->addSelect('nutritionBasis', 'Výživové údaje zadávám', [
+            '100g' => 'Na 100 g',
+            '100ml' => 'Na 100 ml',
+            'package' => 'Za celé balení',
+        ])->setDefaultValue('100g')->setRequired('Vyberte, pro jaké množství platí výživové údaje.');
+        $form->addFloat('volume', 'Objem celého balení (ml)')->setNullable()
+            ->addRule(Form::Range, 'Objem musí být od 0,001 do 2147483647 ml.', [0.001, 2147483647])
+            ->addConditionOn($form['nutritionBasis'], Form::Equal, '100ml')
+                ->setRequired('Pro údaje na 100 ml zadejte objem celého balení.')
+                ->toggle('food-volume');
         foreach ([
-            'weight' => 'Hmotnost/Objem (g/ml)',
             'calories' => 'Energie (kcal)',
             'protein' => 'Bílkoviny (g)',
             'fat' => 'Tuky (g)',
             'carb' => 'Sacharidy (g)',
-            'fibre' => 'Vláknina (100 g/100 ml)',
+            'fibre' => 'Vláknina (g)',
         ] as $name => $label) {
-            $form->addInteger($name, $label)->setRequired('Vyplňte pole ' . $label . '.')
-                ->addRule(Form::Range, 'Zadejte celé číslo od ' . ($name === 'weight' ? '1' : '0') . ' do 2147483647.', [$name === 'weight' ? 1 : 0, 2147483647]);
-            if ($name !== 'weight') {
-                $form[$name]->setDefaultValue(0);
-            }
+            $form->addFloat($name, $label)->setDefaultValue(0)
+                ->setRequired('Vyplňte pole ' . $label . '.')
+                ->addRule(Form::Range, 'Zadejte číslo od 0 do 2147483647.', [0, 2147483647]);
         }
-        // Only barcode and weight are validated, so the lookup works before the rest of the form is filled in.
+        // Loading values per 100 g/ml needs neither package amount nor the other food fields.
         $form->addSubmit('lookup', 'Načíst podle kódu')
-            ->setValidationScope([$form['barcode'], $form['weight']])
+            ->setValidationScope([$form['barcode'], $form['nutritionBasis']])
             ->onClick[] = $this->lookupBarcode(...);
         $form->onSuccess[] = function (Form $form, $data): void {
             // Nette runs onSuccess after the lookup button's onClick too; only the save button may add food.
             if ($form->isSubmitted() !== $form['send']) {
                 return;
             }
+            $nutrients = [];
+            try {
+                foreach (['calories', 'protein', 'fat', 'carb', 'fibre'] as $key) {
+                    $nutrients[$key] = FoodNutrition::toPackage(
+                        $data->$key, $data->nutritionBasis, $data->weight, $data->volume,
+                    );
+                }
+            } catch (\InvalidArgumentException) {
+                $form->addError('Výživové údaje za celé balení musí být v rozsahu 0 až 2147483647. Zkontrolujte hodnoty a množství.');
+                return;
+            }
             $shelf = $this->loadShelf((int) $data->shelfId);
             try {
                 $food = $this->foods->addFood(
-                    $data->name, $data->barcode, $data->price, $data->calories,
-                    $data->protein, $data->fat, $data->carb, $data->fibre, $data->weight,
+                    $data->name, $data->barcode, $data->price, $nutrients['calories'],
+                    $nutrients['protein'], $nutrients['fat'], $nutrients['carb'], $nutrients['fibre'], $data->weight,
                     $shelf, $this->household, $this->currentUser,
                     $this->selectedCategories($data->categoryIds),
                 );
@@ -378,12 +400,6 @@ final class FoodPresenter extends AuthenticatedPresenter
             $form['barcode']->addError('Zadejte čárový kód.');
             return;
         }
-        $weight = $form['weight']->getValue();
-        if (!is_int($weight) || $weight < 1) {
-            $form['weight']->addError('Nejdříve zadejte hmotnost, podle ní se přepočítají nutriční hodnoty.');
-            return;
-        }
-
         try {
             $product = $this->productLookup->lookup($barcode);
         } catch (\InvalidArgumentException) {
@@ -399,18 +415,18 @@ final class FoodPresenter extends AuthenticatedPresenter
             return;
         }
 
-        // Open Food Facts gives nutrients per 100 g; store them for the entered weight.
-        $values = [];
+        // OFF uses the _100g suffix for both 100 g and 100 ml. The user checks the unit on the label.
+        // Keep the original precision and convert only when saving, using the final package amount.
+        $values = ['nutritionBasis' => $form['nutritionBasis']->getValue() === '100ml' ? '100ml' : '100g'];
         foreach (['calories', 'protein', 'fat', 'carb', 'fibre'] as $key) {
-            if ($product[$key] !== null) {
-                $values[$key] = (int) round($product[$key] * $weight / 100);
-            }
+            // Clear missing values so previous input cannot be mixed with the loaded nutrition basis.
+            $values[$key] = $product[$key];
         }
         if ($product['name'] !== null && trim((string) $form['name']->getValue()) === '') {
             $values['name'] = $product['name'];
         }
         $form->setValues($values);
-        $this->flashMessage(sprintf('Nutriční hodnoty z Open Food Facts byly přepočítány na %d g. Zkontrolujte je a doplňte zbytek.', $weight));
+        $this->flashMessage('Načteny výživové údaje na 100 g/ml. Podle obalu vyberte správnou jednotku, zkontrolujte hodnoty a doplňte chybějící údaje.');
     }
 
     protected function createComponentEditForm(): Form
