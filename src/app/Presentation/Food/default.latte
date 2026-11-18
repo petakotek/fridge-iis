@@ -44,7 +44,7 @@
             </h3>
             <p><a n:href="Appliance:detail, id: $food->getShelf()->getAppliance()->getId()">{$food->getShelf()->getAppliance()->getName()}</a> / <a n:href="Shelf:detail, id: $food->getShelf()->getId()">{$food->getShelf()->getName()}</a></p>
             <p>Kategorie: {include '../Accessory/foodCategories.latte', food: $food}</p>
-            <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
+            <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span>{include '../Accessory/foodExpiry.latte', food: $food}</span></p>
             {if $food->isConsumed()}
                 <p>Spotřebováno: {$food->getConsumedAt()|date:'j. n. Y H:i'}</p>
             {elseif $food->isTrashed()}

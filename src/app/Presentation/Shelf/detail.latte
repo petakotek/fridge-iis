@@ -33,7 +33,7 @@
                     <a n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">{$food->getName()}</a>
                 </h3>
                 <p>Kategorie: {include '../Accessory/foodCategories.latte', food: $food}</p>
-                <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
+                <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span>{include '../Accessory/foodExpiry.latte', food: $food}</span></p>
                 {if $food->isConsumed()}
                     <p style="display: flex; align-items: center;">{include '../Accessory/foodActionIcon.latte', action: 'consume'} Spotřebováno: {$food->getConsumedAt()|date:'j. n. Y H:i'}</p>
                 {elseif $food->isTrashed()}
