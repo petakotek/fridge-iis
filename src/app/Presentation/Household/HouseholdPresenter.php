@@ -22,8 +22,15 @@ final class HouseholdPresenter extends AuthenticatedPresenter
     public function actionRequest(?string $token = null): void
     {
         $this->requireNoHousehold();
-        if ($token !== null) {
+        $this->template->invitedHousehold = null;
+        if ($token === null || trim($token) === '') {
+            return;
+        }
+        try {
+            $this->template->invitedHousehold = $this->households->getHouseholdByToken(trim($token));
             $this['requestForm']->setDefaults(['token' => trim($token)]);
+        } catch (\InvalidArgumentException) {
+            $this->flashMessage('Pozvánkový odkaz je neplatný nebo už vypršel. Požádejte správce o nový.');
         }
     }
 
@@ -258,7 +265,12 @@ final class HouseholdPresenter extends AuthenticatedPresenter
         if ($this->currentUser->isAdmin()) {
             $this->redirect('Admin:households');
         }
-        if ($this->currentUser->getHousehold() !== null || $this->currentUser->getHouseholdRequest() !== null) {
+        if ($this->currentUser->getHousehold() !== null) {
+            $this->flashMessage('Už jste členem domácnosti. Pro připojení k jiné ji nejprve opusťte.');
+            $this->redirect('Home:default');
+        }
+        if ($this->currentUser->getHouseholdRequest() !== null) {
+            $this->flashMessage('Už máte čekající žádost o připojení k domácnosti.');
             $this->redirect('Home:default');
         }
     }
