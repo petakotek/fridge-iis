@@ -23,7 +23,7 @@
 {block content}
 <header class="page-header">
 	<div>
-		<small>Spotřeba</small>
+		<small><a n:href="Home:default">Domácnost</a> / <a n:href="Consumption:default">Spotřeba</a></small>
 		<h1>Detaily spotřeby</h1>
 	</div>
 </header>
@@ -59,7 +59,7 @@
 			<div class="stat"><dt>Energie</dt><dd>{$totalCalories} kcal</dd></div>
 			<div class="stat" n:if="!$singleDay"><dt>Průměr na den</dt><dd>{=(int) round($totalCalories / $dayCount)} kcal</dd></div>
 			<div class="stat"><dt>Potravin</dt><dd>{$totals['count']}</dd></div>
-			<div class="stat"><dt>Hmotnost</dt><dd>{$totals['weight']} g</dd></div>
+			<div class="stat"><dt>Hmotnost/Objem</dt><dd>{$totals['weight']} g</dd></div>
 			<div class="stat"><dt>Cena</dt><dd>{$totals['price']|number:2, ',', ' '} Kč</dd></div>
 		</dl>
 	</section>
@@ -122,7 +122,7 @@
 							<th>Potravina</th>
 							<th>Spotřebováno</th>
 							<th>Odkud</th>
-							<th>Hmotnost</th>
+							<th>Hmotnost/Objem</th>
 							<th>Kalorie</th>
 							<th>Bílkoviny</th>
 							<th>Tuky</th>

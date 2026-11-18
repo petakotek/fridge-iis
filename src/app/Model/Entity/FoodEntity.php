@@ -3,6 +3,7 @@
 namespace App\Model\Entity;
 
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class FoodEntity extends BaseEntity
 {
+    private const ExpiryWarningDays = 1;
+
     #[ORM\Column (type: 'string', length: 255)]
     private string $name;
 
@@ -156,6 +159,29 @@ class FoodEntity extends BaseEntity
 
     public function getExpiry(): ?DateTime {
         return $this->expiry;
+    }
+
+    public function getExpiryStatus(?DateTimeImmutable $today = null): ?string
+    {
+        if ($this->expiry === null || $this->isConsumed() || $this->isTrashed()) {
+            return null;
+        }
+
+        // Trvanlivost platí do konce uvedeného dne, nezávisle na uloženém čase.
+        $today ??= new DateTimeImmutable('today');
+        $expiryDate = $this->expiry->format('Y-m-d');
+        $currentDate = $today->format('Y-m-d');
+
+        if ($expiryDate < $currentDate) {
+            return 'expired';
+        }
+        if ($expiryDate === $currentDate) {
+            return 'today';
+        }
+        if ($expiryDate <= $today->modify('+' . self::ExpiryWarningDays . ' days')->format('Y-m-d')) {
+            return 'soon';
+        }
+        return null;
     }
 
     public function getBarcode(): ?string {

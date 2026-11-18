@@ -1,5 +1,6 @@
 {varType App\Model\Entity\HouseholdEntity $household}
 {varType array $appliances}
+{varType array $pages}
 
 {block title}{$household->getName()}{/block}
 
@@ -21,18 +22,32 @@
 		<section class="card">
 			<h2>{$item['appliance']->getName()}</h2>
 			{foreach $item['shelves'] as $row}
-				<h3>{$row['shelf']->getName()} <small>Obsazeno {count($row['foods'])} / {$row['shelf']->getShelfCapacity()}</small></h3>
+				<h3>{$row['shelf']->getName()} <small>Potravin {$row['paginator']->getItemCount()} · Kapacita {$row['shelf']->getShelfCapacity()} g</small></h3>
 				<table class="food-table" n:if="$row['foods']">
-					<thead><tr><th>Potravina</th><th>Spotřebovat do</th><th>Hmotnost</th></tr></thead>
+					<thead><tr><th>Potravina</th><th>Kategorie</th><th>Spotřebovat do</th><th>Hmotnost/Objem</th></tr></thead>
 					<tbody>
 						<tr n:foreach="$row['foods'] as $food">
 							<td>{$food->getName()}</td>
-							<td>{$food->getExpiry()|date:'j. n. Y'}</td>
+							<td>{include '../Accessory/foodCategories.latte', food: $food}</td>
+							<td>
+								{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}
+								{include '../Accessory/foodExpiry.latte', food: $food}
+							</td>
 							<td>{if $food->getWeight() !== null}{$food->getWeight()} g{/if}</td>
 						</tr>
 					</tbody>
 				</table>
 				<small n:if="!$row['foods']">Polička je prázdná.</small>
+				{if $row['paginator']->getPageCount() > 1}
+					<nav class="pagination" aria-label="Stránkování potravin: {$row['shelf']->getName()}">
+						{for $pageNumber = 1; $pageNumber <= $row['paginator']->getPageCount(); $pageNumber++}
+							<a class="pagination-page"
+								n:href="Guest:default, pages: array_replace($pages, [$row['shelf']->getId() => $pageNumber])"
+								aria-label="Stránka {$pageNumber}"
+								n:attr="aria-current: $row['paginator']->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
+						{/for}
+					</nav>
+				{/if}
 			{else}
 				<small>Spotřebič nemá žádné poličky.</small>
 			{/foreach}

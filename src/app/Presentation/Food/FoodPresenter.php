@@ -8,17 +8,25 @@ use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
 use App\Model\Services\ApplianceService;
 use App\Model\Services\FoodService;
+use App\Model\Services\CategoryService;
+use App\Model\Entity\CategoryEntity;
 use App\Model\Services\ProductLookupService;
 use App\Model\Services\ShelfService;
 use App\Model\Services\UserService;
 use App\Presentation\Accessory\AuthenticatedPresenter;
 use Nette\Application\UI\Form;
+use Nette\Application\Attributes\Persistent;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Controls\TextInput;
 use Nette\Forms\Form as FormAlias;
+use Nette\Utils\Paginator;
 
 final class FoodPresenter extends AuthenticatedPresenter
 {
+    /** @var array<string, mixed> */
+    #[Persistent]
+    public array $returnTo = [];
+
     private HouseholdEntity $household;
     private FoodEntity $food;
 
@@ -31,8 +39,14 @@ final class FoodPresenter extends AuthenticatedPresenter
         private readonly ShelfService     $shelves,
         private readonly ApplianceService $appliances,
         private readonly ProductLookupService $productLookup,
+        private readonly CategoryService $categories,
     ) {
         parent::__construct($users);
+    }
+
+    public function renderDefault(): void
+    {
+        $this->template->household = $this->household;
     }
 
     protected function startup(): void
@@ -46,29 +60,33 @@ final class FoodPresenter extends AuthenticatedPresenter
         $this->household = $household;
     }
 
-    public function actionDefault(?int $shelfId = null, string $status = 'active'): void
+    public function actionDefault(?int $shelfId = null, string $status = 'active', int $page = 1): void
     {
+        $this->returnTo = [];
         if (!in_array($status, ['active', 'consumed', 'trashed'], true)) {
             $this->error('Neplatný stav potravin.', 404);
         }
         $this->loadAvailableShelves();
         $selectedShelf = $shelfId !== null ? $this->loadShelf($shelfId) : null;
-        $foods = [];
-        foreach ($selectedShelf !== null ? [$selectedShelf] : $this->availableShelves as $shelf) {
-            array_push($foods, ...match ($status) {
-                'active' => $this->foods->getFoodsByShelf($shelf),
-                'consumed' => $this->foods->getConsumedFoodsByShelf($shelf, $this->currentUser),
-                'trashed' => $this->foods->getTrashedFoodsByShelf($shelf),
-            });
-        }
-        if ($status !== 'active') {
-            usort($foods, static function (FoodEntity $first, FoodEntity $second) use ($status): int {
-                $firstDate = $status === 'consumed' ? $first->getConsumedAt() : $first->getDiscardedAt();
-                $secondDate = $status === 'consumed' ? $second->getConsumedAt() : $second->getDiscardedAt();
-                return ($secondDate <=> $firstDate) ?: ($second->getId() <=> $first->getId());
-            });
-        }
-        $this->template->foods = $foods;
+        $paginator = new Paginator;
+        $paginator->setItemsPerPage(15);
+        $paginator->setItemCount($this->foods->getFoodCount(
+            $this->household, $selectedShelf, $status, $this->currentUser,
+        ));
+        $paginator->setPage($page);
+        $this->template->foods = $this->foods->getFoods(
+            $this->household,
+            $paginator->getItemsPerPage(),
+            $paginator->getOffset(),
+            $selectedShelf,
+            $status,
+            $this->currentUser,
+        );
+        $this->template->paginator = $paginator;
+        $this->template->foodNavigation = [
+            'source' => 'foods', 'shelfId' => $shelfId,
+            'status' => $status, 'page' => $paginator->getPage(),
+        ];
         $this->template->status = $status;
         $this->template->selectedShelf = $selectedShelf;
         $this->template->hasShelves = $this->availableShelves !== [];
@@ -80,11 +98,17 @@ final class FoodPresenter extends AuthenticatedPresenter
         if ($shelfId !== null) {
             $this->loadShelf($shelfId);
         }
+        $this->prepareNavigation($shelfId !== null ? [
+            'source' => 'shelf', 'shelfId' => $shelfId,
+        ] : []);
         $this->template->hasShelves = $this->availableShelves !== [];
     }
 
-    public function actionDetail(int $id): void
+    public function actionDetail(int $id, ?int $shelfId = null): void
     {
+        if ($shelfId !== null && $this->returnTo === []) {
+            $this->returnTo = ['source' => 'shelf', 'shelfId' => $shelfId];
+        }
         $this->loadFood($id);
     }
 
@@ -151,6 +175,70 @@ final class FoodPresenter extends AuthenticatedPresenter
         }
         $this->food = $food;
         $this->template->food = $food;
+        $this->prepareNavigation([
+            'status' => $food->isConsumed() ? 'consumed' : ($food->isTrashed() ? 'trashed' : 'active'),
+        ]);
+    }
+
+    /** @param array<string, mixed> $fallback */
+    private function prepareNavigation(array $fallback = []): void
+    {
+        $navigation = array_replace(
+            ['source' => 'foods', 'shelfId' => null, 'status' => 'active', 'page' => 1, 'detail' => false],
+            $this->returnTo === [] ? $fallback : $this->returnTo,
+        );
+        if (!in_array($navigation['source'], ['foods', 'shelf'], true)
+            || !in_array($navigation['status'], ['active', 'consumed', 'trashed'], true)) {
+            $this->error('Neplatný návrat na seznam potravin.', 404);
+        }
+        $page = filter_var($navigation['page'], FILTER_VALIDATE_INT);
+        $navigation['page'] = $page === false ? 1 : max(1, $page);
+        $navigation['detail'] = in_array($navigation['detail'], [true, 1, '1'], true);
+        $shelf = null;
+        if ($navigation['shelfId'] !== null) {
+            $shelfId = filter_var($navigation['shelfId'], FILTER_VALIDATE_INT);
+            if ($shelfId === false || $shelfId < 1) {
+                $this->error('Police nebyla nalezena.', 404);
+            }
+            $shelf = $this->loadShelf($shelfId);
+            $navigation['shelfId'] = $shelfId;
+            if (isset($this->food) && $this->food->getShelf() !== $shelf) {
+                $this->error('Potravina není na vybrané polici.', 404);
+            }
+        }
+        if ($navigation['source'] === 'shelf' && $shelf === null) {
+            $this->error('Police nebyla nalezena.', 404);
+        }
+        // Only known parameters and internal destinations are allowed in return links.
+        $this->returnTo = array_intersect_key($navigation, array_flip(['source', 'shelfId', 'status', 'page', 'detail']));
+        [$backDestination, $backParameters] = $this->returnTarget(false);
+        [$cancelDestination, $cancelParameters] = $this->returnTarget();
+        $this->template->returnShelf = $shelf;
+        $this->template->foodNavigation = $this->returnTo;
+        $this->template->detailNavigation = array_replace($this->returnTo, ['detail' => true]);
+        $this->template->backDestination = $backDestination;
+        $this->template->backParameters = $backParameters;
+        $this->template->backLabel = $backDestination === 'Shelf:detail' ? 'Zpět na polici' : 'Zpět na potraviny';
+        $this->template->cancelDestination = $cancelDestination;
+        $this->template->cancelParameters = $cancelParameters;
+        $this->template->cancelLabel = $cancelDestination === 'Food:detail' ? 'Zpět na potravinu' : $this->template->backLabel;
+    }
+
+    /** @return array{string, array<string, mixed>} */
+    private function returnTarget(bool $allowDetail = true): array
+    {
+        if ($allowDetail && ($this->returnTo['detail'] ?? false) && isset($this->food)) {
+            return ['Food:detail', ['id' => $this->food->getId(), 'returnTo' => array_replace($this->returnTo, ['detail' => false])]];
+        }
+        if (($this->returnTo['source'] ?? 'foods') === 'shelf') {
+            return ['Shelf:detail', ['id' => $this->returnTo['shelfId'], 'page' => $this->returnTo['page']]];
+        }
+        return ['Food:default', [
+            'shelfId' => $this->returnTo['shelfId'] ?? null,
+            'status' => $this->returnTo['status'] ?? 'active',
+            'page' => $this->returnTo['page'] ?? 1,
+            'returnTo' => [],
+        ]];
     }
 
     private function assertActiveFood(): void
@@ -167,6 +255,30 @@ final class FoodPresenter extends AuthenticatedPresenter
         }
     }
 
+    /** @return array<int, string> */
+    private function categoryOptions(): array
+    {
+        $options = [];
+        foreach ($this->categories->getCategories($this->household) as $category) {
+            $path = [];
+            for ($ancestor = $category; $ancestor !== null; $ancestor = $ancestor->getParent()) {
+                $path[] = $ancestor->getName();
+            }
+            $options[$category->getId()] = implode(' / ', array_reverse($path));
+        }
+        asort($options);
+        return $options;
+    }
+
+    /**
+     * @param array<int, int|string> $ids
+     * @return array<int, CategoryEntity>
+     */
+    private function selectedCategories(array $ids): array
+    {
+        return array_map(fn($id) => $this->categories->getCategoryById((int) $id), $ids);
+    }
+
     private function foodForm(string $label): Form
     {
         $form = new Form;
@@ -181,6 +293,7 @@ final class FoodPresenter extends AuthenticatedPresenter
                 $date = \DateTime::createFromFormat('!Y-m-d', $input->getValue());
                 return $date !== false && $date->format('Y-m-d') === $input->getValue();
             }, 'Zadejte platné datum spotřeby.');
+        $form->addMultiSelect('categoryIds', 'Kategorie', $this->categoryOptions());
         $form->addSubmit('send', $label);
         return $form;
     }
@@ -207,12 +320,12 @@ final class FoodPresenter extends AuthenticatedPresenter
             ->setRequired('Zadejte cenu.')
             ->addRule(Form::Range, 'Cena musí být od 0 do 99999999,99 Kč.', [0, 99999999.99]);
         foreach ([
-            'weight' => 'Hmotnost (g)',
+            'weight' => 'Hmotnost/Objem (g/ml)',
             'calories' => 'Energie (kcal)',
             'protein' => 'Bílkoviny (g)',
             'fat' => 'Tuky (g)',
             'carb' => 'Sacharidy (g)',
-            'fibre' => 'Vláknina (g)',
+            'fibre' => 'Vláknina (100 g/100 ml)',
         ] as $name => $label) {
             $form->addInteger($name, $label)->setRequired('Vyplňte pole ' . $label . '.')
                 ->addRule(Form::Range, 'Zadejte celé číslo od ' . ($name === 'weight' ? '1' : '0') . ' do 2147483647.', [$name === 'weight' ? 1 : 0, 2147483647]);
@@ -235,6 +348,7 @@ final class FoodPresenter extends AuthenticatedPresenter
                     $data->name, $data->barcode, $data->price, $data->calories,
                     $data->protein, $data->fat, $data->carb, $data->fibre, $data->weight,
                     $shelf, $this->household, $this->currentUser,
+                    $this->selectedCategories($data->categoryIds),
                 );
                 if ($data->expiry !== null) {
                     $food->setExpiry(\DateTime::createFromFormat('!Y-m-d', $data->expiry));
@@ -245,7 +359,13 @@ final class FoodPresenter extends AuthenticatedPresenter
                 return;
             }
             $this->flashMessage('Potravina byla přidána.');
-            $this->redirect('default', ['shelfId' => $shelf->getId()]);
+            if ($this->returnTo['source'] === 'shelf') {
+                $this->redirect('Shelf:detail', ['id' => $shelf->getId()]);
+            }
+            $this->redirect('default', [
+                'shelfId' => $this->returnTo['shelfId'] !== null ? $shelf->getId() : null,
+                'status' => 'active', 'page' => 1, 'returnTo' => [],
+            ]);
         };
         return $form;
     }
@@ -302,19 +422,24 @@ final class FoodPresenter extends AuthenticatedPresenter
         $form->setDefaults([
             'name' => $this->food->getName(),
             'expiry' => $this->food->getExpiry()?->format('Y-m-d'),
+            'categoryIds' => $this->food->getCategories()->map(fn(CategoryEntity $category) => $category->getId())->toArray(),
         ]);
         $form->onSuccess[] = function (Form $form, $data): void {
             $this->assertActiveFood();
             try {
                 $this->food->setName($data->name);
                 $this->food->setExpiry($data->expiry !== null ? \DateTime::createFromFormat('!Y-m-d', $data->expiry) : null);
-                $this->foods->updateFood($this->food, $this->household, $this->currentUser);
+                $this->foods->updateFood(
+                    $this->food, $this->household, $this->currentUser,
+                    $this->selectedCategories($data->categoryIds),
+                );
             } catch (\DomainException|\InvalidArgumentException) {
                 $form->addError('Potravinu se nepodařilo upravit. Zkontrolujte zadané údaje.');
                 return;
             }
             $this->flashMessage('Potravina byla upravena.');
-            $this->redirect('detail', ['id' => $this->food->getId()]);
+            [$destination, $parameters] = $this->returnTarget();
+            $this->redirect($destination, $parameters);
         };
         return $form;
     }
@@ -340,6 +465,8 @@ final class FoodPresenter extends AuthenticatedPresenter
         $form = new Form;
         $form->addSubmit('send', $label);
         $form->onSuccess[] = function (Form $form) use ($action): void {
+            // Capture the destination before Doctrine removes the food and clears its ID.
+            [$destination, $parameters] = $this->returnTarget($action !== 'delete');
             try {
                 if ($action === 'delete') {
                     $this->foods->removeFood($this->food);
@@ -366,10 +493,7 @@ final class FoodPresenter extends AuthenticatedPresenter
                 'trash' => 'Potravina byla vyhozena.',
                 'restore' => 'Potravina byla vrácena do zásob.',
             });
-            $this->redirect('default', [
-                'shelfId' => $this->food->getShelf()->getId(),
-                'status' => $this->food->isConsumed() ? 'consumed' : ($this->food->isTrashed() ? 'trashed' : 'active'),
-            ]);
+            $this->redirect($destination, $parameters);
         };
         return $form;
     }

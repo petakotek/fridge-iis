@@ -1,0 +1,13 @@
+{varType App\Model\Entity\FoodEntity $food}
+{var $expiryStatus = $food->getExpiryStatus()}
+{if $expiryStatus !== null}
+    {var $expiryDetail = [
+        'expired' => 'Trvanlivost vypršela!',
+        'today' => 'Trvanlivost končí dnes.',
+        'soon' => 'Blíží se konec trvanlivosti.',
+    ][$expiryStatus]}
+    <span n:class="food-icon-tooltip, food-expiry, $expiryStatus === 'expired' ? food-expiry-expired : food-expiry-warning"
+        tabindex="0" role="img" aria-label="{$expiryDetail}" data-tooltip="{$expiryDetail}">
+        <span aria-hidden="true">!</span>
+    </span>
+{/if}

@@ -6,6 +6,7 @@ use App\Model\Common\Verification;
 use App\Model\Entity\ApplianceEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\ShelfEntity;
+use App\Model\Entity\FoodEntity;
 use App\Model\Entity\UserEntity;
 
 final class ShelfService extends BaseService
@@ -35,6 +36,19 @@ final class ShelfService extends BaseService
         }
 
         return $shelves;
+    }
+
+    public function getUsedWeight(ShelfEntity $shelf): int
+    {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->select('COALESCE(SUM(food.weight), 0)')
+            ->from(FoodEntity::class, 'food')
+            ->where('food.shelf = :shelf')
+            ->andWhere('food.consumedAt IS NULL')
+            ->andWhere('food.discardedAt IS NULL')
+            ->setParameter('shelf', $shelf)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function getShelfById(int $id): ShelfEntity {

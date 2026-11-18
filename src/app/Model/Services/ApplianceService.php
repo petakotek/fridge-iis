@@ -6,6 +6,7 @@ use App\Model\Common\Verification;
 use App\Model\Entity\ApplianceEntity;
 use App\Model\Entity\HouseholdEntity;
 use App\Model\Entity\UserEntity;
+use Doctrine\Common\Collections\Collection;
 
 final class ApplianceService extends BaseService
 {
@@ -34,11 +35,26 @@ final class ApplianceService extends BaseService
         return $appliance;
     }
 
-    public function getAppliances(HouseholdEntity $household): array {
+    public function countAppliances(HouseholdEntity $household): int {
+        return $this->entityManager->getRepository(ApplianceEntity::class)
+            ->count(['household' => $household]);
+    }
+
+    public function getAppliances(HouseholdEntity $household, int $limit = -1, int $offset = -1): array {
+        if ($limit === -1 || $offset === -1) {
+            return $this->entityManager->getRepository(ApplianceEntity::class)
+                ->findBy(
+                    ['household' => $household],
+                    ['name' => 'ASC']
+                );
+        }
+
         return $this->entityManager->getRepository(ApplianceEntity::class)
             ->findBy(
                 ['household' => $household],
                 ['name' => 'ASC'],
+                $limit,
+                $offset
         );
     }
 
