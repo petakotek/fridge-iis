@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 src/temp/cache
+src/temp/doctrine
 .idea
 /src/vendor/
 /src/node_modules/
