@@ -4,6 +4,7 @@ namespace App\Model\Services;
 
 use App\Model\Common\Verification;
 use DateTimeInterface;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\QueryBuilder;
 use App\Model\Entity\FoodEntity;
 use App\Model\Entity\CategoryEntity;
@@ -46,10 +47,35 @@ final class FoodService extends BaseService
             $fibre,
             $weight
         );
-        $shelf->addFood($food);
-        $this->syncCategories($food, $categories);
-        $this->entityManager->persist($food);
-        $this->entityManager->flush();
+        $connection = $this->entityManager->getConnection();
+        $connection->beginTransaction();
+        try {
+            // Serialize additions to this shelf and reload its current capacity.
+            $this->entityManager->refresh($shelf, LockMode::PESSIMISTIC_WRITE);
+            $usedWeight = (int) $this->entityManager->createQueryBuilder()
+                ->select('COALESCE(SUM(food.weight), 0)')
+                ->from(FoodEntity::class, 'food')
+                ->where('food.shelf = :shelf')
+                ->andWhere('food.consumedAt IS NULL')
+                ->andWhere('food.discardedAt IS NULL')
+                ->setParameter('shelf', $shelf)
+                ->getQuery()
+                ->getSingleScalarResult();
+            if ($weight > $shelf->getShelfCapacity() - $usedWeight) {
+                throw new \DomainException('Food weight is too big for this shelf.');
+            }
+
+            $shelf->addFood($food);
+            $this->syncCategories($food, $categories);
+            $this->entityManager->persist($food);
+            $this->entityManager->flush();
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+            throw $exception;
+        }
 
         return $food;
     }

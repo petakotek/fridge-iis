@@ -279,6 +279,57 @@ final class FoodServiceTest extends ServiceTestCase
         Assert::same(1, $this->em->getRepository(FoodEntity::class)->count([]));
     }
 
+    public function testCapacityCheckUsesDatabaseInsteadOfLoadedFoodCollection(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household, 150);
+        Assert::count(0, $shelf->getFoods());
+        // Simulate another request committing food after the collection was loaded.
+        $connection = $this->em->getConnection();
+        $connection->insert('FoodEntity', ['name' => 'Milk', 'weight' => 100, 'shelf_id' => $shelf->getId()]);
+        Assert::same(0, $shelf->getUsedWeight());
+
+        Assert::exception(fn() => $this->addFood($shelf, $household, $household->getModerator(), 51), \DomainException::class);
+        Assert::same(1, $this->em->getRepository(FoodEntity::class)->count([]));
+        Assert::false($connection->isTransactionActive());
+        Assert::true($this->em->isOpen());
+
+        $this->addFood($shelf, $household, $household->getModerator(), 50);
+        Assert::same(150, (int) $connection->fetchOne('SELECT SUM(weight) FROM FoodEntity'));
+        Assert::false($connection->isTransactionActive());
+    }
+
+    public function testCapacityCheckReloadsChangedShelfCapacity(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household, 150);
+        $this->em->getConnection()->update('ShelfEntity', ['shelfCapacity' => 50], ['id' => $shelf->getId()]);
+        Assert::same(150, $shelf->getShelfCapacity());
+
+        Assert::exception(fn() => $this->addFood($shelf, $household, $household->getModerator(), 51), \DomainException::class);
+        Assert::same(50, $shelf->getShelfCapacity());
+        Assert::same(0, $this->em->getRepository(FoodEntity::class)->count([]));
+        Assert::false($this->em->getConnection()->isTransactionActive());
+    }
+
+    public function testCategoryInsertFailureRollsBackFoodInsert(): void
+    {
+        $household = $this->household();
+        $shelf = $this->shelf($household);
+        $category = $this->category($household);
+        $connection = $this->em->getConnection();
+        $connection->executeStatement("CREATE TRIGGER reject_food_category BEFORE INSERT ON categoryentity_foodentity
+            BEGIN SELECT RAISE(ABORT, 'Category insert failed'); END");
+
+        Assert::exception(fn() => (new FoodService($this->em))->addFood(
+            'Yoghurt', '', 0, 0, 0, 0, 0, 0, 100,
+            $shelf, $household, $household->getModerator(), [$category],
+        ), \Doctrine\DBAL\Exception::class);
+        Assert::same(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM FoodEntity'));
+        Assert::same(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM categoryentity_foodentity'));
+        Assert::false($connection->isTransactionActive());
+    }
+
     public function testExactCapacityAndSpaceReleasedByConsumptionAndDiscard(): void
     {
         $household = $this->household();
