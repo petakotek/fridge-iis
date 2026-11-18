@@ -109,9 +109,73 @@
 
     <h2>Implementace</h2>
     <p>
-    <!-- TODO: odkaz-->
-      Stručná dokumentace k implementaci, která popisuje, které části projektu
-      (např. PHP skripty) implementují jednotlivé případy použití.
+      Aplikace používá framework Nette. Presentery zpracovávají požadavky a formuláře,
+      zobrazení zajišťují přidružené šablony Latte. Cesty v tabulce jsou uvedeny
+      vůči adresáři <code>src/app/Presentation/</code>.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Případ užití</th>
+          <th scope="col">Presenter</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Registrace, přihlášení a vstup hosta pomocí tokenu.</td>
+          <td><code>Sign/SignPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Odhlášení a společná kontrola přihlášení.</td>
+          <td><code>Accessory/AuthenticatedPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Úprava vlastního profilu a hesla, opuštění domácnosti.</td>
+          <td><code>Account/AccountPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Přehled domácnosti a stavu členství, zrušení vlastní žádosti.</td>
+          <td><code>Home/HomePresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Založení a správa domácnosti, členů, žádostí a tokenu, předání správy.</td>
+          <td><code>Household/HouseholdPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Prohlížení obsahu domácnosti hostem bez možnosti editace.</td>
+          <td><code>Guest/GuestPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Správa spotřebičů a zobrazení jejich poliček.</td>
+          <td><code>Appliance/AppliancePresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Správa poliček a jejich nosnosti, zobrazení uložených potravin.</td>
+          <td><code>Shelf/ShelfPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Správa víceúrovňových kategorií potravin.</td>
+          <td><code>Category/CategoryPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Správa potravin, konzumace, vyhození, obnova do zásob a načítání údajů podle čárového kódu.</td>
+          <td><code>Food/FoodPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Vlastní profil spotřeby za zvolené období, souhrny kalorií, živin a ceny, grafy.</td>
+          <td><code>Consumption/ConsumptionPresenter.php</code></td>
+        </tr>
+        <tr>
+          <td>Administrátorská správa uživatelů, rolí, domácností a jejich členství.</td>
+          <td><code>Admin/AdminPresenter.php</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Datové operace zajišťují služby v <code>src/app/Model/Services/</code>,
+      databázové objekty a jejich vztahy jsou definovány entitami Doctrine
+      v <code>src/app/Model/Entity/</code>. Služba <code>ProductLookupService</code>
+      načítá údaje podle čárového kódu z Open Food Facts.
     </p>
 
     <h3>Databáze</h3>
@@ -165,7 +229,8 @@ unzip -o iis.zip</code></pre>
         Zajistit čitelnost aplikace pro webový server a právo zápisu PHP do adresářů
         <code>temp/</code> a <code>log/</code>. Při první instalaci vytvořit databázi
         uvedenou v konfiguraci. Z adresáře aplikace spustit migrace:
-        <pre><code>php vendor/bin/doctrine-migrations migrate --no-interaction</code></pre>
+        <pre><code>mkdir -p temp log
+php vendor/bin/doctrine-migrations migrate --no-interaction</code></pre>
         Migrace vytvoří tabulky a počátečního administrátora; při aktualizaci
         provedou pouze dosud neaplikované změny.
       </li>
