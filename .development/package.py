@@ -31,11 +31,13 @@ class DocumentationLinks(HTMLParser):
 
 def excluded(path):
     parts = path.relative_to(PROJECT).parts
+    if path.name.lower() == 'readme' or path.name.lower().startswith('readme.'):
+        return True
     if path.name.startswith('.env') and path.name != '.env.example':
         return True
     if path.name in ('.git', '.idea', '.vscode', '__pycache__', 'node_modules'):
         return True
-    if parts[:2] in (('src', 'temp'), ('src', 'log'), ('.development', 'dist')):
+    if parts[0] == '.development' or parts[:2] in (('src', 'temp'), ('src', 'log')):
         return True
     return parts[:2] == ('src', 'vendor') or parts[:3] == ('src', 'www', 'assets')
 
@@ -58,7 +60,7 @@ def build(login):
     if not re.fullmatch(r'[a-zA-Z0-9_-]+', login):
         raise ValueError('LOGIN smí obsahovat pouze písmena, číslice, podtržítko a pomlčku.')
     entries = [PROJECT / name for name in (
-        'src', 'docs', 'doc.html', 'Makefile', '.gitignore', '.gitlab-ci.yml', '.development',
+        'src', 'docs', 'doc.html',
     )]
     output = DIST / (login + '.zip')
 

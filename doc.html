@@ -54,39 +54,100 @@
       </dd>
       <dt>URL aplikace</dt>
       <dd>
-        <a href="http://www.stud.fit.vutbr.cz/~xvoldrv00/IIS"
-          >http://www.stud.fit.vutbr.cz/~xvoldrv00/IIS</a
+        <a href="https://www.stud.fit.vutbr.cz/~xvoldrv00/IIS"
+          >https://www.stud.fit.vutbr.cz/~xvoldrv00/IIS</a
         >
       </dd>
     </dl>
 
     <h2>Uživatelé systému pro testování</h2>
     <p>
-    <!-- TODO: -->
-      Uveďte prosím existující zástupce <strong>všech rolí uživatelů</strong>.
+      Přihlášení probíhá pomocí e-mailu. Administrátora vytváří databázová migrace,
+      ostatní účty vzniknou importem ukázkových dat ze skriptu <code>naplneni_db.sql</code>.
     </p>
     <table>
       <tr>
-        <th>Login</th>
+        <th>Jméno</th>
+        <th>Login (e-mail)</th>
         <th>Heslo</th>
-        <th>Role</th>
+        <th>Role / domácnost</th>
       </tr>
       <tr>
-        <td>admin</td>
-        <td>admin</td>
-        <td>Administrátor</td>
+        <td>Administrátor systému</td>
+        <td>admin@spiz.local</td>
+        <td>Admin12345!</td>
+        <td>Administrátor systému</td>
       </tr>
       <tr>
-        <td>prodavac</td>
-        <td>prodavac</td>
-        <td>Prodavač</td>
+        <td>Jan Novák</td>
+        <td>jan.novak@example.test</td>
+        <td>Test12345!</td>
+        <td>Správce domácnosti Novákovi</td>
       </tr>
       <tr>
-        <td>franta</td>
-        <td>franta</td>
-        <td>Zákazník</td>
+        <td>Jana Nováková</td>
+        <td>jana.novakova@example.test</td>
+        <td>Test12345!</td>
+        <td>Člen domácnosti Novákovi</td>
+      </tr>
+      <tr>
+        <td>Petr Novák</td>
+        <td>petr.novak@example.test</td>
+        <td>Test12345!</td>
+        <td>Člen domácnosti Novákovi</td>
+      </tr>
+      <tr>
+        <td>Tereza Dvořáková</td>
+        <td>tereza.dvorakova@example.test</td>
+        <td>Test12345!</td>
+        <td>Správce domácnosti Studentský byt</td>
+      </tr>
+      <tr>
+        <td>Martin Svoboda</td>
+        <td>martin.svoboda@example.test</td>
+        <td>Test12345!</td>
+        <td>Člen domácnosti Studentský byt</td>
+      </tr>
+      <tr>
+        <td>Eva Procházková</td>
+        <td>eva.prochazkova@example.test</td>
+        <td>Test12345!</td>
+        <td>Člen domácnosti Studentský byt</td>
+      </tr>
+      <tr>
+        <td>Lucie Zelená</td>
+        <td>lucie.zelena@example.test</td>
+        <td>Test12345!</td>
+        <td>Správce domácnosti Zelení</td>
+      </tr>
+      <tr>
+        <td>Tomáš Zelený</td>
+        <td>tomas.zeleny@example.test</td>
+        <td>Test12345!</td>
+        <td>Člen domácnosti Zelení</td>
+      </tr>
+      <tr>
+        <td>Adam Černý</td>
+        <td>adam.cerny@example.test</td>
+        <td>Test12345!</td>
+        <td>Registrovaný uživatel, čekající žádost o členství u Novákových</td>
+      </tr>
+      <tr>
+        <td>Klára Veselá</td>
+        <td>klara.vesela@example.test</td>
+        <td>Test12345!</td>
+        <td>Registrovaný uživatel, čekající žádost o členství ve Studentském bytě</td>
+      </tr>
+      <tr>
+        <td>Ondřej Malý</td>
+        <td>ondrej.maly@example.test</td>
+        <td>Test12345!</td>
+        <td>Registrovaný uživatel bez domácnosti a žádosti</td>
       </tr>
     </table>
+    <p>
+        Host může nahlédnout na potraviny v domáctnoti s využitím tokenu, který se nachází ve správě domáctnosti. 
+    </p>
 
     <h2>Případy užití</h2>
         <p>
@@ -100,11 +161,7 @@
     <h3>Video</h3>
 
     <p>
-    <!-- TODO: odkaz-->
-      Přiložte odkaz na komentované video demostrující použití informačního
-      systému. Zaměřte se na případy užití definované zadáním (např. registrace
-      uživatele, správa uživatelů a činnosti jednotlivých rolí). Video nahrajte
-      například na VUT Google Drive, kde ho bude možné přímo spustit z odkazu.
+    <a href="https://www.youtube.com/watch?v=jl8aXJk408g">https://www.youtube.com/watch?v=jl8aXJk408g</a> 
     </p>
 
     <h2>Implementace</h2>
@@ -134,7 +191,7 @@
           <td><code>Account/AccountPresenter.php</code></td>
         </tr>
         <tr>
-          <td>Přehled domácnosti a stavu členství, zrušení vlastní žádosti.</td>
+          <td>Přehled domácnosti a členství, prohlížení obsahu domácnosti žadatelem a zrušení vlastní žádosti.</td>
           <td><code>Home/HomePresenter.php</code></td>
         </tr>
         <tr>
@@ -142,7 +199,7 @@
           <td><code>Household/HouseholdPresenter.php</code></td>
         </tr>
         <tr>
-          <td>Prohlížení obsahu domácnosti hostem bez možnosti editace.</td>
+          <td>Prohlížení obsahu domácnosti hostem bez možnosti editace a ukončení přístupu hosta.</td>
           <td><code>Guest/GuestPresenter.php</code></td>
         </tr>
         <tr>
@@ -150,7 +207,7 @@
           <td><code>Appliance/AppliancePresenter.php</code></td>
         </tr>
         <tr>
-          <td>Správa poliček a jejich nosnosti, zobrazení uložených potravin.</td>
+          <td>Správa poliček a jejich nosnosti, přehled využité kapacity a potravin včetně historie.</td>
           <td><code>Shelf/ShelfPresenter.php</code></td>
         </tr>
         <tr>
@@ -162,7 +219,7 @@
           <td><code>Food/FoodPresenter.php</code></td>
         </tr>
         <tr>
-          <td>Vlastní profil spotřeby za zvolené období, souhrny kalorií, živin a ceny, grafy.</td>
+          <td>Vlastní profil spotřeby za zvolené období, souhrny kalorií, živin a ceny, časový graf kalorií a koláčový graf živin.</td>
           <td><code>Consumption/ConsumptionPresenter.php</code></td>
         </tr>
         <tr>
@@ -189,56 +246,68 @@
     <h3>Rozšíření</h3>
     <ul>
         <li> Napojení na externí potravinovou databázi dle čárového kódu (<a href="https://cz.openfoodfacts.org/">Open Food Facts - Česko</a>)</li>
-        <li> Grafy kalorického a nutričního profilu v čase </li>
+        <li> Graf kalorií po hodinách nebo dnech a koláčový graf zastoupení živin za zvolené období </li>
     </ul>
 
     <h2>Instalace</h2>
 
     <p>
-      Aplikace vyžaduje Apache s podporou <code>.htaccess</code> a mod_rewrite,
-      PHP 8.4.1 nebo novější s rozšířeními pdo_mysql a mbstring a databázi MariaDB.
-      Pro sestavení jsou potřeba Composer 2, Node.js 22 a npm.
+      Předpokládáme archiv <code>xvoldrv00.zip</code> uložený na serveru
+      v <code>~/WWW/IIS/</code>. Všechny následující příkazy se provádějí na serveru.
+      Potřeba je Apache s podporou <code>.htaccess</code> a mod_rewrite,
+      PHP 8.4.1 nebo novější s rozšířeními pdo_mysql a mbstring,
+      Composer 2, Node.js 22, npm a přístup k databázi MariaDB.
     </p>
     <ol>
       <li>
-        V adresáři <code>src</code> nainstalovat závislosti a sestavit frontend:
+        Rozbalit archiv a umístit obsah jeho adresáře <code>src/</code>
+        přímo do adresáře aplikace, včetně skrytých souborů:
+        <pre><code>cd ~/WWW/IIS
+unzip xvoldrv00.zip
+cp -R src/. .</code></pre>
+      </li>
+      <li>
+        V <code>~/WWW/IIS/</code> nainstalovat knihovny podle zámkového souboru
+        a sestavit frontend:
         <pre><code>composer install --no-dev --prefer-dist --optimize-autoloader
 npm ci
 npm run build</code></pre>
       </li>
       <li>
-        Stále v adresáři <code>src</code> vytvořit archiv aplikace včetně
-        <code>vendor/</code> a sestavených souborů <code>www/assets/</code>.
-        Vynechat místní konfiguraci, pracovní adresáře a Node.js závislosti.
-        Na serveru připravit cílový adresář a archiv nahrát přes SCP:
-        <pre><code>zip -r ../iis.zip . -x '.env' 'node_modules/*' 'temp/*' 'log/*'
-ssh xvoldrv00@eva.fit.vutbr.cz 'mkdir -p ~/WWW/IIS'
-scp ../iis.zip xvoldrv00@eva.fit.vutbr.cz:WWW/IIS/</code></pre>
+        Při první instalaci vytvořit konfiguraci podle dodaného vzoru:
+        <pre><code>cp .env.example .env</code></pre>
+        V <code>.env</code> nastavit <code>env=prod</code>. Proměnné
+        <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_NAME</code>,
+        <code>DB_USER</code>, <code>DB_PASSWORD</code> a odpovídající
+        <code>DB_DSN</code> vyplnit podle přidělené produkční databáze
+        (vzorový host <code>database</code> nahradit skutečným hostem).
+        <code>DB_HOST</code> je adresa databázového serveru,
+        <code>DB_NAME</code> název databáze a <code>DB_USER</code> přihlašovací účet.
+        <br/>    
+        Do <code>DB_PASSWORD</code> zadat příslušné databázové heslo.
+        Doctrine a migrace používají <code>DB_HOST</code> a ostatní samostatné
+        proměnné; <code>DB_DSN</code> používá připojení Nette. Obě nastavení
+        proto musí odpovídat téže databázi.
+        Před první migrací nastavit také <code>ADMIN_EMAIL</code>
+        a vlastní <code>ADMIN_PASSWORD</code> s alespoň osmi znaky.
+        Při aktualizaci ponechat existující <code>.env</code>.
       </li>
       <li>
-        Přihlásit se na server a rozbalit archiv přímo do adresáře aplikace:
-        <pre><code>ssh xvoldrv00@eva.fit.vutbr.cz
-cd ~/WWW/IIS
-unzip -o iis.zip</code></pre>
-        Při první instalaci vytvořit <code>.env</code> podle <code>.env.example</code>,
-        nastavit <code>env=prod</code>, připojení k databázi v proměnných
-        <code>DB_*</code> a počáteční účet pomocí <code>ADMIN_EMAIL</code>
-        a <code>ADMIN_PASSWORD</code>. Při aktualizaci existující konfiguraci zachovat.
-      </li>
-      <li>
-        Zajistit čitelnost aplikace pro webový server a právo zápisu PHP do adresářů
-        <code>temp/</code> a <code>log/</code>. Při první instalaci vytvořit databázi
-        uvedenou v konfiguraci. Z adresáře aplikace spustit migrace:
+        Použít přidělenou databázi; na vlastním serveru ji nejprve vytvořit
+        s kódováním <code>utf8mb4</code>. Soubory aplikace musí být čitelné
+        pro webový server a adresáře <code>temp/</code> a <code>log/</code>
+        zapisovatelné pro uživatele, pod kterým běží PHP. V <code>~/WWW/IIS/</code>
+        připravit tyto adresáře a inicializovat databázi migracemi:
         <pre><code>mkdir -p temp log
-php vendor/bin/doctrine-migrations migrate --no-interaction</code></pre>
-        Migrace vytvoří tabulky a počátečního administrátora; při aktualizaci
-        provedou pouze dosud neaplikované změny.
+chmod u+rwx temp log
+php vendor/bin/doctrine-migrations migrate --no-interaction
+php vendor/bin/doctrine-migrations status</code></pre>
+        Příkazy je nutné spouštět také pod PHP 8.4.1 nebo novějším.
+        Migrace vytvoří tabulky a jednoho administrátora podle <code>.env</code>;
+        příkaz <code>status</code> umožní ověřit provedení všech migrací.
       </li>
     </ol>
-    <p>
-      Po nasazení je aplikace dostupná na
-      <a href="http://www.stud.fit.vutbr.cz/~xvoldrv00/IIS/">http://www.stud.fit.vutbr.cz/~xvoldrv00/IIS/</a>.
-    </p>
+
 
     <h2>Známé problémy</h2>
     <p>
