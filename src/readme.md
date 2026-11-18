@@ -1,6 +1,10 @@
 Nette Web Project
 =================
 
+Prostředí aplikace přepíná proměnná `env` v `src/.env`. Pouze přesná hodnota
+`env=dev` zapíná vývojový režim včetně ladění. Jakákoli jiná hodnota (například
+`env=prod`) nebo chybějící proměnná znamená produkční režim.
+
 ## Testy
 
 Ze složky `.development` spusť jednorázovou Compose službu `test`:

@@ -30,9 +30,12 @@ class Bootstrap
 
 	public function initializeEnvironment(): void
 	{
-        // při následném nasazení aplikace nastavíme debugMode na false, je to z toho důvodu, že v produkci se používá
-        // přímý build aplikace, ne debugMode; v tomto režimu se aplikace stále refreshuje. POZOR NA TO KLUCI!!!
-        $this->configurator->setDebugMode(true);
+		$envFile = $this->rootDir . '/.env';
+		$env = is_file($envFile)
+			? (parse_ini_file($envFile, scanner_mode: INI_SCANNER_RAW) ?: [])
+			: [];
+		$this->configurator->addDynamicParameters(['env' => $env]);
+		$this->configurator->setDebugMode(($env['env'] ?? null) === 'dev');
 		$this->configurator->enableTracy($this->rootDir . '/log');
 
 		$this->configurator->createRobotLoader()
@@ -43,10 +46,6 @@ class Bootstrap
 
 	private function setupContainer(): void
 	{
-		$this->configurator->addDynamicParameters([
-			'env' => parse_ini_file($this->rootDir . '/.env', scanner_mode: INI_SCANNER_RAW) ?: [],
-		]);
-
 		$configDir = $this->rootDir . '/config';
 		$this->configurator->addConfig($configDir . '/common.neon');
 		$this->configurator->addConfig($configDir . '/services.neon');
