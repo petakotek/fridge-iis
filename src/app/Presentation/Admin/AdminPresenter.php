@@ -75,7 +75,7 @@ final class AdminPresenter extends AuthenticatedPresenter
 
     protected function createComponentUserForm(): Form
     {
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addText('name', 'Jméno *')->setRequired('Zadejte jméno.')->addRule($form::MaxLength, null, 255);
         $form->addText('surname', 'Příjmení *')->setRequired('Zadejte příjmení.')->addRule($form::MaxLength, null, 255);
         $form->addEmail('email', 'E-mail *')->setRequired('Zadejte e-mail.')->addRule($form::MaxLength, null, 255);
@@ -109,7 +109,7 @@ final class AdminPresenter extends AuthenticatedPresenter
 
     protected function createComponentDeleteUserForm(): Form
     {
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addText('confirmation', 'Pro potvrzení napište e-mail uživatele *')->setRequired('Zadejte e-mail pro potvrzení.');
         $form->addSubmit('send', 'Smazat uživatele');
         $this->onSave($form, function (\stdClass $data): void {
@@ -126,7 +126,7 @@ final class AdminPresenter extends AuthenticatedPresenter
 
     protected function createComponentHouseholdForm(): Form
     {
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addText('name', 'Název domácnosti *')->setRequired('Zadejte název domácnosti.')->addRule($form::MaxLength, null, 255);
         if ($this->editedHousehold === null) {
             $form->addSelect('moderatorId', 'Správce domácnosti', $this->availableUsers())->setPrompt('Zatím bez správce');
@@ -147,7 +147,7 @@ final class AdminPresenter extends AuthenticatedPresenter
 
     protected function createComponentAddMemberForm(): Form
     {
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addSelect('memberId', 'Uživatel *', $this->availableUsers())->setPrompt('Vyberte uživatele bez domácnosti')->setRequired('Vyberte uživatele.');
         $form->addSubmit('send', 'Přidat člena');
         $this->onSave($form, function (\stdClass $data): void {
@@ -162,7 +162,7 @@ final class AdminPresenter extends AuthenticatedPresenter
         foreach ($this->households->getHouseholdMembers($this->requireHousehold()) as $member) {
             $options[$member->getId()] = $this->userLabel($member);
         }
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addSelect('memberId', 'Člen domácnosti *', $options)->setPrompt('Vyberte člena')->setRequired('Vyberte člena domácnosti.');
         $form->addSubmit('moderator', 'Nastavit jako správce');
         $form->addSubmit('remove', 'Odebrat z domácnosti');
@@ -181,7 +181,7 @@ final class AdminPresenter extends AuthenticatedPresenter
 
     protected function createComponentDeleteHouseholdForm(): Form
     {
-        $form = $this->adminForm();
+        $form = new Form;
         $form->addText('confirmation', 'Pro potvrzení napište název domácnosti *')->setRequired('Zadejte název domácnosti pro potvrzení.');
         $form->addSubmit('send', 'Smazat domácnost');
         $this->onSave($form, function (\stdClass $data): void {
@@ -191,14 +191,6 @@ final class AdminPresenter extends AuthenticatedPresenter
             }
             $this->admin->deleteHousehold($this->currentUser, $household);
         }, 'Domácnost byla smazána.', 'households');
-        return $form;
-    }
-
-    private function adminForm(): Form
-    {
-        $form = new Form;
-        $form->addProtection('Platnost formuláře vypršela. Obnovte stránku a zkuste to znovu.')
-            ->setRequired('Platnost formuláře vypršela. Obnovte stránku a zkuste to znovu.');
         return $form;
     }
 
