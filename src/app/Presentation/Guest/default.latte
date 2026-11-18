@@ -24,7 +24,7 @@
 			{foreach $item['shelves'] as $row}
 				<h3>{$row['shelf']->getName()} <small>Potravin {$row['paginator']->getItemCount()} · Kapacita {$row['shelf']->getShelfCapacity()} g</small></h3>
 				<table class="food-table" n:if="$row['foods']">
-					<thead><tr><th>Potravina</th><th>Kategorie</th><th>Spotřebovat do</th><th>Hmotnost</th></tr></thead>
+					<thead><tr><th>Potravina</th><th>Kategorie</th><th>Spotřebovat do</th><th>Hmotnost/Objem</th></tr></thead>
 					<tbody>
 						<tr n:foreach="$row['foods'] as $food">
 							<td>{$food->getName()}</td>

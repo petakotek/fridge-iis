@@ -320,12 +320,12 @@ final class FoodPresenter extends AuthenticatedPresenter
             ->setRequired('Zadejte cenu.')
             ->addRule(Form::Range, 'Cena musí být od 0 do 99999999,99 Kč.', [0, 99999999.99]);
         foreach ([
-            'weight' => 'Hmotnost (g)',
+            'weight' => 'Hmotnost/Objem (g/ml)',
             'calories' => 'Energie (kcal)',
             'protein' => 'Bílkoviny (g)',
             'fat' => 'Tuky (g)',
             'carb' => 'Sacharidy (g)',
-            'fibre' => 'Vláknina (g)',
+            'fibre' => 'Vláknina (100 g/100 ml)',
         ] as $name => $label) {
             $form->addInteger($name, $label)->setRequired('Vyplňte pole ' . $label . '.')
                 ->addRule(Form::Range, 'Zadejte celé číslo od ' . ($name === 'weight' ? '1' : '0') . ' do 2147483647.', [$name === 'weight' ? 1 : 0, 2147483647]);
