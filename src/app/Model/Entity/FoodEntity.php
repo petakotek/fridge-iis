@@ -213,7 +213,7 @@ class FoodEntity extends BaseEntity
     }
 
     public function isConsumed(): bool {
-        return $this->consumer !== null;
+        return $this->consumedAt !== null;
     }
 
     public function getConsumedAt(): ?DateTime {
