@@ -8,19 +8,18 @@
 {varType string $periodLabel}
 {varType int $macroTotal}
 {varType array $pie}
-{varType DateTimeImmutable $from}
-{varType DateTimeImmutable $to}
-{varType DateTimeImmutable $today}
-{varType DateTimeImmutable $yesterday}
-{varType DateTimeImmutable $weekFrom}
-{varType App\Model\Entity\UserEntity $currentUser}
+{varType Nette\Utils\DateTimeImmutable $from}
+{varType Nette\Utils\DateTimeImmutable $to}
+{varType Nette\Utils\DateTimeImmutable $today}
+{varType Nette\Utils\DateTimeImmutable $yesterday}
+{varType Nette\Utils\DateTimeImmutable $weekFrom}
 
 {block title}Profil spotřeby{/block}
 
 {block content}
 <header class="page-header">
 	<div>
-		<small>Spotřeba</small>
+		<small><a n:href="Home:default">Domácnost</a> / <a n:href="Consumption:default">Spotřeba</a></small>
 		<h1>Detaily spotřeby</h1>
 	</div>
 </header>

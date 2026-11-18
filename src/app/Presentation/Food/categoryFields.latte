@@ -1,0 +1,14 @@
+{varType Nette\Application\UI\Form $form}
+{var $pickerId = $form['categoryIds']->getHtmlId()}
+<fieldset class="category-picker" data-category-picker>
+    <legend id="{$pickerId}-label">Kategorie</legend>
+    {if $form['categoryIds']->getItems()}
+        <div class="category-picker-source" data-category-source>
+            {input categoryIds, size: 6, aria-labelledby: $pickerId . '-label'}
+        </div>
+        <small class="muted" id="{$pickerId}-help" data-category-help>Více kategorií vyberete podržením Ctrl nebo ⌘. Výběr není povinný.</small>
+    {else}
+        <p class="muted">V domácnosti zatím nejsou žádné kategorie. Správce je může přidat ve <a n:href="Category:default">správě kategorií</a>.</p>
+    {/if}
+</fieldset>
+<script src="{$basePath}/www/js/category-picker.js" defer n:if="$form['categoryIds']->getItems()"></script>

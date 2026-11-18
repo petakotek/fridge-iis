@@ -1,0 +1,6 @@
+{varType App\Model\Entity\FoodEntity $food}
+{foreach $food->getCategories() as $category}
+    <span class="badge">{$category->getName()}</span>
+{else}
+    <span class="muted">Bez kategorie</span>
+{/foreach}

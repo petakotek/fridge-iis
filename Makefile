@@ -12,6 +12,9 @@ start up:
 		if [ -z "$$port" ]; then echo 'Nepodařilo se zjistit port aplikace.' >&2; exit 1; fi; \
 		printf 'Aplikace běží na: http://localhost:%s/~xvoldrv00/\n' "$$port"
 
+test:
+	@$(COMPOSE) run --rm --build test
+
 stop down:
 	@$(COMPOSE) stop
 

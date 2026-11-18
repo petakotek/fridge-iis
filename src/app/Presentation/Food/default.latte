@@ -2,18 +2,18 @@
 {varType App\Model\Entity\ShelfEntity|null $selectedShelf}
 {varType bool $hasShelves}
 {varType string $status}
+{varType Nette\Utils\Paginator $paginator}
+{varType array $foodNavigation}
 {block title}Potraviny{/block}
 
 {block content}
 <header class="page-header">
     <div>
-        <small>Domácnost / Potraviny</small>
+        <small><a n:href="Home:default">Domácnost</a> / <a n:href="Food:default, returnTo: []">Potraviny</a></small>
         <h1>Potraviny</h1>
-        <p>{if $selectedShelf}
-            <a style="text-decoration: underline" n:href="Appliance:detail, id: $selectedShelf->getAppliance()->getId()">
-            {$selectedShelf->getAppliance()->getName()}</a> / {$selectedShelf->getName()}
-        <h3><small>Obsazeno {$selectedShelf->getUsedWeight()} / {$selectedShelf->getShelfCapacity()}</small></h3>
-            {elseif $status === 'consumed'}
+        <p n:if="$selectedShelf">Police: <a n:href="Shelf:detail, id: $selectedShelf->getId()">{$selectedShelf->getName()}</a></p>
+        <p>
+            {if $status === 'consumed'}
                 Potraviny, které jste spotřebovali.
             {elseif $status === 'trashed'}
                 Vyhozené potraviny z vaší domácnosti.
@@ -23,14 +23,14 @@
         </p>
     </div>
     <div class="actions">
-        <a class="button button-primary" n:if="$hasShelves" n:href="add, shelfId: $selectedShelf?->getId()">Přidat potravinu</a>
-        <a class="button button-outline" n:if="$selectedShelf" n:href="default, shelfId: null, status: $status">Všechny police</a>
+        <a class="button button-primary" n:if="$hasShelves" n:href="Food:add, shelfId: $selectedShelf?->getId(), returnTo: $foodNavigation">Přidat potravinu</a>
+        <a class="button button-outline" n:if="$selectedShelf" n:href="Food:default, shelfId: null, status: $status, page: 1">Všechny police</a>
     </div>
 </header>
 <nav class="actions" aria-label="Stav potravin">
     {foreach ['active' => 'Uložené', 'consumed' => 'Moje spotřebované', 'trashed' => 'Vyhozené v domácnosti'] as $value => $label}
         <a class="button {if $status === $value}button-primary{else}button-outline{/if}"
-            n:href="default, shelfId: $selectedShelf?->getId(), status: $value"
+            n:href="Food:default, shelfId: $selectedShelf?->getId(), status: $value, page: 1"
             n:attr="aria-current: $status === $value ? 'page' : null">{$label}</a>
     {/foreach}
 </nav>
@@ -38,31 +38,33 @@
     {foreach $foods as $food}
 
         <article class="card">
-            <a n:href="detail, id: $food->getId()">
-            <h3>{$food->getName()}</h3>
-            <p>{$food->getShelf()->getAppliance()->getName()} / {$food->getShelf()->getName()}</p>
+
+            <h3>
+                <a n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">{$food->getName()}</a>
+            </h3>
+            <p><a n:href="Appliance:detail, id: $food->getShelf()->getAppliance()->getId()">{$food->getShelf()->getAppliance()->getName()}</a> / <a n:href="Shelf:detail, id: $food->getShelf()->getId()">{$food->getShelf()->getName()}</a></p>
+            <p>Kategorie: {include '../Accessory/foodCategories.latte', food: $food}</p>
             <p><span class="food-value">{include '../Accessory/foodIcon.latte', icon: 'expiry'}<span>{if $food->getExpiry()}{$food->getExpiry()|date:'j. n. Y'}{else}Neuvedeno{/if}</span></span></p>
             {if $food->isConsumed()}
                 <p>Spotřebováno: {$food->getConsumedAt()|date:'j. n. Y H:i'}</p>
             {elseif $food->isTrashed()}
                 <p>Vyhozeno: {$food->getDiscardedAt()|date:'j. n. Y H:i'}</p>
             {/if}
-            <div class="actions">
+            <div n:class="actions, ($food->isConsumed() || $food->isTrashed()) ? food-restore-actions">
                 {if !$food->isConsumed() && !$food->isTrashed()}
-
-                    <a class="button button-outline" n:href="edit, id: $food->getId()">Upravit</a>
+                    <a class="button button-outline" n:href="Food:edit, id: $food->getId(), returnTo: $foodNavigation">Upravit</a>
                 <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Spotřebovat" data-tooltip="Spotřebovat">
-                    <a class="button button-primary" n:href="consume, id: $food->getId()">{include '../Accessory/foodActionIcon.latte', action: 'consume'}</a>
+                    <a class="button button-primary" n:href="Food:consume, id: $food->getId(), returnTo: $foodNavigation" >{include '../Accessory/foodActionIcon.latte', action: 'consume'}</a>
                 </span>
                 <span class="food-icon-tooltip" tabindex="0" role="img" aria-label="Vyhodit" data-tooltip="Vyhodit">
-                    <a class="button button-danger" n:href="trash, id: $food->getId()">{include '../Accessory/foodActionIcon.latte', action: 'trash'}</a>
+                    <a class="button button-danger" n:href="Food:trash, id: $food->getId(), returnTo: $foodNavigation">{include '../Accessory/foodActionIcon.latte', action: 'trash'}</a>
                 </span>
                 {else}
-                    <a class="button button-primary" n:href="restore, id: $food->getId()">Vrátit do zásob</a>
-                    <a class="button button-outline" n:href="detail, id: $food->getId()">Zobrazit detail</a>
+                    <a class="button button-primary" n:href="Food:restore, id: $food->getId(), returnTo: $foodNavigation">Vrátit do zásob</a>
+                    <a class="button button-outline" n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">Zobrazit detail</a>
                 {/if}
             </div>
-            </a>
+
         </article>
 
     {else}
@@ -78,4 +80,14 @@
         </div>
     {/foreach}
 </section>
+{if $paginator->getPageCount() > 1}
+    <nav class="pagination" aria-label="Stránkování potravin">
+        {for $pageNumber = 1; $pageNumber <= $paginator->getPageCount(); $pageNumber++}
+            <a class="pagination-page"
+                n:href="Food:default, page: $pageNumber, shelfId: $selectedShelf?->getId(), status: $status"
+                aria-label="Stránka {$pageNumber}"
+                n:attr="aria-current: $paginator->getPage() === $pageNumber ? 'page' : null">{$pageNumber}</a>
+        {/for}
+    </nav>
+{/if}
 {/block}
