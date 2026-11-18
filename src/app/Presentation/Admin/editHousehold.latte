@@ -10,7 +10,7 @@
         ]}
         <h1>{$household->getName()}</h1><p>Údaje domácnosti a správa členů.</p>
     </div>
-    <a class="button button-outline" n:href="households">Zpět na domácnosti</a>
+    <a class="button button-outline" n:href="Admin:households">Zpět na domácnosti</a>
 </header>
 <div class="stack">
     <section class="card">
@@ -26,7 +26,7 @@
         <p>{if $household->getModerator()}Správce: {$household->getModerator()->getName()} {$household->getModerator()->getSurname()}{else}Domácnost nemá správce. Přidejte člena a nastavte jej jako správce.{/if}</p>
         {if $members}
             <ul>
-                <li n:foreach="$members as $member"><a n:href="editUser, id: $member->getId()">{$member->getName()} {$member->getSurname()}</a> ({$member->getEmail()}){if $household->getModerator() === $member} – správce{/if}</li>
+                <li n:foreach="$members as $member"><a n:href="Admin:editUser, id: $member->getId()">{$member->getName()} {$member->getSurname()}</a> ({$member->getEmail()}){if $household->getModerator() === $member} – správce{/if}</li>
             </ul>
             <p>Odebráním správce zůstane domácnost bez správce. Nového můžete určit z jejích členů.</p>
             {form memberForm}

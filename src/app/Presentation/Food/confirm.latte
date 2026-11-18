@@ -8,7 +8,7 @@
 <section class="form-page">
     <header class="page-header">
         <div>
-            <small>Domácnost / Potraviny</small>
+            {include 'breadcrumbs.latte', label: $confirmationLabel}
             <h1>{$confirmationLabel}</h1>
             <p>{$food->getName()}</p>
         </div>
@@ -20,7 +20,7 @@
             <button n:name="send" class="button {$buttonClass}">
                 {$form['send']->getCaption()}
             </button>
-            <a class="button button-outline" n:href="default">Zrušit</a>
+            <a class="button button-outline" href="{$presenter->link($cancelDestination, $cancelParameters)}">Zrušit</a>
         </div>
     {/form}
 </section>

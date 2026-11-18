@@ -1,0 +1,18 @@
+{varType string $label}
+{varType App\Model\Entity\ShelfEntity|null $returnShelf}
+{varType array $foodNavigation}
+{varType string $backDestination}
+{varType array $backParameters}
+<small>
+    <a n:href="Home:default">Domácnost</a> /
+    {if $foodNavigation['source'] === 'shelf'}
+        <a n:href="Appliance:detail, id: $returnShelf->getAppliance()->getId()">{$returnShelf->getAppliance()->getName()}</a> /
+        <a href="{$presenter->link($backDestination, $backParameters)}">{$returnShelf->getName()}</a> /
+    {else}
+        <a href="{$presenter->link($backDestination, $backParameters)}">Potraviny{if $returnShelf} – {$returnShelf->getName()}{/if}</a> /
+    {/if}
+    {if isset($food) && $presenter->getAction() !== 'detail'}
+        <a n:href="Food:detail, id: $food->getId(), returnTo: $foodNavigation">{$food->getName()}</a> /
+    {/if}
+    <span aria-current="page">{$label}</span>
+</small>

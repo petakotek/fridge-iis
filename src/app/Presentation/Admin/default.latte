@@ -7,7 +7,7 @@
         {include 'breadcrumbs.latte', section: 'Uživatelé', destination: 'Admin:default'}
         <h1>Správa uživatelů</h1><p>Účty, přihlašovací údaje a systémové role všech uživatelů.</p>
     </div>
-    <div class="actions"><a class="button button-primary" n:href="createUser">Přidat uživatele</a><a class="button button-outline" n:href="households">Správa domácností</a></div>
+    <div class="actions"><a class="button button-primary" n:href="Admin:createUser">Přidat uživatele</a><a class="button button-outline" n:href="Admin:households">Správa domácností</a></div>
 </header>
 <section class="stack">
     <div class="table-scroll">
@@ -19,8 +19,8 @@
                     <td>{$account->getName()} {$account->getSurname()}</td>
                     <td>{$account->getEmail()}</td>
                     <td>{if $account->isAdmin()}Administrátor{elseif $account->getHousehold()?->getModerator() === $account}Správce domácnosti{else}Registrovaný uživatel{/if}</td>
-                    <td>{if $account->getHousehold()}<a n:href="editHousehold, id: $account->getHousehold()->getId()">{$account->getHousehold()->getName()}</a>{else}Bez domácnosti{/if}</td>
-                    <td><div class="actions"><a class="button button-outline" n:href="editUser, id: $account->getId()">Upravit</a><a class="button button-danger" n:href="deleteUser, id: $account->getId()" n:if="$account !== $currentUser">Smazat</a></div></td>
+                    <td>{if $account->getHousehold()}<a n:href="Admin:editHousehold, id: $account->getHousehold()->getId()">{$account->getHousehold()->getName()}</a>{else}Bez domácnosti{/if}</td>
+                    <td><div class="actions"><a class="button button-outline" n:href="Admin:editUser, id: $account->getId()">Upravit</a><a class="button button-danger" n:href="Admin:deleteUser, id: $account->getId()" n:if="$account !== $currentUser">Smazat</a></div></td>
                 </tr>
             </tbody>
         </table>

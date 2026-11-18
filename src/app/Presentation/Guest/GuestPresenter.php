@@ -9,6 +9,7 @@ use App\Model\Services\HouseholdService;
 use App\Model\Services\ShelfService;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\Presenter;
+use Nette\Utils\Paginator;
 
 final class GuestPresenter extends Presenter
 {
@@ -47,18 +48,36 @@ final class GuestPresenter extends Presenter
         }
     }
 
-    public function renderDefault(): void
+    public function renderDefault(array $pages = []): void
     {
+        $requestedPages = $pages;
+        $pages = [];
         $appliances = [];
         foreach ($this->appliances->getAppliances($this->household) as $appliance) {
             $shelves = [];
             foreach ($this->shelves->getShelves($appliance) as $shelf) {
-                $shelves[] = ['shelf' => $shelf, 'foods' => $this->foods->getFoodsByShelf($shelf)];
+                $paginator = new Paginator;
+                $paginator->setItemsPerPage(2);
+                $paginator->setItemCount($this->foods->getFoodCount($this->household, $shelf));
+                $page = filter_var($requestedPages[$shelf->getId()] ?? 1, FILTER_VALIDATE_INT);
+                $paginator->setPage($page === false ? 1 : $page);
+                $pages[$shelf->getId()] = $paginator->getPage();
+                $shelves[] = [
+                    'shelf' => $shelf,
+                    'foods' => $this->foods->getFoods(
+                        $this->household,
+                        $paginator->getItemsPerPage(),
+                        $paginator->getOffset(),
+                        $shelf,
+                    ),
+                    'paginator' => $paginator,
+                ];
             }
             $appliances[] = ['appliance' => $appliance, 'shelves' => $shelves];
         }
         $this->template->household = $this->household;
         $this->template->appliances = $appliances;
+        $this->template->pages = $pages;
     }
 
     protected function createComponentLeaveForm(): Form

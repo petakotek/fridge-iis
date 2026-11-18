@@ -29,6 +29,8 @@ final class AppliancePresenter extends AuthenticatedPresenter
     public function actionDetail(int $id): void
     {
         $this->loadAppliance($id);
+        $this->template->appliance = $this->selectedAppliance;
+        $this->template->household = $this->selectedAppliance->getHousehold();
         $this->template->shelves = $this->shelves->getShelves($this->selectedAppliance);
         $this->template->isModerator = $this->currentUser->getHousehold()?->getModerator() === $this->currentUser;
     }
@@ -73,7 +75,7 @@ final class AppliancePresenter extends AuthenticatedPresenter
         $form = $this->nameForm('Vytvořit spotřebič');
         $form->onSuccess[] = function (Form $form, $data): void {
             try {
-                $this->appliance->addAppliance(
+                $appliance = $this->appliance->addAppliance(
                     $this->currentUser->getHousehold(), $this->currentUser, $data->name,
                 );
             } catch (\DomainException|\InvalidArgumentException) {
@@ -81,7 +83,7 @@ final class AppliancePresenter extends AuthenticatedPresenter
                 return;
             }
             $this->flashMessage('Spotřebič byl vytvořen.');
-            $this->redirect('Home:default');
+            $this->redirect('detail', ['id' => $appliance->getId()]);
         };
         return $form;
     }
@@ -101,7 +103,7 @@ final class AppliancePresenter extends AuthenticatedPresenter
                 return;
             }
             $this->flashMessage('Spotřebič byl upraven.');
-            $this->redirect('Home:default');
+            $this->redirect('detail', ['id' => $this->selectedAppliance->getId()]);
         };
         return $form;
     }

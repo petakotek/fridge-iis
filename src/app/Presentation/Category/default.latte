@@ -6,9 +6,9 @@
 
 {define categoryActions, App\Model\Entity\CategoryEntity $category}
     <span class="actions" n:if="$isModerator">
-        <a class="button button-outline" n:href="create, parentId: $category->getId()">Přidat podkategorii<span class="visually-hidden"> do {$category->getName()}</span></a>
-        <a class="button button-outline" n:href="edit, id: $category->getId()">Upravit<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
-        <a class="button button-danger" n:href="delete, id: $category->getId()">Smazat<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
+        <a class="button button-outline" n:href="Category:create, parentId: $category->getId()">Přidat podkategorii<span class="visually-hidden"> do {$category->getName()}</span></a>
+        <a class="button button-outline" n:href="Category:edit, id: $category->getId()">Upravit<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
+        <a class="button button-danger" n:href="Category:delete, id: $category->getId()">Smazat<span class="visually-hidden"> kategorii {$category->getName()}</span></a>
     </span>
 {/define}
 
@@ -49,7 +49,7 @@
         <p>Kategorie pro přehledné třídění potravin v domácnosti.</p>
     </div>
     <div class="actions" n:if="$isModerator">
-        <a class="button button-primary" n:href="create">Přidat kategorii</a>
+        <a class="button button-primary" n:href="Category:create">Přidat kategorii</a>
     </div>
 </header>
 
