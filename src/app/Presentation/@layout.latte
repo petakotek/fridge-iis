@@ -20,10 +20,15 @@
 	{* Další odkazy v postranním panelu stačí přidat do tohoto seznamu. *}
 	{var $navigation = [
 		['label' => 'Přehled', 'destination' => 'Home:default'],
-		['label' => 'Potraviny', 'destination' => 'Food:default'],
-		['label' => 'Profil spotřeby', 'destination' => 'Consumption:default'],
-		['label' => 'Kategorie', 'destination' => 'Category:default', 'current' => 'Category:*'],
 	]}
+	{if $currentUser->getHousehold() !== null}
+		{var $navigation = [
+			['label' => 'Přehled', 'destination' => 'Home:default'],
+			['label' => 'Potraviny', 'destination' => 'Food:default'],
+			['label' => 'Profil spotřeby', 'destination' => 'Consumption:default'],
+			['label' => 'Kategorie', 'destination' => 'Category:default', 'current' => 'Category:*'],
+		]}
+	{/if}
 	{if $currentUser->isAdmin()}
 		{var $navigation = [
 			['label' => 'Uživatelé', 'destination' => 'Admin:default'],
