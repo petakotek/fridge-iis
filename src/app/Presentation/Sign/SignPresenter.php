@@ -36,25 +36,56 @@ final class SignPresenter extends Nette\Application\UI\Presenter
         }
     }
 
+    /**
+     * Invite link target: anonymous visitors enter the household as guests,
+     * logged-in users go to the membership request page.
+     */
+    public function actionGuest(string $token = ""): void
+    {
+        $token = trim($token);
+        if ($this->getUser()->isLoggedIn()) {
+            $this->redirect("Household:request", ["token" => $token]);
+        }
+        try {
+            $household = $this->householdService->getHouseholdByToken($token);
+        } catch (\InvalidArgumentException) {
+            $this->flashMessage(
+                "Pozvánkový odkaz je neplatný nebo už vypršel.",
+                "error",
+            );
+            $this->redirect("in");
+        }
+        $this->enterAsGuest($household->getId(), $token);
+    }
+
+    private function enterAsGuest(int $householdId, string $token): void
+    {
+        $session = $this->getSession("guest");
+        $session->setExpiration("2 hours");
+        $session->set("householdId", $householdId);
+        $session->set("token", $token);
+        $this->redirect("Guest:default");
+    }
+
     protected function createComponentGuestForm(): Form
     {
         $form = new Form();
-        $form->addText("token", "Token domácnosti")->setRequired("Zadejte token.");
+        $form
+            ->addText("token", "Token domácnosti")
+            ->setRequired("Zadejte token.");
         $form->addSubmit("send", "Vstoupit jako host");
 
         $form->onSuccess[] = function (Form $form, \stdClass $data): void {
             $token = trim($data->token);
             try {
-                $household = $this->householdService->getHouseholdByToken($token);
+                $household = $this->householdService->getHouseholdByToken(
+                    $token,
+                );
             } catch (\InvalidArgumentException) {
                 $form->addError("Domácnost s tímto tokenem nebyla nalezena.");
                 return;
             }
-            $session = $this->getSession("guest");
-            $session->setExpiration("2 hours");
-            $session->set("householdId", $household->getId());
-            $session->set("token", $token);
-            $this->redirect("Guest:default");
+            $this->enterAsGuest($household->getId(), $token);
         };
         return $form;
     }
@@ -107,7 +138,7 @@ final class SignPresenter extends Nette\Application\UI\Presenter
                     $data->email,
                     $data->password,
                 );
-            } catch (\DomainException|\InvalidArgumentException $e) {
+            } catch (\DomainException | \InvalidArgumentException $e) {
                 $form->addError($e->getMessage());
                 return;
             }

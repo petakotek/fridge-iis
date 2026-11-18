@@ -24,11 +24,11 @@
 	</section>
 	<section class="card">
 		<h2>Pozvánkový token</h2>
-		<p>Tento token předejte lidem, kteří chtějí požádat o členství ve vaší domácnosti. Pozvánkový odkaz jim token předvyplní. Vygenerováním nového tokenu přestane původní token fungovat. Stávajících členů a žádostí se změna nedotkne.</p>
+		<p>Tento token předejte lidem, kteří chtějí požádat o členství ve vaší domácnosti. Pozvánkový odkaz otevře domácnost v režimu hosta (jen pro čtení); přihlášený uživatel bez domácnosti přes něj může rovnou požádat o členství. Vygenerováním nového tokenu přestane původní token fungovat. Stávajících členů a žádostí se změna nedotkne.</p>
 		<div class="actions invite-actions">
 			<code>{$household->getToken()}</code>
 			<button type="button" class="button button-outline" data-copy-text="{$household->getToken()}">Kopírovat token</button>
-			<button type="button" class="button button-outline" data-copy-url="{link Household:request, token: $household->getToken()}">Kopírovat odkaz</button>
+			<button type="button" class="button button-outline" data-copy-url="{link Sign:guest, token: $household->getToken()}">Kopírovat odkaz</button>
 			{form regenerateTokenForm}
 				{input send, class: 'button button-outline'}
 			{/form}
