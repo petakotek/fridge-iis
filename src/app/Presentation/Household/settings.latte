@@ -45,6 +45,23 @@
 		{/form}
 	</section>
 	<section class="card">
+		<h2>Členové domácnosti</h2>
+		<ul>
+			<li n:foreach="$members as $member">
+				{$member->getName()} {$member->getSurname()} ({$member->getEmail()})
+				<span class="badge" n:if="$member === $household->getModerator()">Správce</span>
+			</li>
+		</ul>
+		{if count($members) > 1}
+			<p>Odebraný člen ztratí přístup k domácnosti, jeho uživatelský účet zůstane zachován.</p>
+			{form removeMemberForm, onsubmit: "return confirm('Opravdu odebrat vybraného člena z domácnosti?')"}
+				<div class="notice error" n:foreach="$form->getErrors() as $error">{$error}</div>
+				<div class="field">{label memberId /}{input memberId}</div>
+				{input send, class: 'button button-danger'}
+			{/form}
+		{/if}
+	</section>
+	<section class="card">
 		<h2>Předat správu domácnosti</h2>
 		<p>Vybraný člen se stane správcem. Vy zůstanete členem domácnosti a přijdete o přístup k její správě.</p>
 		{if count($members) > 1}

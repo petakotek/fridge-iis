@@ -150,6 +150,39 @@ final class HouseholdPresenter extends AuthenticatedPresenter
         return $form;
     }
 
+    protected function createComponentRemoveMemberForm(): Form
+    {
+        $household = $this->currentUser->getHousehold();
+        if ($this->getAction() !== 'settings' || $household === null || $household->getModerator() !== $this->currentUser) {
+            $this->error('Přístup odepřen.', 403);
+        }
+        $options = [];
+        foreach ($this->households->getHouseholdMembers($household) as $member) {
+            if ($member !== $this->currentUser) {
+                $options[$member->getId()] = $member->getName() . ' ' . $member->getSurname() . ' (' . $member->getEmail() . ')';
+            }
+        }
+
+        $form = new Form;
+        $form->addProtection('Platnost formuláře vypršela. Obnovte stránku a zkuste to znovu.')
+            ->setRequired();
+        $form->addSelect('memberId', 'Člen domácnosti *', $options)
+            ->setPrompt('Vyberte člena')->setRequired('Vyberte člena domácnosti.');
+        $form->addSubmit('send', 'Odebrat člena');
+        $form->onSuccess[] = function (Form $form, $data) use ($household): void {
+            try {
+                $member = $this->users->getUserById((int) $data->memberId);
+                $this->households->removeHouseholdUser($household, $this->currentUser, $member);
+            } catch (\DomainException|\InvalidArgumentException) {
+                $form->addError('Člena se nepodařilo odebrat. Obnovte stránku a ověřte jeho členství.');
+                return;
+            }
+            $this->flashMessage('Člen byl odebrán z domácnosti. Jeho účet zůstává zachován.');
+            $this->redirect('this');
+        };
+        return $form;
+    }
+
     protected function createComponentTransferModeratorForm(): Form
     {
         $household = $this->currentUser->getHousehold();

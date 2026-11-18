@@ -101,8 +101,9 @@ final class HouseholdService extends BaseService
 
     public function removeHouseholdUser(HouseholdEntity $household, UserEntity $moderator, UserEntity $remover): void {
         Verification::assertModerator($household, $moderator);
+        Verification::assertHouseholdUser($household, $remover);
 
-        if ($remover === $moderator) {
+        if ($remover === $household->getModerator()) {
             throw new \DomainException('Moderator cannot be removed by himself.');
         }
         $household->removeUser($remover);
