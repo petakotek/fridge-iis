@@ -1,10 +1,13 @@
 .DEFAULT_GOAL := help
-.PHONY: help start stop up down lint lint-php lint-templates
+.PHONY: help start stop up down test lint lint-php lint-templates submission
 
 COMPOSE := docker compose -f .development/compose.yaml
 
 help:
-	@printf 'Použití:\n  make start  Spustí aplikaci a vypíše její adresu\n  make stop   Zastaví aplikaci (data zůstanou zachována)\n  make lint   Spustí PHPStan a kontrolu Latte šablon\n'
+	@printf 'Použití:\n  make start       Spustí aplikaci a vypíše její adresu\n  make stop        Zastaví aplikaci (data zůstanou zachována)\n  make lint        Spustí PHPStan a kontrolu Latte šablon\n  make submission  Vytvoří odevzdávací ZIP do 5 MB bez knihoven\n'
+
+submission:
+	@$(MAKE) -C .development $@
 
 start up:
 	@$(COMPOSE) up -d

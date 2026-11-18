@@ -1,16 +1,12 @@
-.PHONY: release clean
+.DEFAULT_GOAL := submission
+.PHONY: submission clean
 
-release:
-	@mkdir -p ./dist
-	@rm -f ./dist/xvoldrv00-release.zip
-	@cd ../src && zip -q -r ../.development/dist/xvoldrv00-release.zip . \
-		-x '.env' '.env.*' '*/.env' '*/.env.*' 'temp/cache/*'
-	@cd ../src && zip -q ../.development/dist/xvoldrv00-release.zip .env.example
-	@echo "Release created: ./dist/xvoldrv00-release.zip"
-	scp ./dist/xvoldrv00-release.zip xvoldrv00@eva.fit.vutbr.cz:WWW/IIS/
-	@echo unzip the .zip
-	@echo then run "chmod -R o=rX,g= ~/WWW"
-	ssh xvoldrv00@eva.fit.vutbr.cz
+PROJECT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
+DIST_DIR := $(PROJECT_DIR)/.development/dist
+LOGIN ?= xvoldrv00
+
+submission:
+	@python3 "$(PROJECT_DIR)/.development/package.py" --login "$(LOGIN)"
 
 clean:
-	@rm -rf ./dist
+	@rm -rf "$(DIST_DIR)"

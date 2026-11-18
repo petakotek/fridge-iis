@@ -93,7 +93,41 @@ Při odebrání nebo smazání správce domácnost zůstane bez správce, dokud 
 administrátor neurčí jiného. Smazání domácnosti zachová uživatelské účty.
 Vlastní účet nelze smazat ani si odebrat administrátorskou roli.
 
-## Další nastavení
+## Archiv pro odevzdání a přípravu nasazení
+
+Následující příkazy se spouštějí z kořene repozitáře. Fungují také ze složky
+`.development`. Pro balení je potřeba Python 3.
+
+```bash
+make submission
+```
+
+`submission` vytvoří `.development/dist/xvoldrv00.zip`: zdrojové kódy,
+`doc.html`, obrázky dokumentace, migrace, konfigurační příklady a nástroje
+pro sestavení. Soubor `naplneni_db.sql` se do archivu nepřidává.
+Vynechá knihovny, Node.js závislosti, sestavený frontend, místní
+`.env`, cache a logy. Ověří odkazy na soubory v dokumentaci a limit 5 MB.
+Závislosti a frontend se po rozbalení připraví podle návodu v `doc.html`.
+
+Login v názvu archivu lze přepsat:
+
+```bash
+make submission LOGIN=xlogin00
+```
+
+Stejný archiv slouží jako zdroj pro nasazení. Po rozbalení v jeho složce
+`src` nainstalujte závislosti a sestavte frontend:
+
+```bash
+composer install --no-dev --prefer-dist --optimize-autoloader
+npm ci
+npm run build
+```
+
+Konfigurace `.env` s `env=prod`, přenos aplikace na server, přístupová práva
+a databázové migrace jsou popsané v `doc.html`. Balicí příkaz pouze vytvoří ZIP.
+
+## Produkční připojení k databázi
 
 Pro produkci se lokální síťový DSN nahradí unixovým socketem:
 
